@@ -1,0 +1,308 @@
+/* Print-specific styles for organizational reports */
+
+@media print {
+  /* Global print styles */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Arial', sans-serif !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    color: #000 !important;
+    background: white !important;
+  }
+
+  /* Hide unnecessary elements */
+  .no-print,
+  .print-hidden,
+  button,
+  .sidebar,
+  .navigation,
+  .header-controls {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+    direction: rtl;
+  }
+
+  /* Page headers for multi-page support */
+  @page :first {
+    margin-top: 20mm;
+    @top-center {
+      content: "التقرير الموقف اليومي";
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+
+  @page :left {
+    margin-left: 20mm;
+    margin-right: 15mm;
+    @top-left {
+      content: "التقرير الموقف اليومي";
+      font-size: 12px;
+    }
+    @bottom-left {
+      content: "صفحة " counter(page) " من " counter(pages);
+      font-size: 10px;
+    }
+  }
+
+  @page :right {
+    margin-left: 15mm;
+    margin-right: 20mm;
+    @top-right {
+      content: "التقرير الموقف اليومي";
+      font-size: 12px;
+    }
+    @bottom-right {
+      content: "صفحة " counter(page) " من " counter(pages);
+      font-size: 10px;
+    }
+  }
+
+  /* Print container */
+  .print-container {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    direction: rtl !important;
+    font-family: 'Arial', sans-serif !important;
+  }
+
+  /* Header styles */
+  .print-header {
+    text-align: center !important;
+    border-bottom: 2px solid #000 !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 20px !important;
+    page-break-after: avoid !important;
+  }
+
+  .print-title {
+    font-size: 20px !important;
+    font-weight: bold !important;
+    margin-bottom: 8px !important;
+    color: #000 !important;
+  }
+
+  .print-date {
+    font-size: 14px !important;
+    color: #555 !important;
+  }
+
+  /* Statistics grid */
+  .print-stats {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 25px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-stat-card {
+    border: 1px solid #ccc !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    background: #f9f9f9 !important;
+  }
+
+  .print-stat-title {
+    font-size: 11px !important;
+    color: #666 !important;
+    margin-bottom: 4px !important;
+    font-weight: 500 !important;
+  }
+
+  .print-stat-value {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    margin-bottom: 4px !important;
+    color: #000 !important;
+  }
+
+  .print-stat-desc {
+    font-size: 9px !important;
+    color: #777 !important;
+  }
+
+  /* Unit sections */
+  .print-unit {
+    margin-bottom: 25px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-unit:nth-child(odd) {
+    page-break-before: auto !important;
+  }
+
+  /* Large units that might need page break */
+  .print-unit.large-unit {
+    page-break-before: always !important;
+  }
+
+  .print-unit-header {
+    background: #f0f0f0 !important;
+    padding: 12px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px 6px 0 0 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .print-unit-title {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    color: #000 !important;
+  }
+
+  .print-unit-stats {
+    display: flex !important;
+    gap: 12px !important;
+    font-size: 11px !important;
+    color: #555 !important;
+  }
+
+  /* Table styles */
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1px solid #ccc !important;
+    font-size: 10px !important;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #ccc !important;
+    padding: 6px 4px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+
+  .print-table th {
+    background: #e8e8e8 !important;
+    font-weight: bold !important;
+    color: #000 !important;
+    font-size: 11px !important;
+  }
+
+  .print-employee-name {
+    text-align: right !important;
+    font-weight: 600 !important;
+    max-width: 120px !important;
+  }
+
+  .print-employee-code {
+    color: #666 !important;
+    font-size: 9px !important;
+    margin-top: 2px !important;
+  }
+
+  /* Badge styles */
+  .print-badge {
+    display: inline-block !important;
+    padding: 2px 5px !important;
+    border-radius: 3px !important;
+    font-size: 8px !important;
+    font-weight: bold !important;
+    border: 1px solid !important;
+  }
+
+  .print-badge-late {
+    background: #fee2e2 !important;
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+  }
+
+  .print-badge-early {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+    border-color: #6b7280 !important;
+  }
+
+  .print-badge-normal {
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+    border-color: #16a34a !important;
+  }
+
+  /* Page break controls */
+  .print-no-break {
+    page-break-inside: avoid !important;
+  }
+
+  .print-break-before {
+    page-break-before: always !important;
+  }
+
+  .print-break-after {
+    page-break-after: always !important;
+  }
+
+  /* Footer styles */
+  .print-footer {
+    margin-top: 25px !important;
+    text-align: center !important;
+    font-size: 10px !important;
+    color: #666 !important;
+    border-top: 1px solid #ccc !important;
+    padding-top: 12px !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* RTL support */
+  .print-container[dir="rtl"] {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  .print-container[dir="rtl"] .print-table {
+    direction: rtl !important;
+  }
+
+  .print-container[dir="rtl"] .print-table th,
+  .print-container[dir="rtl"] .print-table td {
+    text-align: right !important;
+  }
+
+  .print-container[dir="rtl"] .print-table th:first-child,
+  .print-container[dir="rtl"] .print-table td:first-child {
+    text-align: right !important;
+  }
+
+  /* Responsive adjustments for smaller content */
+  @page :first {
+    margin-top: 20mm;
+  }
+
+  /* Ensure icons don't print */
+  .lucide,
+  .icon,
+  svg {
+    display: none !important;
+  }
+
+  /* Override any conflicting styles */
+  .print-container * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
+
+/* Screen styles for print preview */
+@media screen {
+  .print-container {
+    display: none;
+  }
+}

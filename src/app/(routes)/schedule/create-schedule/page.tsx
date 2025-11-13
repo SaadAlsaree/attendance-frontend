@@ -1,0 +1,61 @@
+﻿import React, { Suspense } from 'react';
+import PageContainer from '@/components/layout/page-container';
+import FormCardSkeleton from '@/components/form-card-skeleton';
+import { SearchParams } from 'nuqs/server';
+
+import { ScheduleForm } from '@/features/schedule';
+import { employeeService } from '@/features/employee/api/employees.service';
+import { EmployeeData } from '@/features/employee/types/employees';
+import { shiftService } from '@/features/shift/api/shift.service';
+import { ShiftData } from '@/features/shift';
+import { searchParamsCache } from '@/lib/searchparams';
+
+export const metadata = {
+  title: 'إضافة جدول دوام جديد',
+  description: 'إضافة جدول دوام جديد'
+};
+
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+const NewMailFilePage = async (props: pageProps) => {
+  const searchParams = await props.searchParams;
+
+  // تهيئة search params cache
+  searchParamsCache.parse(searchParams);
+
+  const searchQuery = searchParamsCache.get('employeeSearch');
+
+  console.log(searchQuery);
+
+  const shifts = await shiftService.getShiftsList({
+    page: 1,
+    pageSize: 100
+  });
+  const shiftsList = shifts?.data;
+
+  // جلب الموظفين مع أو بدون بحث
+  const employees = await employeeService.getEmployees({
+    page: 1,
+    pageSize: 50,
+    ...(searchQuery && { searchTerm: searchQuery })
+  });
+  const employeesList = (employees?.data?.data || []) as EmployeeData[];
+
+  return (
+    <PageContainer scrollable>
+      <div className='flex-1 space-y-4'>
+        <Suspense fallback={<FormCardSkeleton />}>
+          <ScheduleForm
+            initialData={null}
+            emploeesList={employeesList}
+            shifts={shiftsList as unknown as ShiftData[]}
+          />
+        </Suspense>
+      </div>
+    </PageContainer>
+  );
+};
+
+export default NewMailFilePage;
