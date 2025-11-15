@@ -107,7 +107,7 @@ export interface UpdateAttendanceScheduleRequest {
     scheduleType: string;
     isActive: boolean;
     notes?: string;
-    scheduleDays: {
+    scheduleDays?: {
         id?: string; // Optional for new days
         attendanceScheduleId: string;
         dayOfWeek: number;

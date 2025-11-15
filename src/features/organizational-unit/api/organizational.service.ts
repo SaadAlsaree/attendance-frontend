@@ -92,7 +92,7 @@ export const organizationalService = {
                 return null;
             }
 
-            return response.data as boolean || null;
+            return response;
         } catch (error) {
             return null;
         }

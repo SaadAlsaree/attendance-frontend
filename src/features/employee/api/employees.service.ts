@@ -24,25 +24,24 @@ export const employeeService = {
             const formData = new FormData();
 
             // Employee information
-            formData.append('EmployeeNumber', data.code);
+            formData.append('EmpId', data.empId);
             formData.append('FirstName', data.firstName);
             formData.append('SecondName', data.secondName);
             formData.append('ThirdName', data.thirdName);
             formData.append('FourthName', data.fourthName);
             formData.append('FamilyName', data.familyName);
-            formData.append('Email', data.email);
-            formData.append('PhoneNumber', data.rfid);
+            formData.append('RFID', data.rfid);
             formData.append('OrganizationalUnitId', data.organizationalUnitId);
 
-            if (data.managerIdString) {
-                formData.append('ManagerIdString', data.managerIdString);
+            if (data.managerId) {
+                formData.append('ManagerId', data.managerId);
             }
 
             formData.append('IsManager', data.isManager.toString());
+            formData.append('Role', data.role);
 
             // File uploads
             formData.append('FaceImage', data.faceImage);
-
 
             const response = await axiosInstance.post(`${baseUrl}/auth/register`, formData, {
                 headers: {
@@ -68,27 +67,24 @@ export const employeeService = {
             const formData = new FormData();
 
             // Employee information
-            formData.append('Code', data.code);
+            formData.append('EmpId', data.empId);
             formData.append('FirstName', data.firstName);
             formData.append('SecondName', data.secondName);
             formData.append('ThirdName', data.thirdName);
             formData.append('FourthName', data.fourthName);
             formData.append('FamilyName', data.familyName);
-            formData.append('Email', data.email);
-            formData.append('Rfid', data.rfid);
-
+            formData.append('RFID', data.rfid);
             formData.append('OrganizationalUnitId', data.organizationalUnitId);
 
-            if (data.managerIdString) {
-                formData.append('ManagerIdString', data.managerIdString);
+            if (data.managerId) {
+                formData.append('ManagerId', data.managerId);
             }
 
             formData.append('IsManager', data.isManager.toString());
-
+            formData.append('Role', data.role);
 
             // File uploads
             formData.append('FaceImage', data.faceImage);
-
 
             const response = await axiosClient.post(`${baseUrl}/auth/register`, formData, {
                 headers: {

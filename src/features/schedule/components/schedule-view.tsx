@@ -189,7 +189,10 @@ export default function ScheduleView({
             {schedule.excludedDates.length > 0 ? (
               schedule.excludedDates.map((date) => (
                 <Badge key={date} variant='secondary'>
-                  {formatDate(date)}
+                 <div className='flex flex-col items-center gap-2'>
+                 <p className='text-black font-medium text-sm'>{getDayName(date)}</p>
+                 <p className='text-muted-foreground text-sm'>{formatDate(date)}</p>
+                  </div>
                 </Badge>
               ))
             ) : (

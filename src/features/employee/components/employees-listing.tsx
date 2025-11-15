@@ -23,7 +23,6 @@ export default async function EmployeesListing() {
   const totalEmployees = data?.data?.totalCount || 0;
   const employees = (data?.data?.data || []) as EmployeeData[];
 
-  console.log(totalEmployees);
 
   return (
     <EmployeeTable<EmployeeData, unknown>

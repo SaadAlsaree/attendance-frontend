@@ -38,11 +38,13 @@ import { RfidReader } from '@/components/ui/rfid-reader';
 import {
   EmployeeFormData,
   EmployeeData,
-  EmployeeUpdateRequest
+  EmployeeUpdateRequest,
+  Role
 } from '../types/employees';
 import {
   employeeFormSchemaWithCustomValidations,
-  newEmployeeFormSchema
+  newEmployeeFormSchema,
+  roleOptions
 } from '../utils/employees';
 import { Separator } from '@/components/ui/separator';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
@@ -80,17 +82,17 @@ export default function AddEditEmployeesForm({
         : newEmployeeFormSchema
     ),
     defaultValues: {
-      code: initialData?.code || '',
+      empId: initialData?.empId || '',
       firstName: initialData?.firstName || '',
       secondName: initialData?.secondName || '',
       thirdName: initialData?.thirdName || '',
       fourthName: initialData?.fourthName || '',
       familyName: initialData?.familyName || '',
-      email: initialData?.email || '',
       rfid: initialData?.rfid || '',
       organizationalUnitId: initialData?.organizationalUnitId || '',
-      managerIdString: initialData?.managerId || '',
+      managerId: initialData?.managerId || '',
       isManager: initialData?.isManager || false,
+      role: initialData?.role || Role.Employee,
       faceImage: null
     }
   });
@@ -130,16 +132,15 @@ export default function AddEditEmployeesForm({
       if (initialData) {
         const updateData: EmployeeUpdateRequest = {
           employeeId: initialData.id.toString(),
-          code: data.code,
+          empId: data.empId,
           firstName: data.firstName,
           secondName: data.secondName,
           thirdName: data.thirdName || '',
           fourthName: data.fourthName || '',
           familyName: data.familyName,
-          email: data.email,
           rfid: data.rfid,
           organizationalUnitId: data.organizationalUnitId,
-          managerIdString: data.managerIdString || '',
+          managerIdString: data.managerId || '',
           isManager: data.isManager
         };
 
@@ -161,17 +162,17 @@ export default function AddEditEmployeesForm({
       } else {
         // Prepare data for registration
         const registrationData = {
-          code: data.code,
+          empId: data.empId,
           firstName: data.firstName,
           secondName: data.secondName,
           thirdName: data.thirdName || '',
           fourthName: data.fourthName || '',
           familyName: data.familyName,
-          email: data.email,
           rfid: data.rfid,
           organizationalUnitId: data.organizationalUnitId,
-          managerIdString: data.managerIdString || '',
+          managerId: data.managerId || undefined,
           isManager: data.isManager,
+          role: data.role,
           faceImage: data.faceImage!
         };
 
@@ -215,12 +216,12 @@ export default function AddEditEmployeesForm({
               <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
                 <FormField
                   control={form.control}
-                  name='code'
+                  name='empId'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>الرقم الوظيفي</FormLabel>
+                      <FormLabel>معرف الموظف من الجهاز</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='الرقم الوظيفي' />
+                        <Input {...field} placeholder='معرف الموظف من الجهاز' />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -299,24 +300,6 @@ export default function AddEditEmployeesForm({
 
                 <FormField
                   control={form.control}
-                  name='email'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>البريد الإلكتروني</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type='email'
-                          placeholder='البريد الإلكتروني'
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name='rfid'
                   render={({ field }) => (
                     <FormItem>
@@ -353,6 +336,34 @@ export default function AddEditEmployeesForm({
                           {organizationalUnitsOptions.map((unit) => (
                             <SelectItem key={unit.value} value={unit.value}>
                               {unit.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='role'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الدور</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(value as Role)}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder='اختر الدور' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {roleOptions.map((role) => (
+                            <SelectItem key={role.value} value={role.value}>
+                              {role.label}
                             </SelectItem>
                           ))}
                         </SelectContent>

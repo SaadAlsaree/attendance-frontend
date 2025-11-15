@@ -72,7 +72,8 @@ import {
   formSchema,
   type FormData,
   formatSchedulePayload,
-  formatScheduleUpdatePayload
+  formatScheduleUpdatePayload,
+  formatDate
 } from '../utils/schedule';
 import { EmployeeData } from '@/features/employee/types/employees';
 import { ShiftData } from '@/features/shift';
@@ -171,9 +172,9 @@ export default function AttendanceScheduleForm({
     return jsDay === 0 ? 1 : jsDay + 1;
   };
 
-  // Generate schedule days based on date range
+  // Generate schedule days based on date range (only in create mode)
   useEffect(() => {
-    if (watchedStartDate && watchedEndDate) {
+    if (!initialData && watchedStartDate && watchedEndDate) {
       const start = new Date(watchedStartDate);
       const end = new Date(watchedEndDate);
       const diffInDays = differenceInDays(end, start);
@@ -195,36 +196,33 @@ export default function AttendanceScheduleForm({
         replace(newScheduleDays);
       }
     }
-  }, [watchedStartDate, watchedEndDate, replace]);
+  }, [watchedStartDate, watchedEndDate, replace, initialData]);
 
   const handleSubmit = async (data: FormData) => {
     setIsLoading(true);
 
-    // Additional validation
-    if (data.scheduleDays.length === 0) {
-      toast.error('يجب إضافة أيام للجدولة');
-      setIsLoading(false);
-      return;
-    }
+    // Additional validation (only in create mode)
+    if (!initialData) {
+      if (!data.scheduleDays || data.scheduleDays.length === 0) {
+        toast.error('يجب إضافة أيام للجدولة');
+        setIsLoading(false);
+        return;
+      }
 
-    const daysWithoutShifts = data.scheduleDays.filter(
-      (day) => day.isActive && !day.shiftId
-    );
-    if (daysWithoutShifts.length > 0) {
-      toast.error(`يجب اختيار وردية لـ ${daysWithoutShifts.length} يوم نشط`);
-      setIsLoading(false);
-      return;
+      const daysWithoutShifts = data.scheduleDays.filter(
+        (day) => day.isActive && !day.shiftId
+      );
+      if (daysWithoutShifts.length > 0) {
+        toast.error(`يجب اختيار وردية لـ ${daysWithoutShifts.length} يوم نشط`);
+        setIsLoading(false);
+        return;
+      }
     }
+    
     try {
       if (initialData) {
         // Transform form data to match UpdateAttendanceScheduleRequest interface
         const updateData = formatScheduleUpdatePayload(data, initialData.id!);
-
-        // Add IDs to existing schedule days
-        updateData.scheduleDays = data.scheduleDays.map((day, index) => ({
-          ...updateData.scheduleDays[index],
-          id: day.id || updateData.scheduleDays[index]?.id
-        }));
 
         const response = await authApiCall(async () => {
           return scheduleService.updateScheduleClient(
@@ -300,7 +298,6 @@ export default function AttendanceScheduleForm({
   };
 
   const addScheduleDay = () => {
-    const lastDay = fields[fields.length - 1];
     // Calculate next day of week using our format (1-7)
     append({
       shiftId: '',
@@ -349,11 +346,12 @@ export default function AttendanceScheduleForm({
   );
 
   // Check if all required fields are filled
-  const isFormValid =
-    formIsValid &&
-    scheduleDuration > 0 &&
-    hasScheduleDays &&
-    allActiveDaysHaveShifts;
+  const isFormValid = initialData
+    ? formIsValid && scheduleDuration > 0
+    : formIsValid &&
+      scheduleDuration > 0 &&
+      hasScheduleDays &&
+      allActiveDaysHaveShifts;
 
   return (
     <div className='mx-auto max-w-6xl space-y-8 p-6'>
@@ -380,8 +378,8 @@ export default function AttendanceScheduleForm({
         </Alert>
       )}
 
-      {/* Schedule Progress Alert */}
-      {totalScheduleDays > 0 && (
+      {/* Schedule Progress Alert - Only show in create mode */}
+      {!initialData && totalScheduleDays > 0 && (
         <Alert
           className={cn(
             'border-l-4',
@@ -401,8 +399,8 @@ export default function AttendanceScheduleForm({
         </Alert>
       )}
 
-      {/* Progress Bar */}
-      {totalScheduleDays > 0 && (
+      {/* Progress Bar - Only show in create mode */}
+      {!initialData && totalScheduleDays > 0 && (
         <div className='space-y-2'>
           <div className='text-muted-foreground flex justify-between text-sm'>
             <span>تقدم إكمال الجدولة</span>
@@ -693,8 +691,8 @@ export default function AttendanceScheduleForm({
           </CardContent>
         </Card>
 
-        {/* Schedule Days */}
-        {fields.length > 0 && (
+        {/* Schedule Days - Only show in create mode */}
+        {!initialData && fields.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
@@ -746,7 +744,7 @@ export default function AttendanceScheduleForm({
                   const currentDate = watchedStartDate
                     ? addDays(new Date(watchedStartDate), index)
                     : new Date();
-                  const dayName = getDayName(field.scheduleDayDate);
+                  const dayName = field.scheduleDayDate ? getDayName(field.scheduleDayDate) : '';
                   const isDayComplete = field.shiftId && field.isActive;
                   const isExcluded = form
                     .watch('excludedDates')
@@ -931,12 +929,13 @@ export default function AttendanceScheduleForm({
             {form.watch('excludedDates').length > 0 && (
               <div className='flex flex-wrap gap-2'>
                 {form.watch('excludedDates').map((date) => (
-                  <Badge
-                    key={date}
-                    variant='secondary'
-                    className='flex items-center gap-1'
-                  >
-                    {format(new Date(date), 'dd/MM/yyyy')}
+                 <Badge key={date} variant='secondary'>
+                 <div className='flex flex-col items-center gap-2'>
+                 <p className='text-black font-medium text-sm'>{getDayName(date)}</p>
+                 <p className='text-muted-foreground text-sm'>{formatDate(date)}</p>
+                  </div>
+              
+                    
                     <Button
                       type='button'
                       variant='ghost'
@@ -993,8 +992,8 @@ export default function AttendanceScheduleForm({
               <div className='text-muted-foreground text-right text-xs'>
                 {!formIsValid && 'يرجى إكمال جميع الحقول المطلوبة'}
                 {scheduleDuration <= 0 && ' - يجب تحديد فترة صحيحة'}
-                {!hasScheduleDays && ' - يجب إضافة أيام للجدولة'}
-                {!allActiveDaysHaveShifts &&
+                {!initialData && !hasScheduleDays && ' - يجب إضافة أيام للجدولة'}
+                {!initialData && !allActiveDaysHaveShifts &&
                   ' - يجب اختيار وردية لجميع الأيام النشطة'}
               </div>
             )}

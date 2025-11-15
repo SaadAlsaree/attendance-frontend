@@ -60,19 +60,7 @@ function hasRequiredRoles(
   return requiredRoles.includes(userRole as Role);
 }
 
-function hasAnyRole(
-  userRole: number | undefined,
-  requiredRoles: Role[]
-): boolean {
-  // If no roles are required, allow access
-  if (!requiredRoles.length) return true;
 
-  // If user has no role, deny access
-  if (!userRole) return false;
-
-  // Check if user role matches any of the required roles
-  return requiredRoles.some((role) => role === userRole);
-}
 
 // Helper function to filter navigation items based on user role
 function filterNavItemsByRole(
@@ -82,14 +70,14 @@ function filterNavItemsByRole(
   return items
     .filter((item) => {
       // Check if user has required roles for this item
-      const hasAccess = hasAnyRole(userRole, item.requiredRoles || []);
+      const hasAccess = hasRequiredRoles(userRole, item.requiredRoles || []);
 
       if (!hasAccess) return false;
 
       // If item has sub-items, filter them too
       if (item.items && item.items.length > 0) {
         const filteredSubItems = item.items.filter((subItem) =>
-          hasAnyRole(userRole, subItem.requiredRoles || [])
+          hasRequiredRoles(userRole, subItem.requiredRoles || [])
         );
 
         // Only show parent item if it has accessible sub-items

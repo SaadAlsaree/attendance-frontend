@@ -35,6 +35,15 @@ export interface UpdateUserRoleRequest {
     updatedBy: string;
 }
 
+export interface UpdateUserRequest {
+    username: string;
+    userLogin: string;
+    role: Role;
+    status: UserStatus;
+    isActive: boolean;
+    organizationalUnitId?: string;
+}
+
 export interface ResetPasswordRequest {
     userId: string;
     newPassword: string;
@@ -86,6 +95,24 @@ export enum Role {
     SystemManager = 10,
 }
 
+export enum UserStatus {
+    Active = 1,
+    Inactive = 2,
+    Suspended = 3,
+    Terminated = 4,
+}
+
+export const UserStatusDisplayNames: Record<UserStatus, string> = {
+    [UserStatus.Active]: "نشط",
+    [UserStatus.Inactive]: "غير نشط",
+    [UserStatus.Suspended]: "معلق",
+    [UserStatus.Terminated]: "منتهي",
+};
+
+export function getUserStatusDisplayName(status: UserStatus): string {
+    return UserStatusDisplayNames[status] || "غير محدد";
+}
+
 export const RoleDisplayNames: Record<Role, string> = {
     [Role.Admin]: "مسؤل",
     [Role.User]: "مستخدم",
@@ -106,8 +133,8 @@ export function getRoleDisplayName(role: Role): string {
 // Helper function to get valid role options
 export function getValidRoles(): Array<{ value: string; label: string }> {
     return Object.entries(Role)
-        .filter(([key, value]) => isNaN(Number(key))) // Filter out numeric keys
-        .map(([key, value]) => ({
+        .filter(([key]) => isNaN(Number(key))) // Filter out numeric keys
+        .map(([, value]) => ({
             value: value.toString(),
             label: getRoleDisplayName(value as Role)
         }))

@@ -43,7 +43,7 @@ export const columns: ColumnDef<EmployeeData, unknown>[] = [
             <div>
               <div className='font-medium'>{employee.fullName}</div>
               <div className='text-muted-foreground text-sm'>
-                {employee.code} - {employee.organizationalUnitName}
+                {employee.empId} - {employee.organizationalUnitName}
               </div>
             </div>
           </div>
@@ -59,14 +59,14 @@ export const columns: ColumnDef<EmployeeData, unknown>[] = [
     enableColumnFilter: true
   },
   {
-    accessorKey: 'code',
-    header: 'الرمز',
+    accessorKey: 'empId',
+    header: 'المعرف من الجهاز',
     enableHiding: true,
     size: 120,
     minSize: 80,
     maxSize: 150,
     cell: ({ row }) => (
-      <div className='font-mono text-sm'>{row.getValue('code')}</div>
+      <div className='font-mono text-sm'>{row.getValue('empId')}</div>
     )
   },
   {
@@ -80,48 +80,25 @@ export const columns: ColumnDef<EmployeeData, unknown>[] = [
       <div className='font-mono text-sm'>{row.getValue('rfid')}</div>
     )
   },
+ 
   {
-    accessorKey: 'email',
-    header: 'البريد الإلكتروني',
-    enableHiding: true,
-    size: 250,
-    minSize: 180,
-    maxSize: 350,
-    cell: ({ row }) => <div className='text-sm'>{row.getValue('email')}</div>
-  },
-  {
-    id: 'organizationalUnitId',
     accessorKey: 'organizationalUnitName',
     header: 'الجهة',
     enableHiding: true,
     size: 200,
     minSize: 150,
     maxSize: 250,
-    cell: ({ row }) => (
-      <div className='text-sm'>{row.getValue('organizationalUnitName')}</div>
-    )
-  },
-  {
-    accessorKey: 'managerName',
-    header: 'المدير',
-    enableHiding: true,
-    size: 180,
-    minSize: 120,
-    maxSize: 220,
     cell: ({ row }) => {
-      const managerName = row.getValue('managerName') as string;
+      const unitName = row.original.organizationalUnitName || row.getValue('organizationalUnitName') || '-';
       return (
-        <div className='text-sm'>
-          {managerName || (
-            <span className='text-muted-foreground'>غير محدد</span>
-          )}
-        </div>
+        <div className='text-sm'>{unitName}</div>
       );
     }
   },
+ 
   {
     accessorKey: 'isManager',
-    header: 'الحالة',
+    header: 'الدور',
     enableHiding: true,
     size: 100,
     minSize: 80,

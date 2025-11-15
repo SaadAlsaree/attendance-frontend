@@ -14,7 +14,9 @@ import {
 
 // Zod validation schema
 export const employeeFormSchema = z.object({
-    code: z.string().optional(),
+    empId: z.string()
+        .min(1, 'الرقم الوظيفي مطلوب')
+        .max(50, 'الرقم الوظيفي يجب أن يكون 50 حرف على الأكثر'),
     firstName: z.string()
         .min(2, 'الاسم الأول يجب أن يكون حرفين على الأقل')
         .max(50, 'الاسم الأول يجب أن يكون 50 حرف على الأكثر'),
@@ -30,14 +32,16 @@ export const employeeFormSchema = z.object({
     familyName: z.string()
         .min(2, 'اسم العائلة يجب أن يكون حرفين على الأقل')
         .max(50, 'اسم العائلة يجب أن يكون 50 حرف على الأكثر'),
-    email: z.string().optional(),
     rfid: z.string()
         .min(1, 'رمز RFID مطلوب')
         .max(50, 'رمز RFID يجب أن يكون 50 حرف على الأكثر'),
     organizationalUnitId: z.string()
         .min(1, 'الوحدة التنظيمية مطلوبة'),
-    managerIdString: z.string().optional(),
+    managerId: z.string().optional(),
     isManager: z.boolean().optional(),
+    role: z.nativeEnum(Role, {
+        errorMap: () => ({ message: 'الدور مطلوب' })
+    }),
     faceImage: z.instanceof(File, {
         message: 'صورة الوجه مطلوبة'
     }).nullable()
@@ -122,17 +126,17 @@ export const validateFile = (file: File, maxSize: number = 5 * 1024 * 1024): str
 // Transform form data to API request
 export const transformFormDataToRequest = (formData: EmployeeFormData): EmployeeRegistrationRequest => {
     return {
-        code: formData.code,
+        empId: formData.empId,
         firstName: formData.firstName,
         secondName: formData.secondName,
         thirdName: formData.thirdName || '',
         fourthName: formData.fourthName || '',
         familyName: formData.familyName,
-        email: formData.email,
         rfid: formData.rfid,
         organizationalUnitId: formData.organizationalUnitId,
-        managerIdString: formData.managerIdString || undefined,
+        managerId: formData.managerId || undefined,
         isManager: formData.isManager,
+        role: formData.role,
         faceImage: formData.faceImage!
     };
 };

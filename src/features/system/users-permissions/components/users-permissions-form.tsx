@@ -21,19 +21,22 @@ import {
 } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
   UserPermission,
   Role,
-  getRoleDisplayName
+  UserStatus,
+  getRoleDisplayName,
+  getUserStatusDisplayName,
+  UpdateUserRequest
 } from '../types/users-permissions';
 import { usersPermissionsService } from '../api/users-permissions.service';
 import { useAuthApi } from '@/hooks/use-auth-api';
 import { formSchema, FormValues } from '../utils/users-permissions';
 import { Spinner } from '@/components/spinner';
-import { CustomSwitch } from '@/components/ui/custom-switch';
+import { Switch } from '@/components/ui/switch';
 
 interface UsersPermissionsFormProps {
   initialData: UserPermission | null;
@@ -59,6 +62,7 @@ export default function UsersPermissionsForm({
           password: '',
           confirmPassword: '',
           role: initialData.role?.toString() || '',
+          status: initialData.status?.toString() || '',
           organizationalUnitId: initialData.organizationalUnitId || '',
           isActive: initialData.isActive ?? true
         }
@@ -68,6 +72,7 @@ export default function UsersPermissionsForm({
           password: '',
           confirmPassword: '',
           role: '',
+          status: '',
           organizationalUnitId: '',
           isActive: true
         };
@@ -79,16 +84,44 @@ export default function UsersPermissionsForm({
     defaultValues
   });
 
+  // Reset form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        username: initialData.username || '',
+        userLogin: initialData.userLogin || '',
+        password: '',
+        confirmPassword: '',
+        role: initialData.role?.toString() || '',
+        status: initialData.status?.toString() || '',
+        organizationalUnitId: initialData.organizationalUnitId || '',
+        isActive: initialData.isActive ?? true
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]);
+
   // Memoize role options to prevent unnecessary re-renders
   const roleOptions = useMemo(() => {
     // Filter out numeric keys and only include valid role values
     return Object.entries(Role)
       .filter(([key]) => isNaN(Number(key))) // Filter out numeric keys
-      .map(([key, value]) => ({
+      .map(([, value]) => ({
         label: getRoleDisplayName(value as unknown as Role),
         value: value.toString()
       }))
       .filter((option) => option.label !== 'غير محدد'); // Filter out undefined roles
+  }, []);
+
+  // Memoize status options to prevent unnecessary re-renders
+  const statusOptions = useMemo(() => {
+    return Object.entries(UserStatus)
+      .filter(([key]) => isNaN(Number(key))) // Filter out numeric keys
+      .map(([, value]) => ({
+        label: getUserStatusDisplayName(value as unknown as UserStatus),
+        value: value.toString()
+      }))
+      .filter((option) => option.label !== 'غير محدد'); // Filter out undefined statuses
   }, []);
 
   // Memoize organization options to prevent unnecessary re-renders
@@ -106,11 +139,17 @@ export default function UsersPermissionsForm({
 
       if (initialData?.id) {
         // Update existing user
+        const updateData: UpdateUserRequest = {
+          username: data.username,
+          userLogin: data.userLogin,
+          role: Number(data.role) as Role,
+          status: data.status ? (Number(data.status) as UserStatus) : (initialData.status as UserStatus),
+          isActive: data.isActive,
+          organizationalUnitId: data.organizationalUnitId || undefined
+        };
+        
         const response = await authApiCall(async () =>
-          usersPermissionsService.updateUserRoleClient(initialData.id!, {
-            newRole: Number(data.role) as Role,
-            updatedBy: 'current-user-id' // This should come from auth context
-          })
+          usersPermissionsService.updateUserClient(initialData.id!, updateData)
         );
 
         if (response) {
@@ -121,12 +160,20 @@ export default function UsersPermissionsForm({
         }
       } else {
         // Create new user
+        if (!data.password || !data.confirmPassword) {
+          toast.error('كلمة المرور مطلوبة');
+          return;
+        }
+        
+        const password = data.password;
+        const confirmPassword = data.confirmPassword;
+        
         const response = await authApiCall(async () =>
           usersPermissionsService.createUserClient({
             username: data.username,
             userLogin: data.userLogin,
-            password: data.password,
-            confirmPassword: data.confirmPassword,
+            password,
+            confirmPassword,
             role: Number(data.role) as Role,
             organizationalUnitId: data.organizationalUnitId
           })
@@ -146,6 +193,8 @@ export default function UsersPermissionsForm({
       setLoading(false);
     }
   };
+
+  console.log(form.formState.errors);
 
   return (
     <div className='space-y-6'>
@@ -174,7 +223,6 @@ export default function UsersPermissionsForm({
                         <Input
                           placeholder='أدخل معرف الدخول'
                           {...field}
-                          disabled={!!initialData}
                         />
                       </FormControl>
                       <FormMessage />
@@ -192,7 +240,6 @@ export default function UsersPermissionsForm({
                         <Input
                           placeholder='أدخل الاسم'
                           {...field}
-                          disabled={!!initialData}
                         />
                       </FormControl>
                       <FormMessage />
@@ -208,7 +255,7 @@ export default function UsersPermissionsForm({
                       <FormLabel>الدور</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className='w-full'>
@@ -228,6 +275,36 @@ export default function UsersPermissionsForm({
                   )}
                 />
 
+                {initialData && (
+                  <FormField
+                    control={form.control}
+                    name='status'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>حالة المستخدم</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className='w-full'>
+                              <SelectValue placeholder='اختر حالة المستخدم' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {statusOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                 <FormField
                   control={form.control}
                   name='organizationalUnitId'
@@ -236,7 +313,7 @@ export default function UsersPermissionsForm({
                       <FormLabel>الوحدة التنظيمية</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className='w-full'>
@@ -268,7 +345,8 @@ export default function UsersPermissionsForm({
                         </div>
                       </div>
                       <FormControl>
-                        <CustomSwitch
+                        <Switch
+                        dir='ltr'
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />

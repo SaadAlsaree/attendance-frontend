@@ -1,8 +1,11 @@
 import { z } from "zod";
-import { Role } from "../types/users-permissions";
+import { Role, UserStatus } from "../types/users-permissions";
 
 // Role enum validation
 export const RoleSchema = z.nativeEnum(Role);
+
+// UserStatus enum validation
+export const UserStatusSchema = z.nativeEnum(UserStatus);
 
 // UserPermission validation
 export const UserPermissionSchema = z.object({
@@ -81,18 +84,50 @@ export const CreateUserRequestSchema = z.object({
 });
 
 // Form schemas
-export const formSchema = (initialData?: any) => z.object({
-    username: z.string().min(1, "اسم المستخدم مطلوب"),
-    userLogin: z.string().min(1, "اسم المستخدم مطلوب"),
-    password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"),
-    confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
-    role: z.string().min(1, "الدور مطلوب"),
-    organizationalUnitId: z.string().min(1, "الوحدة التنظيمية مطلوبة"),
-    isActive: z.boolean().default(true),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "كلمات المرور غير متطابقة",
-    path: ["confirmPassword"],
-});
+export const formSchema = (initialData?: any) => {
+    const isEditMode = !!initialData;
+    
+    return z.object({
+        username: z.string().min(1, "اسم المستخدم مطلوب"),
+        userLogin: z.string().min(1, "اسم المستخدم مطلوب"),
+        password: isEditMode 
+            ? z.string().optional()
+            : z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"),
+        confirmPassword: isEditMode 
+            ? z.string().optional()
+            : z.string().min(1, "تأكيد كلمة المرور مطلوب"),
+        role: z.string().min(1, "الدور مطلوب"),
+        status: isEditMode
+            ? z.string().min(1, "حالة المستخدم مطلوبة")
+            : z.string().optional(),
+        organizationalUnitId: z.string().min(1, "الوحدة التنظيمية مطلوبة"),
+        isActive: z.boolean().default(true),
+    }).refine((data) => {
+        // Only validate password match if passwords are provided
+        if (isEditMode) {
+            // In edit mode, if password is provided, confirmPassword must match
+            if (data.password && data.password.length > 0) {
+                return data.password === data.confirmPassword;
+            }
+            // If password is empty, validation passes
+            return true;
+        }
+        // In create mode, passwords must match
+        return data.password === data.confirmPassword;
+    }, {
+        message: "كلمات المرور غير متطابقة",
+        path: ["confirmPassword"],
+    }).refine((data) => {
+        // In edit mode, if password is provided, it must be at least 8 characters
+        if (isEditMode && data.password && data.password.length > 0) {
+            return data.password.length >= 8;
+        }
+        return true;
+    }, {
+        message: "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+        path: ["password"],
+    });
+};
 
 export const changePasswordFormSchema = z.object({
     currentPassword: z.string().min(1, "كلمة المرور الحالية مطلوبة"),

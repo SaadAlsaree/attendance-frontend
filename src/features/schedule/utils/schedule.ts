@@ -10,6 +10,8 @@ import {
 } from "../types/schedules";
 
 export const formSchema = (_initialData: AttendanceScheduleResponse | null = null) => {
+    const isEditMode = !!_initialData;
+    
     return z
         .object({
             employeeId: z.string().min(1, "Employee ID is required"),
@@ -18,24 +20,39 @@ export const formSchema = (_initialData: AttendanceScheduleResponse | null = nul
             scheduleType: z.string().min(1, "Schedule type is required"),
             isActive: z.boolean().default(true),
             notes: z.string().optional(),
-            scheduleDays: z
-                .array(
+            scheduleDays: isEditMode
+                ? z.array(
                     z.object({
                         id: z.string().optional(),
-                        shiftId: z.string().min(1, "Shift is required"),
+                        shiftId: z.string().optional(),
                         dayOfWeek: z.number().optional(),
-                        scheduleDayDate: z.string().min(1, "Schedule day date is required"),
+                        scheduleDayDate: z.string().optional(),
                         isActive: z.boolean().default(true),
                         notes: z.string().optional(),
                     }),
-                )
-                .min(1, "At least one schedule day is required"),
+                ).optional()
+                : z
+                    .array(
+                        z.object({
+                            id: z.string().optional(),
+                            shiftId: z.string().min(1, "Shift is required"),
+                            dayOfWeek: z.number().optional(),
+                            scheduleDayDate: z.string().min(1, "Schedule day date is required"),
+                            isActive: z.boolean().default(true),
+                            notes: z.string().optional(),
+                        }),
+                    )
+                    .min(1, "At least one schedule day is required"),
             excludedDates: z.array(z.string()).default([]),
         })
         .refine(
             (data) => {
+                // Only validate schedule days in create mode
+                if (isEditMode) {
+                    return true;
+                }
                 // Check if all active schedule days have shifts assigned
-                const activeDaysWithoutShifts = data.scheduleDays.filter(day => day.isActive && !day.shiftId);
+                const activeDaysWithoutShifts = data.scheduleDays?.filter(day => day.isActive && !day.shiftId) || [];
                 return activeDaysWithoutShifts.length === 0;
             },
             {
@@ -95,7 +112,7 @@ export const formatScheduleUpdatePayload = (
     formData: Partial<FormData>,
     attendanceScheduleId: string = ''
 ): UpdateAttendanceScheduleRequest => {
-    return {
+    const payload: UpdateAttendanceScheduleRequest = {
         // Top-level required fields for update request
         employeeId: formData.employeeId || '',
         startDate: formData.startDate || '',
@@ -103,8 +120,12 @@ export const formatScheduleUpdatePayload = (
         scheduleType: formData.scheduleType || '',
         isActive: formData.isActive ?? true,
         notes: formData.notes || '',
-        // Map schedule days to the expected update shape
-        scheduleDays: (formData.scheduleDays || []).map((day) => ({
+        excludedDates: formData.excludedDates || [],
+    };
+    
+    // Only include scheduleDays if provided (not in edit mode)
+    if (formData.scheduleDays && formData.scheduleDays.length > 0) {
+        payload.scheduleDays = formData.scheduleDays.map((day) => ({
             // Keep id undefined when not present instead of forcing empty string
             id: day.id || undefined,
             attendanceScheduleId: attendanceScheduleId,
@@ -113,9 +134,10 @@ export const formatScheduleUpdatePayload = (
             shiftId: day.shiftId || '',
             isActive: day.isActive ?? true,
             notes: day.notes || '',
-        })),
-        excludedDates: formData.excludedDates || [],
-    };
+        }));
+    }
+    
+    return payload;
 };
 
 // Helper to get schedule type display name (re-exported from types)

@@ -3,17 +3,17 @@ import { IResponse } from '@/types/response';
 // Employee registration request types
 export interface EmployeeRegistrationRequest {
     // Employee information
-    code: string;
+    empId: string;
     firstName: string;
     secondName: string;
     thirdName: string;
     fourthName: string;
     familyName: string;
-    email: string;
     rfid: string;
     organizationalUnitId: string; // Guid
-    managerIdString?: string; // Optional manager ID
+    managerId?: string; // Optional manager ID (Guid)
     isManager: boolean;
+    role: Role;
 
     // File inputs
     faceImage: File;
@@ -22,13 +22,12 @@ export interface EmployeeRegistrationRequest {
 // Employee update request types (for PUT /employees/{id})
 export interface EmployeeUpdateRequest {
     employeeId: string;
+    empId: string;
     firstName: string;
     secondName: string;
     thirdName: string;
     fourthName: string;
     familyName: string;
-    email: string;
-    code: string;
     isManager: boolean;
     rfid: string;
     organizationalUnitId: string; // Guid
@@ -70,7 +69,7 @@ export interface EmployeeRegistrationResponse {
 // Employee data for display/editing (matches backend EmployeeResponse)
 export interface EmployeeData {
     id: string;
-    code: string;
+    empId: string;
     userId: string;
     firstName: string;
     secondName: string;
@@ -78,7 +77,7 @@ export interface EmployeeData {
     fourthName: string;
     familyName: string;
     fullName: string;
-    email: string;
+
     rfid: string;
     organizationalUnitId: string;
     organizationalUnitName: string;
@@ -152,17 +151,17 @@ export enum UserStatus {
 // Form validation schema
 export interface EmployeeFormData {
     // Employee information
-    code: string;
+    empId: string;
     firstName: string;
     secondName: string;
     thirdName?: string;
     fourthName?: string;
     familyName: string;
-    email: string;
     rfid: string;
     organizationalUnitId: string;
-    managerIdString?: string;
+    managerId?: string;
     isManager: boolean;
+    role: Role;
 
     // File inputs
     faceImage: File | null;

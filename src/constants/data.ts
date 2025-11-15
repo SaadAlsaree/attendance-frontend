@@ -21,7 +21,7 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    requiredRoles: [Role.Admin],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
     items: []
   },
   {
@@ -126,6 +126,24 @@ export const navItems: NavItem[] = [
     icon: 'page',
     isActive: false,
     requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+  },
+  {
+    title: 'Reports',
+    arabicTitle: 'التقارير',
+    url: '#',
+    icon: 'post',
+    isActive: false,
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    items: [
+      {
+        title: 'Organizational Report',
+        arabicTitle: 'تقارير الجهات',
+        url: '/reports/organizational-report',
+        icon: 'settings',
+        shortcut: ['l', 'r'],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+      },
+    ]
   },
   {
     title: 'Reports & Analytics',

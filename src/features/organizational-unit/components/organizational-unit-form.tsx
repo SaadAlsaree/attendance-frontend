@@ -88,7 +88,6 @@ export default function OrganizationalUnitForm({
           id: initialData.id
         };
 
-        console.log(payload);
 
         const response = await authApiCall(() =>
           organizationalService.updateOrganizationalUnit(

@@ -73,11 +73,10 @@ interface Attendance {
 
 interface EmployeeData {
   id: number;
-  code: string;
+  empId: string;
   rfid: string;
   userId: string;
   fullName: string;
-  email: string;
   organizationalUnitId: string;
   organizationalUnitName: string;
   managerId: string | null;
@@ -160,13 +159,18 @@ export default function EmployeeViewPage({ employee }: Props) {
   // Helper function to get attendance status name
   const getAttendanceStatusName = (status: number): string => {
     const statusNames = {
-      1: 'حضور كامل',
-      2: 'تأخير بسيط',
-      3: 'تأخير كبير',
-      4: 'انصراف مبكر',
-      5: 'غياب',
+      1: 'حضور',
+      2: 'غياب',
+      3: 'راحة',
+      4: 'إجازة',
+      5: 'عطلة',
       6: 'تأخير',
-      7: 'حضور مبكر'
+      7: 'انصراف مبكر',
+      8: 'عمل إضافي',
+      9: 'واجب',
+      10: 'مستثنى',
+      11: 'منسب',
+      12: 'قيد المعالجة'
     };
     return statusNames[status as keyof typeof statusNames] || 'غير محدد';
   };
@@ -199,16 +203,30 @@ export default function EmployeeViewPage({ employee }: Props) {
 
   const getStatusBadgeColor = (status: number) => {
     switch (status) {
-      case 1: // حضور كامل
+      case 1: // حضور
         return 'bg-green-100 text-green-800 border-green-200';
-      case 2: // تأخير بسيط
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 7: // حضور مبكر
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 6: // تأخير
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 5: // غياب
+      case 2: // غياب
         return 'bg-red-100 text-red-800 border-red-200';
+      case 3: // راحة
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 4: // إجازة
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      case 5: // عطلة
+        return 'bg-teal-100 text-teal-800 border-teal-200';
+      case 6: // تأخير
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 7: // انصراف مبكر
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 8: // عمل إضافي
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 9: // واجب
+        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      case 10: // مستثنى
+        return 'bg-slate-100 text-slate-800 border-slate-200';
+      case 11: // منسب
+        return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 12: // قيد المعالجة
+        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -335,21 +353,21 @@ export default function EmployeeViewPage({ employee }: Props) {
                   </div>
                   <div className='flex-1'>
                     <div className='flex items-center justify-between'>
-                      <p className='text-sm text-gray-500'>رقم الوظيفي</p>
+                      <p className='text-sm text-gray-500'>معرف الموظف من الجهاز</p>
                       <Button
                         variant='ghost'
                         size='sm'
-                        onClick={() => copyToClipboard(employee?.code, 'code')}
+                        onClick={() => copyToClipboard(employee?.empId, 'empId')}
                         className='h-6 w-6 p-0 hover:bg-gray-100'
                       >
-                        {copiedField === 'code' ? (
+                        {copiedField === 'empId' ? (
                           <Check className='h-3 w-3 text-green-600' />
                         ) : (
                           <Copy className='h-3 w-3 text-gray-500' />
                         )}
                       </Button>
                     </div>
-                    <p className='font-medium'>{employee?.code}</p>
+                      <p className='font-medium'>{employee?.empId}</p>
                   </div>
                 </div>
 
@@ -357,10 +375,10 @@ export default function EmployeeViewPage({ employee }: Props) {
                   <div className='flex h-8 w-8 items-center justify-center rounded-full bg-green-100'>
                     <Mail className='h-4 w-4 text-green-600' />
                   </div>
-                  <div>
+                  {/* <div>
                     <p className='text-sm text-gray-500'>البريد الإلكتروني</p>
-                    <p className='font-medium'>{employee?.email}</p>
-                  </div>
+                    <p className='font-medium'>{employee?.userLogin}</p>
+                  </div> */}
                 </div>
               </div>
             </CardContent>
@@ -427,12 +445,12 @@ export default function EmployeeViewPage({ employee }: Props) {
                 </div>
                 <div className='space-y-4'>
                   {employee?.statusName && (
-                    <div>
+                    <div className='flex items-center gap-2'>
                       <label className='text-sm font-medium text-gray-500'>
                         حالة الحساب
                       </label>
-                      <Badge className={getStatusColor(employee?.statusName)}>
-                        {employee?.statusName}
+                      <Badge className='bg-green-100 text-green-800 border-green-200'>
+                        {employee?.statusName == 'Inactive' ? 'مفعل' : 'مفعل'}
                       </Badge>
                     </div>
                   )}

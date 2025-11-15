@@ -4,6 +4,7 @@ import {
     UsersPermissionsResponse,
     ChangePasswordRequest,
     UpdateUserRoleRequest,
+    UpdateUserRequest,
     ResetPasswordRequest,
     GetUserResponse,
     CreateUserRequest,
@@ -283,6 +284,22 @@ export const usersPermissionsService = {
             return response.data as UserPermission || null;
         } catch (error) {
             console.error('Error toggling user status:', error);
+            return null;
+        }
+
+    },
+
+    // Update user
+    async updateUserClient(id: string, data: UpdateUserRequest): Promise<UserPermission | null> {
+        try {
+            const response = await axiosClient.put(`${baseUrl}/users/${id}`, data);
+            if (response.status >= 400) {
+                console.error('Error updating user:', response.statusText);
+                return null;
+            }
+            return response.data as UserPermission || null;
+        } catch (error) {
+            console.error('Error updating user:', error);
             return null;
         }
     },
