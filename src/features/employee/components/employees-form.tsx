@@ -221,7 +221,11 @@ export default function AddEditEmployeesForm({
                     <FormItem>
                       <FormLabel>معرف الموظف من الجهاز</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='معرف الموظف من الجهاز' />
+                        <Input
+                          {...field}
+                          placeholder='معرف الموظف من الجهاز'
+                          disabled={initialData?.id ? true : false}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -309,7 +313,7 @@ export default function AddEditEmployeesForm({
                           onChange={field.onChange}
                           placeholder='رمز RFID'
                           label='رمز RFID'
-                          disabled={isLoading}
+                          disabled={isLoading || initialData?.id ? true : false}
                         />
                       </FormControl>
                       <FormMessage />

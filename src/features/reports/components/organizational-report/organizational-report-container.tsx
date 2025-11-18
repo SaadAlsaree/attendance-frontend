@@ -3,6 +3,7 @@ import React, { useRef } from 'react';
 import { OrganizationalReportResponse } from '../../types/organization-report';
 import OrganizationalReportTable from './organizational-report-table';
 import OrganizationalReportPrint from './organizational-report-print';
+import OrganizationalReportFilter from './organizational-report-filter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -82,12 +83,12 @@ const OrganizationalReportContainer = ({ report }: Props) => {
       description: `${getLatePercentage()}% من الحضور`
     },
     {
-      title: 'عدد الأجازات',
+      title: 'موقف الاستثناءات',
       value: report?.data?.totalLeaves,
       icon: Calendar,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-      description: 'إجمالي الأجازات اليوم'
+      description: 'إجمالي الاستثناءات اليوم'
     },
     {
       title: 'ساعات العمل الإضافي',
@@ -115,6 +116,7 @@ const OrganizationalReportContainer = ({ report }: Props) => {
         </div>
 
         <div className='flex items-center gap-2'>
+          <OrganizationalReportFilter />
           <Button
             onClick={onPrint}
             variant='outline'

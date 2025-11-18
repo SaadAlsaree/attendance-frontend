@@ -14,7 +14,7 @@ import {
     EmployeeUpdateRequest
 } from '../types/employees';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const employeeService = {
     // Register new employee
@@ -164,7 +164,7 @@ export const employeeService = {
     },
 
     // Update employee (client-side)
-    async updateEmployeeClient(id: string, data: EmployeeUpdateRequest): Promise<boolean> {
+    async updateEmployeeClient(id: string, data: EmployeeUpdateRequest) {
         try {
             const response = await axiosClient.put(`${baseUrl}/employees/${id}`, data);
             return response.status === 204;

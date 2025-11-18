@@ -9,6 +9,7 @@ import {
   OrganizationalSummaryQuery
 } from '@/features/reports/types/organizational-summary';
 import React, { Suspense } from 'react';
+import { setToStartOfDayUTC } from '@/lib/utils/date-utils';
 
 export const metadata = {
   title: 'تقرير الموظفين',
@@ -24,7 +25,10 @@ const OrganizationalSummaryPage = async ({
 }: OrganizationalSummaryPageProps) => {
   const params = await searchParams;
 
-  const date = params.date ? new Date(params.date) : new Date();
+  // Normalize date to start of day in UTC
+  const date = params.date
+    ? setToStartOfDayUTC(new Date(params.date))
+    : setToStartOfDayUTC(new Date());
   const organizationalUnitId = params.organizationalUnitId
     ? params.organizationalUnitId
     : undefined;
@@ -39,6 +43,8 @@ const OrganizationalSummaryPage = async ({
   const organization = await organizationalService.getOrganizationalUnits();
 
   const organizationList = organization?.data || [];
+
+  // console.log(organizationList);
 
   return (
     <PageContainer scrollable={true}>

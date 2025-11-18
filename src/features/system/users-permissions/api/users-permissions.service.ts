@@ -11,7 +11,7 @@ import {
     Role
 } from '../types/users-permissions';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const usersPermissionsService = {
     // Get users permissions list with pagination and filters
@@ -290,14 +290,14 @@ export const usersPermissionsService = {
     },
 
     // Update user
-    async updateUserClient(id: string, data: UpdateUserRequest): Promise<UserPermission | null> {
+    async updateUserClient(id: string, data: UpdateUserRequest) {
         try {
             const response = await axiosClient.put(`${baseUrl}/users/${id}`, data);
             if (response.status >= 400) {
                 console.error('Error updating user:', response.statusText);
                 return null;
             }
-            return response.data as UserPermission || null;
+            return response;
         } catch (error) {
             console.error('Error updating user:', error);
             return null;

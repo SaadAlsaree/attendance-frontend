@@ -58,3 +58,11 @@ export interface OrganizationalReportRequest {
     page?: number;
     pageSize?: number;
 }
+
+export interface OrganizationalReportQuery {
+    organizationalUnitId: string; // Guid - required
+    startDate?: string | null; // DateTime? - nullable
+    endDate?: string | null; // DateTime? - nullable
+    shiftId?: string | null; // Guid? - nullable
+    includeSubUnits?: boolean; // bool - default true
+}

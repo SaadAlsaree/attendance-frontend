@@ -4,6 +4,8 @@ import FormCardSkeleton from '@/components/form-card-skeleton';
 import { ShiftForm } from '@/features/shift';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import Unauthorized from '@/components/auth/unauthorized';
 
 export const metadata = {
   title: 'إضافة مناوبة جديدة',
@@ -13,6 +15,16 @@ export const metadata = {
 const NewMailFilePage = async () => {
   const organizations = await organizationalService.getOrganizationalUnits();
   const organizationsData = organizations?.data as IOrganizationalUnitList[];
+
+  const currentUser = await usersPermissionsService.getCurrentUser();
+
+  if (currentUser?.role != 1) {
+    return (
+      <PageContainer>
+        <Unauthorized />
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer scrollable>

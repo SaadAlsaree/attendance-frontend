@@ -334,10 +334,10 @@ export default function LeaveForm({
               name='reason'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>سبب الإجازة</FormLabel>
+                  <FormLabel>ملاحظات</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder='أدخل سبب الإجازة'
+                      placeholder='أدخل ملاحظات '
                       className='resize-none'
                       {...field}
                     />

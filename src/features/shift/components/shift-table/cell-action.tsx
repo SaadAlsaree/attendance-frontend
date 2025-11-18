@@ -9,17 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Copy, Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { Copy, Edit, Eye, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { ShiftResponse } from '@/features/shift/types/shift';
+import { ShiftData } from '@/features/shift/types/shift';
 import { shiftService } from '@/features/shift/api/shift.service';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { useAuthApi } from '@/hooks/use-auth-api';
 
 interface CellActionProps {
-  data: ShiftResponse;
+  data: ShiftData;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -37,7 +37,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     try {
       setLoading(true);
       const success = await authApiCall(async () =>
-        shiftService.deleteShiftClient(data.data.id)
+        shiftService.deleteShiftClient(data.id)
       );
 
       if (success) {
@@ -72,12 +72,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onCopy(data.data.id)}>
+          <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className='mr-2 h-4 w-4' />
             نسخ المعرف
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/schedule/shifts/${data.data.id}`)}
+            onClick={() => router.push(`/schedule/shifts/${data.id}`)}
+          >
+            <Eye className='mr-2 h-4 w-4' />
+            عرض التفاصيل
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push(`/schedule/shifts/${data.id}/edit`)}
           >
             <Edit className='mr-2 h-4 w-4' />
             تعديل

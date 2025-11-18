@@ -150,8 +150,7 @@ export const transformEmployeeDataToUpdateRequest = (employee: EmployeeData): Em
         thirdName: employee.thirdName,
         fourthName: employee.fourthName,
         familyName: employee.familyName,
-        email: employee.email,
-        code: employee.code,
+        empId: employee.empId,
         rfid: employee.rfid,
         organizationalUnitId: employee.organizationalUnitId,
         isManager: employee.isManager

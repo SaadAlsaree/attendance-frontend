@@ -1,9 +1,11 @@
+import Unauthorized from '@/components/auth/unauthorized';
 import PageContainer from '@/components/layout/page-container';
 import { employeeService } from '@/features/employee/api/employees.service';
 import AddEditEmployeesForm from '@/features/employee/components/employees-form';
 import { EmployeeData } from '@/features/employee/types/employees';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 import React from 'react';
 
 type Props = {
@@ -23,7 +25,15 @@ const AddEditEmployee = async ({ params }: Props) => {
   const organizationalUnitsList = (organizationalUnits?.data ||
     []) as IOrganizationalUnitList[];
 
-  console.log(organizationalUnitsList);
+  const currentUser = await usersPermissionsService.getCurrentUser();
+
+  if (currentUser?.role != 1) {
+    return (
+      <PageContainer>
+        <Unauthorized />
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>

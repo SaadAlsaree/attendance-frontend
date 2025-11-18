@@ -10,14 +10,11 @@ export default async function viewprofilePage({
   const { id: employeeId } = await params;
 
   const data = await employeeService.getEmployeeById(employeeId);
-  const employee = data?.data ;
+  const employee = data?.data;
 
   return (
     <PageContainer>
-      <EmployeeViewPage
-        employee={employee as any}
-       
-      />
+      <EmployeeViewPage employee={employee as any} />
     </PageContainer>
   );
 }

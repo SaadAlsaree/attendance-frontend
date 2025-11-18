@@ -353,11 +353,15 @@ export default function EmployeeViewPage({ employee }: Props) {
                   </div>
                   <div className='flex-1'>
                     <div className='flex items-center justify-between'>
-                      <p className='text-sm text-gray-500'>معرف الموظف من الجهاز</p>
+                      <p className='text-sm text-gray-500'>
+                        معرف الموظف من الجهاز
+                      </p>
                       <Button
                         variant='ghost'
                         size='sm'
-                        onClick={() => copyToClipboard(employee?.empId, 'empId')}
+                        onClick={() =>
+                          copyToClipboard(employee?.empId, 'empId')
+                        }
                         className='h-6 w-6 p-0 hover:bg-gray-100'
                       >
                         {copiedField === 'empId' ? (
@@ -367,7 +371,7 @@ export default function EmployeeViewPage({ employee }: Props) {
                         )}
                       </Button>
                     </div>
-                      <p className='font-medium'>{employee?.empId}</p>
+                    <p className='font-medium'>{employee?.empId}</p>
                   </div>
                 </div>
 
@@ -449,7 +453,7 @@ export default function EmployeeViewPage({ employee }: Props) {
                       <label className='text-sm font-medium text-gray-500'>
                         حالة الحساب
                       </label>
-                      <Badge className='bg-green-100 text-green-800 border-green-200'>
+                      <Badge className='border-green-200 bg-green-100 text-green-800'>
                         {employee?.statusName == 'Inactive' ? 'مفعل' : 'مفعل'}
                       </Badge>
                     </div>
@@ -527,7 +531,7 @@ export default function EmployeeViewPage({ employee }: Props) {
                 {(employee?.attendances || []).map((attendance) => (
                   <TableRow key={attendance.id}>
                     <TableCell className='font-medium'>
-                      {formatDate(attendance.date)}
+                      {moment(attendance.date).format('YYYY-MM-DD')}
                     </TableCell>
                     <TableCell>
                       {getDayName(new Date(attendance.date).getDay() + 1)}
@@ -535,14 +539,18 @@ export default function EmployeeViewPage({ employee }: Props) {
                     <TableCell
                       className={!attendance.checkInTime ? 'text-gray-400' : ''}
                     >
-                      {formatTime(attendance.checkInTime)}
+                      {attendance.checkInTime
+                        ? moment(attendance.checkInTime).format('hh:mm A')
+                        : '-'}
                     </TableCell>
                     <TableCell
                       className={
                         !attendance.checkOutTime ? 'text-gray-400' : ''
                       }
                     >
-                      {formatTime(attendance.checkOutTime)}
+                      {attendance.checkOutTime
+                        ? moment(attendance.checkOutTime).format('hh:mm A')
+                        : '-'}
                     </TableCell>
                     <TableCell
                       className={

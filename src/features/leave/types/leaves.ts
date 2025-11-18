@@ -56,6 +56,8 @@ export enum LeaveType {
     Duty = 11,      //  واجب
     Night_Break = 12, //  استراحة خفر
     Permitted = 13, //   تنسيب
+    Cycle = 14,     // دورة
+    Workshop = 15,  // ورشة عمل
 }
 
 // خريطة لعرض الاسم المقابل لكل نوع
@@ -73,5 +75,7 @@ export const LeaveTypeDisplay: Record<LeaveType, string> = {
     [LeaveType.Duty]: "واجب",
     [LeaveType.Night_Break]: "استراحة خفر",
     [LeaveType.Permitted]: "تنسيب",
+    [LeaveType.Cycle]: "دورة",
+    [LeaveType.Workshop]: "ورشة عمل",
 };
 

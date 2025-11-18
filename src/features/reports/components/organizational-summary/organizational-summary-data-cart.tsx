@@ -183,7 +183,7 @@ const OrganizationalSummaryDataCart = ({
                         <div className='flex items-center gap-2'>
                           <CalendarDays className='h-4 w-4 text-purple-600' />
                           <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            الإجازات
+                            الاجراءات
                           </span>
                         </div>
                         <span className='font-semibold text-purple-600'>

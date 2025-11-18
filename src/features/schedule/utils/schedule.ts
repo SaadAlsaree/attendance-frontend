@@ -11,7 +11,7 @@ import {
 
 export const formSchema = (_initialData: AttendanceScheduleResponse | null = null) => {
     const isEditMode = !!_initialData;
-    
+
     return z
         .object({
             employeeId: z.string().min(1, "Employee ID is required"),
@@ -96,13 +96,14 @@ export const formatSchedulePayload = (formData: FormData): CreateAttendanceSched
         scheduleType: formData.scheduleType,
         isActive: formData.isActive,
         notes: formData.notes,
-        scheduleDays: formData.scheduleDays.map(day => ({
-            shiftId: day.shiftId,
-            dayOfWeek: day.dayOfWeek ?? 1,
-            scheduleDayDate: day.scheduleDayDate,
-            isActive: day.isActive,
-            notes: day.notes,
-        })),
+        scheduleDays: (formData.scheduleDays ?? [])
+            .filter((day): day is typeof day & { shiftId: string } => !!day.shiftId)
+            .map(day => ({
+                shiftId: day.shiftId,
+                dayOfWeek: day.dayOfWeek ?? 1,
+                isActive: day.isActive,
+                notes: day.notes,
+            })),
         excludedDates: formData.excludedDates,
     };
 };
@@ -122,7 +123,7 @@ export const formatScheduleUpdatePayload = (
         notes: formData.notes || '',
         excludedDates: formData.excludedDates || [],
     };
-    
+
     // Only include scheduleDays if provided (not in edit mode)
     if (formData.scheduleDays && formData.scheduleDays.length > 0) {
         payload.scheduleDays = formData.scheduleDays.map((day) => ({
@@ -136,7 +137,7 @@ export const formatScheduleUpdatePayload = (
             notes: day.notes || '',
         }));
     }
-    
+
     return payload;
 };
 

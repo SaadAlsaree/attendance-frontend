@@ -4,6 +4,8 @@ import PageContainer from '@/components/layout/page-container';
 import { ShiftData, ShiftForm, shiftService } from '@/features/shift';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import Unauthorized from '@/components/auth/unauthorized';
 
 export const metadata = {
   title: 'تعديل المناوبة',
@@ -21,6 +23,15 @@ const page = async (props: pageProps) => {
   const organizations = await organizationalService.getOrganizationalUnits();
   const organizationsData = organizations?.data as IOrganizationalUnitList[];
 
+  const currentUser = await usersPermissionsService.getCurrentUser();
+
+  if (currentUser?.role != 1) {
+    return (
+      <PageContainer>
+        <Unauthorized />
+      </PageContainer>
+    );
+  }
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>

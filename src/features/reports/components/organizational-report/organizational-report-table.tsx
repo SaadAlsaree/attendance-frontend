@@ -155,9 +155,9 @@ const OrganizationalReportTable = ({ report }: Props) => {
                           {moment(employee.date).format('dddd')}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         {moment(employee.date).format('DD/MM/YYYY')}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className='flex items-center gap-1'>
                           <LogIn className='h-3 w-3 text-green-600' />

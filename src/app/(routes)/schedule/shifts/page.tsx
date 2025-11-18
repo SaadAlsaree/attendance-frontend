@@ -23,6 +23,7 @@ const ShiftPage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
 
   searchParamsCache.parse(searchParams);
+
   return (
     <PageContainer scrollable={false}>
       <div className='flex flex-1 flex-col space-y-4'>

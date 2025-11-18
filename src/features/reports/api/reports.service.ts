@@ -7,7 +7,7 @@ import { OrganizationalReportRequest } from '../types/organization-report';
 
 
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const reportsService = {
     // Get attendance report
@@ -26,14 +26,14 @@ export const reportsService = {
     },
 
     // reports/organizational-summary
-    async getOrganizationalSummary(query?: OrganizationalSummaryQuery): Promise<OrganizationalSummaryResponse | null> {
+    async getOrganizationalSummary(query?: OrganizationalSummaryQuery) {
         try {
             const response = await axiosInstance.get(`${baseUrl}/reports/organizational-summary`, { params: query });
             if (response.status >= 400) {
                 console.error('Error fetching comprehensive attendance report:', response.statusText);
                 return null;
             }
-            return response.data as OrganizationalSummaryResponse;
+            return response.data;
         } catch (error) {
             console.error('Error fetching comprehensive attendance report:', error);
             return null;
@@ -75,7 +75,7 @@ export const reportsService = {
     // reports/organization
     async getOrganization(query: OrganizationalReportRequest): Promise<OrganizationalSummaryResponse | null> {
         try {
-            console.log(query);
+
             const response = await axiosInstance.get(`${baseUrl}/reports/organization`, { params: query });
             if (response.status >= 400) {
                 console.error('Error fetching organization:', response.statusText);
@@ -101,6 +101,8 @@ export const reportsService = {
             return null;
         }
     },
+
+
 
 
 };

@@ -12,7 +12,7 @@ import {
   Play,
   Square
 } from 'lucide-react';
-import { ShiftResponse } from '@/features/shift/types/shift';
+import { ShiftData, ShiftResponse } from '@/features/shift/types/shift';
 import { formatTime, formatDate, getActiveStatusText } from '../../utils/shift';
 import { CellAction } from './cell-action';
 
@@ -248,6 +248,8 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <CellAction data={row.original} />
+    cell: ({ row }) => (
+      <CellAction data={row.original as unknown as ShiftData} />
+    )
   }
 ];

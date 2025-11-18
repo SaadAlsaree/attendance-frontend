@@ -9,6 +9,7 @@ import {
   Timer
 } from 'lucide-react';
 import { OrganizationalSummaryResponse } from '../../types/organizational-summary';
+import Link from 'next/link';
 
 type OrganizationalSummaryCardProps = {
   data: OrganizationalSummaryResponse;
@@ -25,14 +26,16 @@ const OrganizationalSummaryCard = ({
       value: summaryData.totaleEmployees,
       icon: Users,
       color: 'bg-blue-500',
-      textColor: 'text-blue-200'
+      textColor: 'text-blue-200',
+      url: '/employee'
     },
     {
       title: 'الحضور',
       value: summaryData.tottalAttendances,
       icon: UserCheck,
       color: 'bg-green-500',
-      textColor: 'text-green-200'
+      textColor: 'text-green-200',
+      url: '/attendance/view-all-attendance'
     },
     {
       title: 'الغير مبصمين',
@@ -46,21 +49,24 @@ const OrganizationalSummaryCard = ({
       value: summaryData.totalLate,
       icon: Clock,
       color: 'bg-yellow-500',
-      textColor: 'text-yellow-200'
+      textColor: 'text-yellow-200',
+      url: '/attendance/view-all-attendance?status=6'
     },
     {
-      title: 'الإجازات',
+      title: 'موقف الاستثناءات',
       value: summaryData.totalLeaves,
       icon: CalendarDays,
       color: 'bg-purple-500',
-      textColor: 'text-purple-200'
+      textColor: 'text-purple-200',
+      url: '/leave'
     },
     {
       title: 'العمل الإضافي',
       value: summaryData.totalOvertime,
       icon: Timer,
       color: 'bg-orange-500',
-      textColor: 'text-orange-200'
+      textColor: 'text-orange-200',
+      url: '/attendance/view-all-attendance?status=8'
     }
   ];
 
@@ -81,21 +87,43 @@ const OrganizationalSummaryCard = ({
           return (
             <Card key={index} className='transition-shadow hover:shadow-lg'>
               <CardContent className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div>
-                    <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
-                      {stat.title}
-                    </p>
-                    <p className='mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100'>
-                      {stat.value.toLocaleString('ar-EG')}
-                    </p>
+                {stat.url ? (
+                  <Link href={stat.url}>
+                    <div className='flex items-center justify-between'>
+                      <div>
+                        <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                          {stat.title}
+                        </p>
+                        <p className='mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100'>
+                          {stat.value.toLocaleString('ar-EG')}
+                        </p>
+                      </div>
+                      <div
+                        className={`rounded-full p-3 ${stat.color} bg-opacity-10`}
+                      >
+                        <IconComponent
+                          className={`h-6 w-6 ${stat.textColor}`}
+                        />
+                      </div>
+                    </div>
+                  </Link>
+                ) : (
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                        {stat.title}
+                      </p>
+                      <p className='mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100'>
+                        {stat.value.toLocaleString('ar-EG')}
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-full p-3 ${stat.color} bg-opacity-10`}
+                    >
+                      <IconComponent className={`h-6 w-6 ${stat.textColor}`} />
+                    </div>
                   </div>
-                  <div
-                    className={`rounded-full p-3 ${stat.color} bg-opacity-10`}
-                  >
-                    <IconComponent className={`h-6 w-6 ${stat.textColor}`} />
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           );

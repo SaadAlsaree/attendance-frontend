@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useQueryState } from 'nuqs';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import {
   Select,
   SelectContent,
@@ -21,17 +20,14 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet';
-import { CalendarIcon, FilterIcon, RotateCcw } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
+import { FilterIcon, RotateCcw } from 'lucide-react';
+
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
+import { setToStartOfDayUTC } from '@/lib/utils/date-utils';
+import { Input } from '@/components/ui/input';
 
 interface OrganizationalUnit {
   id: string;
@@ -66,7 +62,9 @@ const OrganizationalSummaryFilter = ({
 
   const onDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
-      setDate(selectedDate);
+      // Set time to start of day (00:00:00) in UTC
+      const dateAtStartOfDay = setToStartOfDayUTC(selectedDate);
+      setDate(dateAtStartOfDay);
     }
   };
 
@@ -145,29 +143,13 @@ const OrganizationalSummaryFilter = ({
           {/* التاريخ */}
           <div className='space-y-3'>
             <label className='text-sm font-medium'>التاريخ</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant='outline'
-                  className={cn(
-                    'w-full justify-start text-right font-normal',
-                    !date && 'text-muted-foreground'
-                  )}
-                >
-                  <CalendarIcon className='ml-2 h-4 w-4' />
-                  {date ? format(date, 'PPP', { locale: ar }) : 'اختر التاريخ'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className='w-auto p-0' align='end'>
-                <Calendar
-                  mode='single'
-                  selected={date || undefined}
-                  onSelect={onDateSelect}
-                  initialFocus
-                  locale={ar}
-                />
-              </PopoverContent>
-            </Popover>
+            <Input
+              value={date ? format(date, 'yyyy-MM-dd', { locale: ar }) : ''}
+              onChange={(e) =>
+                onDateSelect(new Date(e.target.value + 'T00:00:00'))
+              }
+              type='date'
+            />
           </div>
 
           {/* الوحدة التنظيمية */}

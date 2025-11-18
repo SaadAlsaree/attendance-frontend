@@ -206,12 +206,12 @@ export default function EmployeesViewPage({ employeeData }: Props) {
                           <div className='flex items-center gap-2'>
                             <BadgeCheck className='text-muted-foreground h-4 w-4' />
                             <span className='font-medium'>الرقم الوظيفي:</span>
-                            <span>{employeeData.code}</span>
+                            <span>{employeeData.empId}</span>
                             <Button
                               variant='ghost'
                               size='sm'
                               onClick={() =>
-                                copyToClipboard(employeeData.code, 'code')
+                                copyToClipboard(employeeData.empId, 'empId')
                               }
                               className='hover:bg-muted h-6 w-6 p-0'
                               title='نسخ الرقم الوظيفي'
@@ -228,12 +228,15 @@ export default function EmployeesViewPage({ employeeData }: Props) {
                             <span className='font-medium'>
                               البريد الإلكتروني:
                             </span>
-                            <span>{employeeData.email}</span>
+                            <span>{employeeData.userLogin}</span>
                             <Button
                               variant='ghost'
                               size='sm'
                               onClick={() =>
-                                copyToClipboard(employeeData.email, 'email')
+                                copyToClipboard(
+                                  employeeData.userLogin,
+                                  'userLogin'
+                                )
                               }
                               className='hover:bg-muted h-6 w-6 p-0'
                               title='نسخ البريد الإلكتروني'

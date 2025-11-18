@@ -3,7 +3,7 @@ import { IResponse } from '@/types/response';
 import { UserDto } from './auth';
 import { UserPermissionData } from '@/features/system/users-permissions/types/users-permissions';
 
-const baseUrl = process.env.API_URL || 'http://localhost:7000';
+const baseUrl = process.env.API_URL || 'http://fp28-back.inss.local:7000';
 
 class CurrentUserService {
     private cache: {

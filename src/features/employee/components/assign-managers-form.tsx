@@ -178,7 +178,7 @@ export default function AssignManagersForm({
                           key={employee.id}
                           value={employee.id.toString()}
                         >
-                          {employee.fullName} - {employee.code}
+                          {employee.fullName} - {employee.empId}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -189,7 +189,7 @@ export default function AssignManagersForm({
                   <div className='bg-muted/50 rounded-lg border p-4'>
                     <h4 className='mb-2 font-medium'>الموظف المحدد:</h4>
                     <p className='text-muted-foreground text-sm'>
-                      {selectedEmployee.fullName} - {selectedEmployee.code}
+                      {selectedEmployee.fullName} - {selectedEmployee.empId}
                     </p>
                     <p className='text-muted-foreground text-sm'>
                       المدير الحالي:{' '}

@@ -143,15 +143,16 @@ export default function UsersPermissionsForm({
           username: data.username,
           userLogin: data.userLogin,
           role: Number(data.role) as Role,
-          status: data.status ? (Number(data.status) as UserStatus) : (initialData.status as UserStatus),
+          status: data.status
+            ? (Number(data.status) as UserStatus)
+            : (initialData.status as UserStatus),
           isActive: data.isActive,
           organizationalUnitId: data.organizationalUnitId || undefined
         };
-        
+
         const response = await authApiCall(async () =>
           usersPermissionsService.updateUserClient(initialData.id!, updateData)
         );
-
         if (response) {
           toast.success('تم تحديث المستخدم بنجاح!');
           router.push('/system/users-permissions');
@@ -164,10 +165,10 @@ export default function UsersPermissionsForm({
           toast.error('كلمة المرور مطلوبة');
           return;
         }
-        
+
         const password = data.password;
         const confirmPassword = data.confirmPassword;
-        
+
         const response = await authApiCall(async () =>
           usersPermissionsService.createUserClient({
             username: data.username,
@@ -194,8 +195,6 @@ export default function UsersPermissionsForm({
     }
   };
 
-  console.log(form.formState.errors);
-
   return (
     <div className='space-y-6'>
       <div>
@@ -220,10 +219,7 @@ export default function UsersPermissionsForm({
                     <FormItem>
                       <FormLabel>معرف الدخول</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder='أدخل معرف الدخول'
-                          {...field}
-                        />
+                        <Input placeholder='أدخل معرف الدخول' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,10 +233,7 @@ export default function UsersPermissionsForm({
                     <FormItem>
                       <FormLabel>الاسم</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder='أدخل الاسم'
-                          {...field}
-                        />
+                        <Input placeholder='أدخل الاسم' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -293,7 +286,10 @@ export default function UsersPermissionsForm({
                           </FormControl>
                           <SelectContent>
                             {statusOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -346,7 +342,7 @@ export default function UsersPermissionsForm({
                       </div>
                       <FormControl>
                         <Switch
-                        dir='ltr'
+                          dir='ltr'
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />

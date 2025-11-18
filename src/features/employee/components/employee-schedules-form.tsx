@@ -211,7 +211,7 @@ export default function EmployeeSchedulesForm({
                           key={employee.id}
                           value={employee.id.toString()}
                         >
-                          {employee.fullName} - {employee.code}
+                          {employee.fullName} - {employee.empId}
                         </SelectItem>
                       ))}
                     </SelectContent>

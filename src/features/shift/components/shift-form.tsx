@@ -39,6 +39,7 @@ import { SHIFT_TYPE_OPTIONS } from '../types/shift';
 import { Spinner } from '@/components/spinner';
 import { CustomSwitch } from '@/components/ui/custom-switch';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
+import { Switch } from '@/components/ui/switch';
 
 interface ShiftFormProps {
   initialData: ShiftData | null;
@@ -306,7 +307,8 @@ export default function ShiftForm({
                       </div>
                     </div>
                     <FormControl>
-                      <CustomSwitch
+                      <Switch
+                        dir='ltr'
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
@@ -328,7 +330,8 @@ export default function ShiftForm({
                       </div>
                     </div>
                     <FormControl>
-                      <CustomSwitch
+                      <Switch
+                        dir='ltr'
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
@@ -350,7 +353,8 @@ export default function ShiftForm({
                 name='isActive'
                 render={({ field }) => (
                   <FormControl>
-                    <CustomSwitch
+                    <Switch
+                      dir='ltr'
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
