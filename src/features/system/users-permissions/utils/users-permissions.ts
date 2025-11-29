@@ -130,6 +130,7 @@ export const formSchema = (initialData?: any) => {
 };
 
 export const changePasswordFormSchema = z.object({
+    userId: z.string().optional(),
     currentPassword: z.string().min(1, "كلمة المرور الحالية مطلوبة"),
     newPassword: z.string().min(8, "كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل"),
     confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),

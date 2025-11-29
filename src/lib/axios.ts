@@ -2,6 +2,96 @@ import axios from 'axios';
 import { getServerSession } from 'next-auth';
 import authOption from '@/lib/auth-option';
 
+// Helper function to get client IP from headers (server-side only, when available)
+async function getClientIPFromHeaders(): Promise<string | null> {
+    try {
+        if (typeof window === 'undefined') {
+            // Try to use headers() from next/headers - but this only works in Server Components
+            // We'll catch the error if it doesn't work
+            try {
+                const { headers } = await import('next/headers');
+                const headersList = await headers();
+                
+                // First, try to get IP from middleware (x-client-ip)
+                const clientIP = headersList.get('x-client-ip');
+                if (clientIP) {
+                    return clientIP;
+                }
+                
+                // Fallback to other headers
+                const forwardedFor = headersList.get('x-forwarded-for');
+                const realIP = headersList.get('x-real-ip');
+                const cfConnectingIP = headersList.get('cf-connecting-ip');
+                
+                if (forwardedFor) {
+                    return forwardedFor.split(',')[0].trim();
+                }
+                if (realIP) {
+                    return realIP;
+                }
+                if (cfConnectingIP) {
+                    return cfConnectingIP;
+                }
+            } catch (error) {
+                // headers() is not available in this context, fall through to API route
+            }
+        }
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
+
+// Helper function to get client IP from API route (works for both server and client)
+async function getClientIPFromAPI(forwardHeaders?: Record<string, string>): Promise<string | null> {
+    try {
+        // For client-side, check localStorage first to avoid unnecessary API calls
+        if (typeof window !== 'undefined') {
+            const cachedIP = localStorage.getItem('client-ip');
+            if (cachedIP) {
+                return cachedIP;
+            }
+        }
+
+        // Fetch IP from API route (works in both server and client contexts)
+        const baseUrl = typeof window !== 'undefined' 
+            ? window.location.origin 
+            : process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL 
+                ? `https://${process.env.VERCEL_URL}` 
+                : 'http://localhost:3000');
+        
+        const fetchOptions: RequestInit = {
+            credentials: 'include',
+        };
+
+        // For server-side, forward the original headers to get the real client IP
+        if (typeof window === 'undefined' && forwardHeaders) {
+            fetchOptions.headers = forwardHeaders;
+        }
+        
+        const response = await fetch(`${baseUrl}/api/client-ip`, fetchOptions);
+        
+        // Check if response is OK and is JSON
+        if (response.ok) {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                if (data.ip && data.ip !== 'unknown' && data.ip !== '::1') {
+                    // Cache the IP in localStorage for client-side
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('client-ip', data.ip);
+                    }
+                    return data.ip;
+                }
+            }
+        }
+        return null;
+    } catch (error) {
+        // Silently fail - IP is not critical for request to succeed
+        return null;
+    }
+}
+
 // Create a base axios instance without auth headers
 const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -12,7 +102,7 @@ const axiosInstance = axios.create({
     timeout: 10000, // 10 second timeout
 });
 
-// Add a request interceptor to dynamically attach the token
+// Add a request interceptor to dynamically attach the token and client IP
 axiosInstance.interceptors.request.use(
     async (config) => {
         try {
@@ -22,6 +112,31 @@ axiosInstance.interceptors.request.use(
 
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
+            }
+
+            // Try to get IP from headers first (server-side only, when available)
+            let clientIP = await getClientIPFromHeaders();
+            
+            // If not available from headers, try API route
+            if (!clientIP) {
+                // Try to forward headers if available in config
+                const forwardHeaders: Record<string, string> = {};
+                if (config.headers) {
+                    // Forward relevant IP headers if they exist
+                    const forwardedFor = config.headers['x-forwarded-for'] as string;
+                    const realIP = config.headers['x-real-ip'] as string;
+                    const cfConnectingIP = config.headers['cf-connecting-ip'] as string;
+                    
+                    if (forwardedFor) forwardHeaders['x-forwarded-for'] = forwardedFor;
+                    if (realIP) forwardHeaders['x-real-ip'] = realIP;
+                    if (cfConnectingIP) forwardHeaders['cf-connecting-ip'] = cfConnectingIP;
+                }
+                
+                clientIP = await getClientIPFromAPI(Object.keys(forwardHeaders).length > 0 ? forwardHeaders : undefined);
+            }
+
+            if (clientIP && clientIP !== 'unknown' && clientIP !== '::1') {
+                config.headers['X-Client-IP'] = clientIP;
             }
 
             return config;
@@ -105,6 +220,18 @@ export const setAuthToken = (token: string | null) => {
 axiosClient.interceptors.request.use(
     async (config) => {
         // The token will be set by setAuthToken function called from components
+        
+        // Add client IP header for client-side requests
+        try {
+            const clientIP = await getClientIPFromAPI();
+            if (clientIP && clientIP !== 'unknown' && clientIP !== '::1') {
+                config.headers['X-Client-IP'] = clientIP;
+            }
+        } catch (error) {
+            // If getting IP fails, continue without it
+            console.warn('Failed to get client IP:', error);
+        }
+        
         return config;
     },
     (error) => {

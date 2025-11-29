@@ -25,6 +25,7 @@ export interface UsersPermissionsResponse {
 }
 
 export interface ChangePasswordRequest {
+    userId: string;
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;

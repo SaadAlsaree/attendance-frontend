@@ -43,9 +43,7 @@ export function UserNav() {
           <DropdownMenuItem onClick={() => router.push('/profile')}>
             الملف الشخصي
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/settings')}>
-            الإعدادات
-          </DropdownMenuItem>
+        
           <DropdownMenuItem onClick={() => signOut()}>
             تسجيل الخروج
           </DropdownMenuItem>

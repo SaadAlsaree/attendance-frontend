@@ -184,7 +184,7 @@ export default function AppSidebar() {
   }, []);
 
   const onProfileClick = React.useCallback(() => {
-    router.push('/dashboard/profile');
+    router.push('/profile');
   }, [router]);
 
   const onSignOut = React.useCallback(() => {
@@ -267,10 +267,7 @@ export default function AppSidebar() {
                     الملف الشخصي
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem>
-                    <IconBell className='mr-2 h-4 w-4' />
-                    الإشعارات
-                  </DropdownMenuItem>
+                 
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onSignOut}>
