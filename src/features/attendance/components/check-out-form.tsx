@@ -178,7 +178,7 @@ export default function CheckOutFormDialog({
       setLoading(true);
 
       const checkOutData: CheckOutRequest = {
-        employeeId: parseInt(data.employeeId),
+        employeeId: data.employeeId,
         attendanceId: attendance.id,
         checkOutTime: data.checkOutTime, // استخدم القيمة من النموذج
         location: data.location,

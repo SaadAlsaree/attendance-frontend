@@ -218,7 +218,7 @@ export default function CheckInFormDialog({
       const currentDateIso = new Date().toISOString();
 
       const checkInData: CheckInRequest = {
-        employeeId: parseInt(data.employeeId),
+        employeeId: data.employeeId,
         attendanceId: attendance.id,
         checkInTime: currentDateIso, // استخدام الوقت الحالي بتنسيق ISO
         location: data.location,

@@ -173,7 +173,7 @@ export default function AddEditEmployeesForm({
           managerId: data.managerId || undefined,
           isManager: data.isManager,
           role: data.role,
-          faceImage: data.faceImage!
+          faceImage: data.faceImage || undefined
         };
 
         const response = await authApiCall(
@@ -410,11 +410,11 @@ export default function AddEditEmployeesForm({
                     <div className='space-y-2'>
                       <FileUpload
                         label={
-                          initialData ? 'صورة الوجه (اختياري)' : 'صورة الوجه'
+                          initialData ? 'صورة الوجه (اختياري)' : 'صورة الوجه (اختياري)'
                         }
                         value={field.value}
                         onChange={field.onChange}
-                        required={!initialData}
+                        required={false}
                         error={form.formState.errors.faceImage?.message}
                       />
                       {existingImages.faceImageUrl && !field.value && (

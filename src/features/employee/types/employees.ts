@@ -16,7 +16,7 @@ export interface EmployeeRegistrationRequest {
     role: Role;
 
     // File inputs
-    faceImage: File;
+    faceImage?: File;
 }
 
 // Employee update request types (for PUT /employees/{id})

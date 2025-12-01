@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQueryState } from 'nuqs';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import {
   Select,
   SelectContent,
@@ -21,24 +20,16 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet';
-import { CalendarIcon, FilterIcon, RotateCcw } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
+import { FilterIcon, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { useRouter } from 'next/navigation';
-import { setToStartOfDayUTC, setToEndOfDayUTC } from '@/lib/utils/date-utils';
+import { Input } from '@/components/ui/input';
 import { useOrganizationalUnits } from '@/hooks/use-organizational-unit';
 import { shiftService } from '@/features/shift/api/shift.service';
 import { useAuthApi } from '@/hooks/use-auth-api';
 import { ShiftData } from '@/features/shift/types/shift';
 import { OrganizationalReportQuery } from '../../types/organization-report';
-import type { DateRange } from 'react-day-picker';
 
 type OrganizationalReportFilterProps = {
   onFilterChange?: (query: OrganizationalReportQuery) => void;
@@ -47,10 +38,8 @@ type OrganizationalReportFilterProps = {
 const OrganizationalReportFilter = ({
   onFilterChange
 }: OrganizationalReportFilterProps) => {
-  const router = useRouter();
   const { authApiCall } = useAuthApi();
   const [isOpen, setIsOpen] = useState(false);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [shifts, setShifts] = useState<ShiftData[]>([]);
   const [isLoadingShifts, setIsLoadingShifts] = useState(false);
 
@@ -65,13 +54,9 @@ const OrganizationalReportFilter = ({
   const [organizationalUnitId, setOrganizationalUnitId] = useQueryState(
     'organizationalUnitId'
   );
-  const [startDate, setStartDate] = useQueryState('startDate', {
-    parse: (value) => (value ? new Date(value) : null),
-    serialize: (value) => (value ? value.toISOString() : '')
-  });
-  const [endDate, setEndDate] = useQueryState('endDate', {
-    parse: (value) => (value ? new Date(value) : null),
-    serialize: (value) => (value ? value.toISOString() : '')
+  const [date, setDate] = useQueryState('date', {
+    parse: (value) => (value ? value : null),
+    serialize: (value) => (value ? value : '')
   });
   const [shiftId, setShiftId] = useQueryState('shiftId');
   const [includeSubUnits, setIncludeSubUnits] = useQueryState(
@@ -82,6 +67,17 @@ const OrganizationalReportFilter = ({
       defaultValue: true
     }
   );
+  const [searchTerm, setSearchTerm] = useQueryState('searchTerm');
+  const [pageNumber, setPageNumber] = useQueryState('pageNumber', {
+    parse: (value) => (value ? parseInt(value) : 1),
+    serialize: (value) => (value ? value.toString() : '1'),
+    defaultValue: 1
+  });
+  const [pageSize, setPageSize] = useQueryState('pageSize', {
+    parse: (value) => (value ? parseInt(value) : 10),
+    serialize: (value) => (value ? value.toString() : '10'),
+    defaultValue: 10
+  });
 
   // Fetch shifts
   useEffect(() => {
@@ -111,38 +107,6 @@ const OrganizationalReportFilter = ({
     fetchShifts();
   }, [authApiCall]);
 
-  // Date range state for the calendar
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startDate || undefined,
-    to: endDate || undefined
-  });
-
-  // Update date range when URL params change
-  useEffect(() => {
-    setDateRange({
-      from: startDate || undefined,
-      to: endDate || undefined
-    });
-  }, [startDate, endDate]);
-
-  const onDateRangeSelect = (range: DateRange | undefined) => {
-    setDateRange(range);
-    if (range?.from) {
-      // Set start date to beginning of day (00:00:00) in UTC
-      const startDateAtStartOfDay = setToStartOfDayUTC(range.from);
-      setStartDate(startDateAtStartOfDay);
-    } else {
-      setStartDate(null);
-    }
-    if (range?.to) {
-      // Set end date to end of day (23:59:59.999) in UTC
-      const endDateAtEndOfDay = setToEndOfDayUTC(range.to);
-      setEndDate(endDateAtEndOfDay);
-    } else {
-      setEndDate(null);
-    }
-  };
-
   const onUnitSelect = (unitId: string) => {
     setOrganizationalUnitId(unitId);
   };
@@ -157,11 +121,12 @@ const OrganizationalReportFilter = ({
 
   const onResetFilters = () => {
     setOrganizationalUnitId(null);
-    setStartDate(null);
-    setEndDate(null);
+    setDate(null);
     setShiftId(null);
     setIncludeSubUnits(true);
-    setDateRange(undefined);
+    setSearchTerm(null);
+    setPageNumber(1);
+    setPageSize(10);
   };
 
   const onApplyFilters = () => {
@@ -176,10 +141,12 @@ const OrganizationalReportFilter = ({
     // Build query object
     const query: OrganizationalReportQuery = {
       organizationalUnitId,
-      ...(startDate && { startDate: startDate.toISOString() }),
-      ...(endDate && { endDate: endDate.toISOString() }),
+      ...(date && { date }),
       ...(shiftId && { shiftId }),
-      includeSubUnits: includeSubUnits ?? true
+      includeSubUnits: includeSubUnits ?? true,
+      ...(searchTerm && { searchTerm }),
+      pageNumber: pageNumber ?? 1,
+      pageSize: pageSize ?? 10
     };
 
     // Call callback if provided
@@ -187,42 +154,42 @@ const OrganizationalReportFilter = ({
       onFilterChange(query);
     }
 
-    // Update URL with query params
+    // Build URL with all query params
     const params = new URLSearchParams();
-
     params.set('organizationalUnitId', organizationalUnitId);
-    if (startDate) {
-      params.set('startDate', startDate.toISOString());
-    }
-    if (endDate) {
-      params.set('endDate', endDate.toISOString());
+    if (date) {
+      params.set('date', date);
     }
     if (shiftId) {
       params.set('shiftId', shiftId);
     }
-    if (includeSubUnits !== null && includeSubUnits !== undefined) {
-      params.set('includeSubUnits', includeSubUnits.toString());
+    params.set('includeSubUnits', (includeSubUnits ?? true).toString());
+    if (searchTerm) {
+      params.set('searchTerm', searchTerm);
     }
+    params.set('pageNumber', (pageNumber ?? 1).toString());
+    params.set('pageSize', (pageSize ?? 10).toString());
 
-    const queryString = params.toString();
-    const url = `/reports/organizational-report?${queryString}`;
-    router.push(url);
-    router.refresh();
+    const url = `/reports/organizational-report?${params.toString()}`;
+
+    // Navigate to the new URL - this will trigger a full page reload
+    // which ensures the server component re-renders with new params
+    window.location.href = url;
   };
 
   const hasActiveFilters =
     organizationalUnitId ||
-    startDate ||
-    endDate ||
+    date ||
     shiftId ||
-    includeSubUnits === false;
+    includeSubUnits === false ||
+    searchTerm;
 
   const activeFiltersCount = [
     organizationalUnitId,
-    startDate,
-    endDate,
+    date,
     shiftId,
-    includeSubUnits === false
+    includeSubUnits === false,
+    searchTerm
   ].filter(Boolean).length;
 
   return (
@@ -276,49 +243,17 @@ const OrganizationalReportFilter = ({
             </Select>
           </div>
 
-          {/* نطاق التاريخ */}
+          {/* التاريخ */}
           <div className='space-y-3'>
-            <label className='text-sm font-medium'>نطاق التاريخ</label>
-            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant='outline'
-                  className={cn(
-                    'w-full justify-start text-right font-normal',
-                    !dateRange?.from &&
-                      !dateRange?.to &&
-                      'text-muted-foreground'
-                  )}
-                >
-                  <CalendarIcon className='ml-2 h-4 w-4' />
-                  {dateRange?.from && dateRange?.to
-                    ? `${format(dateRange.from, 'PPP', { locale: ar })} - ${format(dateRange.to, 'PPP', { locale: ar })}`
-                    : dateRange?.from
-                      ? format(dateRange.from, 'PPP', { locale: ar })
-                      : 'اختر نطاق التاريخ'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className='w-auto p-0'
-                align='end'
-                onOpenAutoFocus={(e) => e.preventDefault()}
-              >
-                <Calendar
-                  mode='range'
-                  selected={dateRange}
-                  onSelect={(range) => {
-                    onDateRangeSelect(range);
-                    // Close popover only when both dates are selected
-                    if (range?.from && range?.to) {
-                      setIsDatePickerOpen(false);
-                    }
-                  }}
-                  initialFocus
-                  locale={ar}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
+            <label className='text-sm font-medium'>التاريخ</label>
+            <Input
+              value={date || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setDate(value || null);
+              }}
+              type='date'
+            />
           </div>
 
           {/* المناوبة */}
@@ -360,6 +295,16 @@ const OrganizationalReportFilter = ({
             </Select>
           </div>
 
+          {/* البحث */}
+          <div className='space-y-3'>
+            <label className='text-sm font-medium'>البحث</label>
+            <Input
+              value={searchTerm || ''}
+              onChange={(e) => setSearchTerm(e.target.value || null)}
+              placeholder='أدخل مصطلح البحث'
+            />
+          </div>
+
           {/* ملخص الفلاتر */}
           {hasActiveFilters && (
             <div className='bg-muted/50 rounded-lg border p-4'>
@@ -373,14 +318,9 @@ const OrganizationalReportFilter = ({
                     )?.name || 'اختر الجهة'}
                   </Badge>
                 )}
-                {startDate && (
+                {date && (
                   <Badge variant='secondary' className='text-xs'>
-                    من: {format(startDate, 'dd/MM/yyyy', { locale: ar })}
-                  </Badge>
-                )}
-                {endDate && (
-                  <Badge variant='secondary' className='text-xs'>
-                    إلى: {format(endDate, 'dd/MM/yyyy', { locale: ar })}
+                    التاريخ: {format(new Date(date + 'T00:00:00'), 'dd/MM/yyyy', { locale: ar })}
                   </Badge>
                 )}
                 {shiftId && (
@@ -391,6 +331,11 @@ const OrganizationalReportFilter = ({
                 {includeSubUnits === false && (
                   <Badge variant='secondary' className='text-xs'>
                     لا تشمل الوحدات الفرعية
+                  </Badge>
+                )}
+                {searchTerm && (
+                  <Badge variant='secondary' className='text-xs'>
+                    البحث: {searchTerm}
                   </Badge>
                 )}
               </div>

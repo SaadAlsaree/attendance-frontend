@@ -51,6 +51,7 @@ attendance/
 ```typescript
 import { attendanceService } from '@/features/attendance/api';
 import { validateCreateAttendance } from '@/features/attendance/utils';
+import { AttendanceStatus } from '@/features/attendance/types';
 
 // Create attendance
 const createAttendance = async () => {
@@ -77,8 +78,13 @@ const getAttendanceList = async () => {
     page: 1,
     pageSize: 10,
     employeeId: 'uuid',
-    startDate: '2024-01-01T00:00:00Z',
-    endDate: '2024-12-31T23:59:59Z'
+    organizationId: 'uuid',
+    date: '2024-01-15T00:00:00Z',
+    status: AttendanceStatus.Present,
+    shiftId: 'uuid',
+    searchTerm: 'search term',
+    sortBy: 'date',
+    sortOrder: 'desc'
   };
 
   const result = await attendanceService.getAttendanceList(query);
@@ -163,7 +169,7 @@ All data is validated using Zod schemas before being sent to the API:
 
 - **Create/Update**: Validates required fields and data types
 - **Check-in/Check-out**: Validates coordinates, UUIDs, and required fields
-- **Query Parameters**: Validates pagination, date ranges, and filters
+- **Query Parameters**: Validates pagination, date, and filters
 - **Approval**: Validates approver ID and optional notes
 
 ## Error Handling

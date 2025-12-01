@@ -32,7 +32,7 @@ export default function AttendanceActions({ employees }: Props) {
     const today = new Date();
     const mockAttendance: AttendanceResponse = {
       id: 'current-attendance',
-      employeeId: 1,
+      employeeId: '1',
       organizationId: 'current-org',
       date: today.toISOString().split('T')[0], // استخدام التاريخ الحالي
       status: AttendanceStatus.Completed, // Assuming 0 is the default status

@@ -67,7 +67,7 @@ export interface AttendanceLog {
 // Main Attendance Response - Updated to match new data structure
 export interface AttendanceResponse {
     id: string;
-    employeeId: number;
+    employeeId: string;
     organizationId: string;
     organizationalName?: string;
     date: string;
@@ -81,17 +81,21 @@ export interface AttendanceResponse {
     lateMinutes?: number | null;
     earlyLeaveMinutes?: number | null;
     notes?: string | null;
-    checkInMethod?: LogMethod | null;
-    checkOutMethod?: LogMethod | null;
+    checkInMethod?: number | null;
+    checkOutMethod?: number | null;
     approvedBy?: string | null;
     approvedAt?: string | null;
-    attendanceScheduleId?: string;
+    attendanceScheduleId?: string | null;
     createdAt: string;
     updatedAt?: string | null;
+    excludedDates?: string | null;
+    leaveType?: number;
+    leaveTypeName?: string;
+    leaveId?: string;
 
     // Navigation properties from the new response
     fullName?: string;
-    code?: string;
+    code?: string | null;
     shiftName?: string;
     approverName?: string | null;
 
@@ -105,7 +109,7 @@ export interface AttendanceResponse {
 
 // Request Types
 export interface CreateAttendanceRequest {
-    employeeId: number;
+    employeeId: string;
     organizationId: string;
     date: string;
     shiftId?: string;
@@ -121,7 +125,7 @@ export interface UpdateAttendanceRequest {
 }
 
 export interface CheckInRequest {
-    employeeId: number;
+    employeeId: string;
     attendanceId: string;
     checkInTime: string;
     location?: string;
@@ -134,7 +138,7 @@ export interface CheckInRequest {
 }
 
 export interface CheckOutRequest {
-    employeeId: number;
+    employeeId: string;
     attendanceId: string;
     checkOutTime: string;
     location?: string;
@@ -155,15 +159,74 @@ export interface ApproveAttendanceRequest {
 export interface AttendanceQuery {
     page?: number;
     pageSize?: number;
-    employeeId?: number | string;
+    employeeId?: string;
     organizationId?: string;
-    startDate?: string;
-    endDate?: string;
-    status?: string;
+    date?: string;
+    status?: AttendanceStatus | number;
     shiftId?: string;
     searchTerm?: string;
     sortBy?: string;
     sortOrder?: string;
+}
+
+export interface NotAttendanceQuery {
+    page?: number;
+    pageSize?: number;
+    employeeId?: string;
+    organizationId?: string;
+    date?: string;
+    status?: AttendanceStatus | number;
+    shiftId?: string;
+    searchTerm?: string;
+    sortBy?: string;
+    sortOrder?: string;
+}
+
+// Not Attendance Interface
+export interface NotAttendanceData {
+    id: string;
+    employeeId: string;
+    empID: string;
+    organizationId: string;
+    organizationalName: string;
+    date: string;
+    checkInTime: string | null;
+    checkOutTime: string | null;
+    status: number;
+    shiftId: string;
+    workingMinutes: number | null;
+    breakMinutes: number | null;
+    overtimeMinutes: number | null;
+    lateMinutes: number | null;
+    earlyLeaveMinutes: number | null;
+    notes: string | null;
+    checkInMethod: number | null;
+    checkOutMethod: number | null;
+    approvedBy: string | null;
+    approvedAt: string | null;
+    attendanceScheduleId: string;
+    createdAt: string;
+    updatedAt: string | null;
+    excludedDates: string;
+    leaveType: number;
+    leaveTypeName: string;
+    leaveId: string;
+    fullName: string;
+    code: string;
+    shiftName: string;
+    approverName: string | null;
+}
+
+export interface NotAttendanceResponse {
+    isSuccess: boolean;
+    message: string;
+    data: NotAttendanceData[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
 }
 
 // Response Types

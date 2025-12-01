@@ -40,6 +40,14 @@ export const navItems: NavItem[] = [
         shortcut: ['v', 'a']
       },
       {
+        title: 'Not Attendance',
+        arabicTitle: 'غير المبصمين',
+        url: '/attendance/not-attendance',
+        icon: 'page',
+        shortcut: ['n', 'a']
+        
+      },
+      {
         title: 'Attendance Logs',
         arabicTitle: 'سجلات الحضور',
         url: '/attendance/attendance-logs',

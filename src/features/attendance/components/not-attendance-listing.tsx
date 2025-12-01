@@ -1,16 +1,16 @@
-import AttendanceTable from './attendance-tables';
+import NotAttendanceTable from './not-attendance-tables';
 import { searchParamsCache } from '@/lib/searchparams';
-import { AttendanceResponse } from '../types/attendance';
+import { NotAttendanceData } from '../types/attendance';
 import { attendanceService } from '../api/attendance.service';
-import { columns } from './attendance-tables/columns';
+import { columns } from './not-attendance-tables/columns';
 
-interface AttendanceListingProps {
+interface NotAttendanceListingProps {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function AttendanceListing({
+export default async function NotAttendanceListing({
   searchParams
-}: AttendanceListingProps = {}) {
+}: NotAttendanceListingProps = {}) {
   const page = searchParamsCache.get('page');
   const searchTerm = searchParamsCache.get('searchTerm');
   const pageSize = searchParamsCache.get('pageSize');
@@ -21,6 +21,8 @@ export default async function AttendanceListing({
   const date = dateParam || undefined;
   const statusParam = searchParams?.status as string | undefined;
   const organizationId = searchParams?.organizationId as string | undefined;
+  const employeeId = searchParams?.employeeId as string | undefined;
+  const shiftId = searchParams?.shiftId as string | undefined;
 
   const filters = {
     page: page ? parseInt(String(page)) : undefined,
@@ -28,18 +30,21 @@ export default async function AttendanceListing({
     ...(searchTerm && { searchTerm: searchTerm }),
     ...(date && { date: date }),
     ...(statusParam && { status: parseInt(statusParam) }),
-    ...(organizationId && { organizationId: organizationId })
+    ...(organizationId && { organizationId: organizationId }),
+    ...(employeeId && { employeeId: employeeId }),
+    ...(shiftId && { shiftId: shiftId })
   };
 
-  const data = await attendanceService.getAttendanceList(filters);
-  const totalAttendances = data?.totalCount || 0;
-  const attendances = (data?.data || []) as AttendanceResponse[];
+  const data = await attendanceService.getNotAttendance(filters);
+  const totalItems = data?.totalCount || 0;
+  const notAttendances = (data?.data || []) as NotAttendanceData[];
 
   return (
-    <AttendanceTable<AttendanceResponse, unknown>
-      data={attendances}
-      totalItems={totalAttendances}
+    <NotAttendanceTable<NotAttendanceData, unknown>
+      data={notAttendances}
+      totalItems={totalItems}
       columns={columns}
     />
   );
 }
+

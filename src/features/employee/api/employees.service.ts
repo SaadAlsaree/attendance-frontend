@@ -14,7 +14,7 @@ import {
   EmployeeUpdateRequest
 } from '../types/employees';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const employeeService = {
   // Register new employee
@@ -43,7 +43,9 @@ export const employeeService = {
       formData.append('Role', data.role);
 
       // File uploads
-      formData.append('FaceImage', data.faceImage);
+      if (data.faceImage) {
+        formData.append('FaceImage', data.faceImage);
+      }
 
       const response = await axiosInstance.post(
         `${baseUrl}/auth/register`,
@@ -92,7 +94,9 @@ export const employeeService = {
       formData.append('Role', data.role);
 
       // File uploads
-      formData.append('FaceImage', data.faceImage);
+      if (data.faceImage) {
+        formData.append('FaceImage', data.faceImage);
+      }
 
       const response = await axiosClient.post(
         `${baseUrl}/auth/register`,

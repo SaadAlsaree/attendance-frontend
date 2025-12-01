@@ -49,20 +49,21 @@ export interface OrganizationalReportResponse {
 }
 
 export interface OrganizationalReportRequest {
-    organizationalUnitId?: string;
-    startDate?: string;
-    endDate?: string;
-    shiftId?: string;
-    includeSubUnits?: boolean;
-    searchTerm?: string;
-    page?: number;
-    pageSize?: number;
+    organizationalUnitId: string; // Guid - required
+    date?: string; // DateOnly? - nullable (YYYY-MM-DD format)
+    shiftId?: string; // Guid? - nullable
+    includeSubUnits?: boolean; // bool - default true
+    searchTerm?: string; // string? - nullable
+    pageNumber?: number; // int - default 1
+    pageSize?: number; // int - default 10
 }
 
 export interface OrganizationalReportQuery {
     organizationalUnitId: string; // Guid - required
-    startDate?: string | null; // DateTime? - nullable
-    endDate?: string | null; // DateTime? - nullable
+    date?: string | null; // DateOnly? - nullable (YYYY-MM-DD format)
     shiftId?: string | null; // Guid? - nullable
     includeSubUnits?: boolean; // bool - default true
+    searchTerm?: string | null; // string? - nullable
+    pageNumber?: number; // int - default 1
+    pageSize?: number; // int - default 10
 }

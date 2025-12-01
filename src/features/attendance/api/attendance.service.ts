@@ -6,12 +6,14 @@ import {
   CheckOutRequest,
   ApproveAttendanceRequest,
   AttendanceQuery,
+  NotAttendanceQuery,
   AttendanceListResponse,
   AttendanceDetailResponse,
-  ApiAttendanceResponse
+  ApiAttendanceResponse,
+  NotAttendanceResponse
 } from '../types/attendance';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000/';
 
 export const attendanceService = {
   // Get attendance list with pagination and filters
@@ -303,6 +305,44 @@ export const attendanceService = {
       return (response.data as AttendanceDetailResponse) || null;
     } catch (error) {
       console.error('Error approving attendance:', error);
+      return null;
+    }
+  },
+
+  // Get not attendance list (server-side)
+  async getNotAttendance(
+    query: NotAttendanceQuery
+  ): Promise<NotAttendanceResponse | null> {
+    try {
+      const response = await axiosInstance.get(`${baseUrl}/attendance/not-attendance`, {
+        params: query
+      });
+      if (response.status >= 400) {
+        console.error('Error fetching not attendance:', response.statusText);
+        return null;
+      }
+      return (response.data as NotAttendanceResponse) || null;
+    } catch (error) {
+      console.error('Error fetching not attendance:', error);
+      return null;
+    }
+  },
+
+  // Get not attendance list (client-side)
+  async getNotAttendanceClient(
+    query: NotAttendanceQuery
+  ): Promise<NotAttendanceResponse | null> {
+    try {
+      const response = await axiosClient.get(`${baseUrl}/attendance/not-attendance`, {
+        params: query
+      });
+      if (response.status >= 400) {
+        console.error('Error fetching not attendance:', response.statusText);
+        return null;
+      }
+      return (response.data as NotAttendanceResponse) || null;
+    } catch (error) {
+      console.error('Error fetching not attendance:', error);
       return null;
     }
   }

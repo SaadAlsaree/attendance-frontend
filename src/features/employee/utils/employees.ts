@@ -23,12 +23,18 @@ export const employeeFormSchema = z.object({
     secondName: z.string()
         .min(2, 'الاسم الثاني يجب أن يكون حرفين على الأقل')
         .max(50, 'الاسم الثاني يجب أن يكون 50 حرف على الأكثر'),
-    thirdName: z.string()
-        .max(50, 'الاسم الثالث يجب أن يكون 50 حرف على الأكثر')
-        .optional(),
-    fourthName: z.string()
-        .max(50, 'الاسم الرابع يجب أن يكون 50 حرف على الأكثر')
-        .optional(),
+    thirdName: z.preprocess(
+        (val) => (val === '' || val === null || val === undefined ? undefined : val),
+        z.string()
+            .max(50, 'الاسم الثالث يجب أن يكون 50 حرف على الأكثر')
+            .optional()
+    ),
+    fourthName: z.preprocess(
+        (val) => (val === '' || val === null || val === undefined ? undefined : val),
+        z.string()
+            .max(50, 'الاسم الرابع يجب أن يكون 50 حرف على الأكثر')
+            .optional()
+    ),
     familyName: z.string()
         .min(2, 'اسم العائلة يجب أن يكون حرفين على الأقل')
         .max(50, 'اسم العائلة يجب أن يكون 50 حرف على الأكثر'),
@@ -91,14 +97,8 @@ export const managerAssignmentSchema = z.object({
 // Extended schema with custom validations
 export const employeeFormSchemaWithCustomValidations = employeeFormSchema;
 
-// Create a custom validation schema for new employees (files required)
-export const newEmployeeFormSchema = employeeFormSchemaWithCustomValidations
-    .refine((data) => {
-        return data.faceImage !== null;
-    }, {
-        message: 'صورة الوجه مطلوبة',
-        path: ['faceImage']
-    });
+// Create a custom validation schema for new employees (faceImage is optional)
+export const newEmployeeFormSchema = employeeFormSchemaWithCustomValidations;
 
 // Role options for dropdown
 export const roleOptions = [
@@ -137,7 +137,7 @@ export const transformFormDataToRequest = (formData: EmployeeFormData): Employee
         managerId: formData.managerId || undefined,
         isManager: formData.isManager,
         role: formData.role,
-        faceImage: formData.faceImage!
+        faceImage: formData.faceImage || undefined
     };
 };
 

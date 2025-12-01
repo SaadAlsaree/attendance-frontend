@@ -27,7 +27,11 @@ export const searchParams = {
   role: parseAsInteger,
   isActive: parseAsString,
   employeeSearch: parseAsString,
-  direct: parseAsString
+  direct: parseAsString,
+  organizationalUnitId: parseAsString,
+  shiftId: parseAsString,
+  includeSubUnits: parseAsString,
+  pageNumber: parseAsInteger.withDefault(1)
 
   // advanced filter
   // filters: getFiltersStateParser().withDefault([]),

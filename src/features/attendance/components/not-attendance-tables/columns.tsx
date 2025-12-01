@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import {
-  AttendanceResponse,
+  NotAttendanceData,
   AttendanceStatus,
   AttendanceStatusNames
 } from '../../types/attendance';
@@ -13,10 +13,10 @@ import moment from 'moment';
 import { LogIn, LogOut, User, Hash, FilterIcon, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
-export const columns: ColumnDef<AttendanceResponse>[] = [
+export const columns: ColumnDef<NotAttendanceData>[] = [
   {
     id: 'searchTerm',
-    accessorKey: 'employee.fullName',
+    accessorKey: 'fullName',
     size: 200,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='الموظف' />
@@ -25,7 +25,6 @@ export const columns: ColumnDef<AttendanceResponse>[] = [
       const fullName = row.original.fullName;
       const code = row.original.code;
 
-      // Use new fields if available, fallback to legacy fields
       const displayCode = code || '-';
 
       return (
@@ -120,43 +119,43 @@ export const columns: ColumnDef<AttendanceResponse>[] = [
 
       switch (status) {
         case AttendanceStatus.Present:
-          badgeVariant = 'green'; // أخضر للحضور
+          badgeVariant = 'green';
           break;
         case AttendanceStatus.Absent:
-          badgeVariant = 'red'; // أحمر للغياب
+          badgeVariant = 'red';
           break;
         case AttendanceStatus.Late:
-          badgeVariant = 'yellow'; // أصفر للتأخير
+          badgeVariant = 'yellow';
           break;
         case AttendanceStatus.Early_Out:
-          badgeVariant = 'orange'; // برتقالي للانصراف المبكر
+          badgeVariant = 'orange';
           break;
         case AttendanceStatus.Overtime:
-          badgeVariant = 'purple'; // بنفسجي للعمل الإضافي
+          badgeVariant = 'purple';
           break;
         case AttendanceStatus.Break:
-          badgeVariant = 'blue'; // أزرق للراحة
+          badgeVariant = 'blue';
           break;
         case AttendanceStatus.Vacation:
-          badgeVariant = 'indigo'; // نيلي للإجازة
+          badgeVariant = 'indigo';
           break;
         case AttendanceStatus.Holiday:
-          badgeVariant = 'teal'; // تركواز للعطلة
+          badgeVariant = 'teal';
           break;
         case AttendanceStatus.Shift_Change:
-          badgeVariant = 'gray-outline'; // رمادي محدد لتغيير الوقت
+          badgeVariant = 'gray-outline';
           break;
         case AttendanceStatus.Shift_Swap:
-          badgeVariant = 'blue-outline'; // أزرق محدد لتبديل الوقت
+          badgeVariant = 'blue-outline';
           break;
         case AttendanceStatus.Shift_Swap_Request:
-          badgeVariant = 'yellow-outline'; // أصفر محدد لطلب تبديل الوقت
+          badgeVariant = 'yellow-outline';
           break;
         case AttendanceStatus.Completed:
-          badgeVariant = 'green-outline'; // أخضر محدد للمكتمل
+          badgeVariant = 'green-outline';
           break;
         default:
-          badgeVariant = 'gray'; // رمادي للحالات غير المعروفة
+          badgeVariant = 'gray';
       }
 
       return (
@@ -272,6 +271,15 @@ export const columns: ColumnDef<AttendanceResponse>[] = [
     )
   },
   {
+    accessorKey: 'organizationalName',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='الجهة' />
+    ),
+    cell: ({ row }) => (
+      <div className=''>{row.getValue('organizationalName') || '-'}</div>
+    )
+  },
+  {
     accessorKey: 'leaveTypeName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='الاجراء' />
@@ -324,3 +332,4 @@ export const columns: ColumnDef<AttendanceResponse>[] = [
     cell: ({ row }) => <CellAction data={row.original} />
   }
 ];
+

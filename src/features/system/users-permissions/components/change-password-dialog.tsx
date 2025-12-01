@@ -30,6 +30,7 @@ import {
 } from '../utils/users-permissions';
 import { usersPermissionsService } from '../api/users-permissions.service';
 import { useAuthApi } from '@/hooks/use-auth-api';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
 interface ChangePasswordDialogProps {
   isOpen: boolean;
@@ -47,7 +48,7 @@ export default function ChangePasswordDialog({
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { authApiCall } = useAuthApi();
-
+  const { user } = useCurrentUser();
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordFormSchema),
     defaultValues: {
@@ -62,6 +63,7 @@ export default function ChangePasswordDialog({
     try {
       const result = await authApiCall(() =>
         usersPermissionsService.changePassword({
+          userId: user?.id!,
           currentPassword: data.currentPassword,
           newPassword: data.newPassword,
           confirmPassword: data.confirmPassword

@@ -6,7 +6,7 @@ import {
   DashboardStatsRequest
 } from '../types/dashboard-stats';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000/';
 
 export const dashboardService = {
   // Get complete dashboard data
