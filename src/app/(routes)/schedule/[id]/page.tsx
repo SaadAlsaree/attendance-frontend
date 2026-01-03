@@ -26,33 +26,25 @@ const EditSchedulePage = async ({ params, searchParams }: Props) => {
   const { id } = await params;
   const searchParamsResolved = await searchParams;
 
-  // تهيئة search params cache
   searchParamsCache.parse(searchParamsResolved);
 
-  const searchQuery = searchParamsCache.get('employeeSearch');
+  const searchTerm = searchParamsCache.get('searchTerm');
 
   const shifts = await shiftService.getShiftsList({
     page: 1,
     pageSize: 100
   });
 
-  // جلب الموظفين مع أو بدون بحث
   const employees = await employeeService.getEmployees({
     page: 1,
-    pageSize: 50,
-    ...(searchQuery && { searchTerm: searchQuery })
+    pageSize: 100,
+    searchTerm: searchTerm || undefined
   });
 
-  const employeesList = (employees?.data?.data || []) as EmployeeData[];
+  const employeesList = employees?.data?.data as EmployeeData[];
   const shiftsList = shifts?.data;
   const schedule = await scheduleService.getScheduleById(id);
   const scheduleDate = schedule?.data;
-
-  console.log({
-    searchQuery,
-    totalEmployees: employees?.data?.totalCount || 0,
-    employeesCount: employeesList.length
-  });
 
 
 
@@ -62,7 +54,7 @@ const EditSchedulePage = async ({ params, searchParams }: Props) => {
         <Suspense fallback={<FormCardSkeleton />}>
           <ScheduleForm
             initialData={scheduleDate}
-            emploeesList={employeesList}
+            employeeData={employeesList}
             shifts={shiftsList as unknown as ShiftData[]}
           />
         </Suspense>

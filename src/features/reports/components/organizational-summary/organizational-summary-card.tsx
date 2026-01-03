@@ -95,7 +95,7 @@ const OrganizationalSummaryCard = ({
                           {stat.title}
                         </p>
                         <p className='mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100'>
-                          {stat.value.toLocaleString('ar-EG')}
+                          {stat.value.toLocaleString('en-US')}
                         </p>
                       </div>
                       <div
@@ -114,7 +114,7 @@ const OrganizationalSummaryCard = ({
                         {stat.title}
                       </p>
                       <p className='mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100'>
-                        {stat.value.toLocaleString('ar-EG')}
+                        {stat.value.toLocaleString('en-US')}
                       </p>
                     </div>
                     <div

@@ -28,7 +28,8 @@ import {
   CreditCard,
   Shield,
   Copy,
-  Check
+  Check,
+  Printer
 } from 'lucide-react';
 
 // Types based on the provided data structure
@@ -230,6 +231,197 @@ export default function EmployeeViewPage({ employee }: Props) {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  };
+
+  // Print attendance data function
+  const onPrintAttendance = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>طباعة بيانات الحضور - ${employee?.fullName}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              padding: 20px;
+              direction: rtl;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 20px;
+            }
+            .header h1 {
+              font-size: 24px;
+              margin-bottom: 10px;
+            }
+            .employee-info {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 15px;
+              margin-bottom: 30px;
+              padding: 15px;
+              background-color: #f5f5f5;
+              border-radius: 8px;
+            }
+            .info-item {
+              display: flex;
+              justify-content: space-between;
+            }
+            .info-label {
+              font-weight: bold;
+              color: #666;
+            }
+            .info-value {
+              color: #333;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 12px;
+              text-align: right;
+            }
+            th {
+              background-color: #4f46e5;
+              color: white;
+              font-weight: bold;
+            }
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
+            }
+            .status-badge {
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+              display: inline-block;
+            }
+            .status-1 { background-color: #d1fae5; color: #065f46; }
+            .status-2 { background-color: #fee2e2; color: #991b1b; }
+            .status-3 { background-color: #dbeafe; color: #1e40af; }
+            .status-4 { background-color: #e0e7ff; color: #3730a3; }
+            .status-5 { background-color: #ccfbf1; color: #134e4a; }
+            .status-6 { background-color: #fef3c7; color: #92400e; }
+            .status-7 { background-color: #fed7aa; color: #9a3412; }
+            .status-8 { background-color: #e9d5ff; color: #6b21a8; }
+            .status-9 { background-color: #cffafe; color: #164e63; }
+            .status-10 { background-color: #f1f5f9; color: #1e293b; }
+            .status-11 { background-color: #fef3c7; color: #78350f; }
+            .status-12 { background-color: #f3f4f6; color: #374151; }
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+              border-top: 1px solid #ddd;
+              padding-top: 15px;
+            }
+            @media print {
+              body {
+                padding: 10px;
+              }
+              .no-print {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>سجل الحضور والانصراف</h1>
+            <p>${employee?.fullName}</p>
+          </div>
+          
+          <div class="employee-info">
+            <div class="info-item">
+              <span class="info-label">الاسم الكامل:</span>
+              <span class="info-value">${employee?.fullName || '-'}</span>
+            </div>
+           
+            <div class="info-item">
+              <span class="info-label">الجهة:</span>
+              <span class="info-value">${employee?.organizationalUnitName || '-'}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">تاريخ الطباعة:</span>
+              <span class="info-value">${moment().format('YYYY-MM-DD HH:mm')}</span>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>اليوم</th>
+                <th>وقت الحضور</th>
+                <th>وقت الانصراف</th>
+                <th>إجمالي الساعات</th>
+                <th>الحالة</th>
+                <th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(employee?.attendances || [])
+                .map(
+                  (attendance) => `
+                <tr>
+                  <td>${moment(attendance.date).format('YYYY-MM-DD')}</td>
+                  <td>${getDayName(new Date(attendance.date).getDay() + 1)}</td>
+                  <td>${
+                    attendance.checkInTime
+                      ? moment(attendance.checkInTime).format('hh:mm A')
+                      : '-'
+                  }</td>
+                  <td>${
+                    attendance.checkOutTime
+                      ? moment(attendance.checkOutTime).format('hh:mm A')
+                      : '-'
+                  }</td>
+                  <td>${formatWorkingHours(attendance.workingMinutes)}</td>
+                  <td>
+                    <span class="status-badge status-${attendance.status}">
+                      ${getAttendanceStatusName(attendance.status)}
+                    </span>
+                  </td>
+                  <td>${attendance.notes || '-'}</td>
+                </tr>
+              `
+                )
+                .join('')}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>تم إنشاء هذا التقرير في ${moment().format('YYYY-MM-DD HH:mm')}</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    // Wait for content to load then print
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.onafterprint = () => {
+        printWindow.close();
+      };
+    }, 250);
   };
 
   return (
@@ -505,13 +697,26 @@ export default function EmployeeViewPage({ employee }: Props) {
       {/* Schedule Log Table */}
       <Card>
         <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <CalendarDays className='h-5 w-5' />
-            سجل الحضور والانصراف
-          </CardTitle>
-          <CardDescription>
-            عرض تفاصيل الحضور والانصراف للأسبوع الحالي
-          </CardDescription>
+          <div className='flex items-center justify-between'>
+            <div>
+              <CardTitle className='flex items-center gap-2'>
+                <CalendarDays className='h-5 w-5' />
+                سجل الحضور والانصراف
+              </CardTitle>
+              <CardDescription>
+                عرض تفاصيل الحضور والانصراف للأسبوع الحالي
+              </CardDescription>
+            </div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={onPrintAttendance}
+              className='flex items-center gap-2'
+            >
+              <Printer className='h-4 w-4' />
+              طباعة
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className='rounded-md border'>

@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { MoreHorizontal, Eye } from 'lucide-react';
+import { MoreHorizontal, Copy, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +20,10 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
 
+  const onCopy = (name: string) => {
+    navigator.clipboard.writeText(name);
+    toast.success('اسم الموظف نسخ بنجاح.');
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,16 +34,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => onCopy(data.fullName)}>
+          <Copy className='mr-2 h-4 w-4' />
+          نسخ الاسم الكامل
+        </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() =>
-            router.push(`/attendance/view-all-attendance/${data.id}`)
-          }
+          onClick={() => {
+            onCopy(data.fullName);
+            router.push(`/leave/new`);
+          }}
         >
-          <Eye className='mr-2 h-4 w-4' />
-          عرض
+          <Plus className='mr-2 h-4 w-4' />
+          إضافة موقف
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-

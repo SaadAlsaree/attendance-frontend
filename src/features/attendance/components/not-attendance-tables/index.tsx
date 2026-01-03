@@ -32,7 +32,8 @@ const NotAttendanceTable = <TData, TValue>({
         checkInMethod: false,
         checkOutMethod: false,
         workingMinutes: false,
-        status: false
+        status: false,
+        excludedDates: false
       }
     }
   });

@@ -21,7 +21,9 @@ import {
   Clock,
   CalendarDays,
   Timer,
-  TrendingUp
+  TrendingUp,
+  Grid3x3,
+  List
 } from 'lucide-react';
 import { OrganizationalUnitSummary } from '../../types/organizational-summary';
 import { useState, useMemo } from 'react';
@@ -30,10 +32,13 @@ type OrganizationalSummaryDataCartProps = {
   data: OrganizationalUnitSummary[];
 };
 
+type ViewMode = 'grid' | 'list';
+
 const OrganizationalSummaryDataCart = ({
   data
 }: OrganizationalSummaryDataCartProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const filteredData = useMemo(() => {
     return data.filter(
@@ -67,7 +72,29 @@ const OrganizationalSummaryDataCart = ({
               <Building2 className='h-5 w-5' />
               تفاصيل الجهات
             </CardTitle>
-            <Badge variant='secondary'>{filteredData.length} جهة</Badge>
+            <div className='flex items-center gap-3'>
+              <Badge variant='secondary'>{filteredData.length} جهة</Badge>
+              <div className='border-input bg-background flex items-center gap-1 rounded-lg border p-1'>
+                <Button
+                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                  size='sm'
+                  className='h-8 w-8 p-0'
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid3x3 className='h-4 w-4' />
+                  <span className='sr-only'>عرض شبكي</span>
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                  size='sm'
+                  className='h-8 w-8 p-0'
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className='h-4 w-4' />
+                  <span className='sr-only'>عرض قائمة</span>
+                </Button>
+              </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -85,145 +112,295 @@ const OrganizationalSummaryDataCart = ({
           </div>
 
           {/* عرض الكارتات */}
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-            {filteredData.map((unit) => {
-              const attendanceRate = getAttendanceRate(unit);
-              return (
-                <Card
-                  key={unit.unitId}
-                  className='transition-shadow hover:shadow-md'
-                >
-                  <CardHeader className='pb-3'>
-                    <div className='flex items-start justify-between'>
-                      <div className='flex-1'>
-                        <CardTitle className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
-                          {unit.unitName}
-                        </CardTitle>
-                        {unit.parentUnitName && (
-                          <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
-                            {unit.parentUnitName}
-                          </p>
-                        )}
-                        <Badge variant='outline' className='mt-2'>
-                          {unit.unitCode}
-                        </Badge>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant='ghost' className='h-8 w-8 p-0'>
-                            <MoreHorizontal className='h-4 w-4' />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
-                          <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>عرض التفاصيل</DropdownMenuItem>
-                          <DropdownMenuItem>تصدير البيانات</DropdownMenuItem>
-                          <DropdownMenuItem>طباعة التقرير</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  <CardContent className='pt-0'>
-                    <div className='space-y-4'>
-                      {/* إجمالي الموظفين */}
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <Users className='h-4 w-4 text-blue-600' />
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            إجمالي الموظفين
-                          </span>
-                        </div>
-                        <span className='font-semibold text-gray-900 dark:text-gray-100'>
-                          {unit.totalEmployees.toLocaleString('ar-EG')}
-                        </span>
-                      </div>
-
-                      {/* الحضور */}
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <UserCheck className='h-4 w-4 text-green-600' />
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            الحضور
-                          </span>
-                        </div>
-                        <span className='font-semibold text-green-600'>
-                          {unit.tottalAttendances.toLocaleString('ar-EG')}
-                        </span>
-                      </div>
-
-                      {/* الغير مبصمين */}
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <UserX className='h-4 w-4 text-red-600' />
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            الغير مبصمين
-                          </span>
-                        </div>
-                        <span className='font-semibold text-red-600'>
-                          {unit.tottalNotAttendances.toLocaleString('ar-EG')}
-                        </span>
-                      </div>
-
-                      {/* التأخير */}
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <Clock className='h-4 w-4 text-yellow-600' />
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            التأخير
-                          </span>
-                        </div>
-                        <span className='font-semibold text-yellow-600'>
-                          {unit.totalLate.toLocaleString('ar-EG')}
-                        </span>
-                      </div>
-
-                      {/* الإجازات */}
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <CalendarDays className='h-4 w-4 text-purple-600' />
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            الاجراءات
-                          </span>
-                        </div>
-                        <span className='font-semibold text-purple-600'>
-                          {unit.totalLeaves.toLocaleString('ar-EG')}
-                        </span>
-                      </div>
-
-                      {/* العمل الإضافي */}
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <Timer className='h-4 w-4 text-orange-600' />
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            العمل الإضافي
-                          </span>
-                        </div>
-                        <span className='font-semibold text-orange-600'>
-                          {unit.totalOvertime.toLocaleString('ar-EG')}
-                        </span>
-                      </div>
-
-                      {/* معدل الحضور */}
-                      <div className='border-t border-gray-200 pt-3 dark:border-gray-700'>
-                        <div className='flex items-center justify-between'>
-                          <div className='flex items-center gap-2'>
-                            <TrendingUp className='h-4 w-4 text-blue-600' />
-                            <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                              معدل الحضور
-                            </span>
-                          </div>
-                          <Badge className={getStatusColor(attendanceRate)}>
-                            {attendanceRate}%
+          {viewMode === 'grid' ? (
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+              {filteredData.map((unit) => {
+                const attendanceRate = getAttendanceRate(unit);
+                return (
+                  <Card
+                    key={unit.unitId}
+                    className='transition-shadow hover:shadow-md'
+                  >
+                    <CardHeader className='pb-3'>
+                      <div className='flex items-start justify-between'>
+                        <div className='flex-1'>
+                          <CardTitle className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
+                            {unit.unitName}
+                          </CardTitle>
+                          {unit.parentUnitName && (
+                            <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
+                              {unit.parentUnitName}
+                            </p>
+                          )}
+                          <Badge variant='outline' className='mt-2'>
+                            {unit.unitCode}
                           </Badge>
                         </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant='ghost' className='h-8 w-8 p-0'>
+                              <MoreHorizontal className='h-4 w-4' />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end'>
+                            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>عرض التفاصيل</DropdownMenuItem>
+                            <DropdownMenuItem>تصدير البيانات</DropdownMenuItem>
+                            <DropdownMenuItem>طباعة التقرير</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                    </CardHeader>
+                    <CardContent className='pt-0'>
+                      <div className='space-y-4'>
+                        {/* إجمالي الموظفين */}
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <Users className='h-4 w-4 text-blue-600' />
+                            <span className='text-sm text-gray-600 dark:text-gray-400'>
+                              إجمالي الموظفين
+                            </span>
+                          </div>
+                          <span className='font-semibold text-gray-900 dark:text-gray-100'>
+                            {unit.totalEmployees.toLocaleString('en-US')}
+                          </span>
+                        </div>
+
+                        {/* الحضور */}
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <UserCheck className='h-4 w-4 text-green-600' />
+                            <span className='text-sm text-gray-600 dark:text-gray-400'>
+                              الحضور
+                            </span>
+                          </div>
+                          <span className='font-semibold text-green-600'>
+                            {unit.tottalAttendances.toLocaleString('en-US')}
+                          </span>
+                        </div>
+
+                        {/* الغير مبصمين */}
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <UserX className='h-4 w-4 text-red-600' />
+                            <span className='text-sm text-gray-600 dark:text-gray-400'>
+                              الغير مبصمين
+                            </span>
+                          </div>
+                          <span className='font-semibold text-red-600'>
+                            {unit.tottalNotAttendances.toLocaleString('en-US')}
+                          </span>
+                        </div>
+
+                        {/* التأخير */}
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <Clock className='h-4 w-4 text-yellow-600' />
+                            <span className='text-sm text-gray-600 dark:text-gray-400'>
+                              التأخير
+                            </span>
+                          </div>
+                          <span className='font-semibold text-yellow-600'>
+                            {unit.totalLate.toLocaleString('en-US')}
+                          </span>
+                        </div>
+
+                        {/* الإجازات */}
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <CalendarDays className='h-4 w-4 text-purple-600' />
+                            <span className='text-sm text-gray-600 dark:text-gray-400'>
+                              الاجراءات
+                            </span>
+                          </div>
+                          <span className='font-semibold text-purple-600'>
+                            {unit.totalLeaves.toLocaleString('en-US')}
+                          </span>
+                        </div>
+
+                        {/* العمل الإضافي */}
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-2'>
+                            <Timer className='h-4 w-4 text-orange-600' />
+                            <span className='text-sm text-gray-600 dark:text-gray-400'>
+                              العمل الإضافي
+                            </span>
+                          </div>
+                          <span className='font-semibold text-orange-600'>
+                            {unit.totalOvertime.toLocaleString('en-US')}
+                          </span>
+                        </div>
+
+                        {/* معدل الحضور */}
+                        <div className='border-t border-gray-200 pt-3 dark:border-gray-700'>
+                          <div className='flex items-center justify-between'>
+                            <div className='flex items-center gap-2'>
+                              <TrendingUp className='h-4 w-4 text-blue-600' />
+                              <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                                معدل الحضور
+                              </span>
+                            </div>
+                            <Badge className={getStatusColor(attendanceRate)}>
+                              {attendanceRate}%
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className='space-y-6'>
+              {filteredData.map((unit) => {
+                const attendanceRate = getAttendanceRate(unit);
+                const stats = [
+                  {
+                    title: 'إجمالي الموظفين',
+                    value: unit.totalEmployees,
+                    icon: Users,
+                    color: 'bg-blue-500',
+                    textColor: 'text-blue-200'
+                  },
+                  {
+                    title: 'الحضور',
+                    value: unit.tottalAttendances,
+                    icon: UserCheck,
+                    color: 'bg-green-500',
+                    textColor: 'text-green-200'
+                  },
+                  {
+                    title: 'الغير مبصمين',
+                    value: unit.tottalNotAttendances,
+                    icon: UserX,
+                    color: 'bg-red-500',
+                    textColor: 'text-red-200'
+                  },
+                  {
+                    title: 'التأخير',
+                    value: unit.totalLate,
+                    icon: Clock,
+                    color: 'bg-yellow-500',
+                    textColor: 'text-yellow-200'
+                  },
+                  {
+                    title: 'موقف الاستثناءات',
+                    value: unit.totalLeaves,
+                    icon: CalendarDays,
+                    color: 'bg-purple-500',
+                    textColor: 'text-purple-200'
+                  },
+                  {
+                    title: 'العمل الإضافي',
+                    value: unit.totalOvertime,
+                    icon: Timer,
+                    color: 'bg-orange-500',
+                    textColor: 'text-orange-200'
+                  }
+                ];
+
+                return (
+                  <Card
+                    key={unit.unitId}
+                    className='transition-shadow hover:shadow-lg'
+                  >
+                    <CardHeader>
+                      <div className='flex items-start justify-between'>
+                        <div className='flex-1'>
+                          <CardTitle className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
+                            {unit.unitName}
+                          </CardTitle>
+                          {unit.parentUnitName && (
+                            <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
+                              {unit.parentUnitName}
+                            </p>
+                          )}
+                          <Badge variant='outline' className='mt-2'>
+                            {unit.unitCode}
+                          </Badge>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant='ghost' className='h-8 w-8 p-0'>
+                              <MoreHorizontal className='h-4 w-4' />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end'>
+                            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>عرض التفاصيل</DropdownMenuItem>
+                            <DropdownMenuItem>تصدير البيانات</DropdownMenuItem>
+                            <DropdownMenuItem>طباعة التقرير</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6'>
+                        {stats.map((stat, index) => {
+                          const IconComponent = stat.icon;
+                          return (
+                            <Card
+                              key={index}
+                              className='transition-shadow hover:shadow-lg'
+                            >
+                              <CardContent className='p-6'>
+                                <div className='flex items-center justify-between'>
+                                  <div>
+                                    <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                                      {stat.title}
+                                    </p>
+                                    <p className='mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100'>
+                                      {stat.value.toLocaleString('en-US')}
+                                    </p>
+                                  </div>
+                                  <div
+                                    className={`rounded-full p-3 ${stat.color} bg-opacity-10`}
+                                  >
+                                    <IconComponent
+                                      className={`h-6 w-6 ${stat.textColor}`}
+                                    />
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                      {/* معدل الحضور */}
+                      <div className='mt-4'>
+                        <Card className='bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950'>
+                          <CardContent className='p-6'>
+                            <div className='flex items-center justify-between'>
+                              <div>
+                                <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
+                                  معدل الحضور
+                                </h3>
+                                <p className='text-gray-600 dark:text-gray-400'>
+                                  نسبة الموظفين الحاضرين من إجمالي الموظفين
+                                </p>
+                              </div>
+                              <div className='text-right'>
+                                <div className='text-3xl font-bold text-blue-600'>
+                                  {attendanceRate}%
+                                </div>
+                                <div className='flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400'>
+                                  <TrendingUp className='h-4 w-4' />
+                                  <span>معدل الحضور</span>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
 
           {filteredData.length === 0 && (
             <div className='py-12 text-center text-gray-500 dark:text-gray-400'>

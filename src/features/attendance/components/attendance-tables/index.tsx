@@ -32,7 +32,8 @@ const AttendanceTable = <TData, TValue>({
         checkInMethod: false,
         checkOutMethod: false,
         // status: false,
-        workingMinutes: false
+        workingMinutes: false,
+        excludedDates: false
       }
     }
   });

@@ -22,12 +22,9 @@ type pageProps = {
 const NewMailFilePage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
 
-  // تهيئة search params cache
   searchParamsCache.parse(searchParams);
 
-  const searchQuery = searchParamsCache.get('employeeSearch');
-
-  console.log(searchQuery);
+  const searchTerm = searchParamsCache.get('searchTerm');
 
   const shifts = await shiftService.getShiftsList({
     page: 1,
@@ -35,13 +32,12 @@ const NewMailFilePage = async (props: pageProps) => {
   });
   const shiftsList = shifts?.data;
 
-  // جلب الموظفين مع أو بدون بحث
   const employees = await employeeService.getEmployees({
     page: 1,
-    pageSize: 50,
-    ...(searchQuery && { searchTerm: searchQuery })
+    pageSize: 100,
+    searchTerm: searchTerm || undefined
   });
-  const employeesList = (employees?.data?.data || []) as EmployeeData[];
+  const employeesList = employees?.data?.data as EmployeeData[];
 
   return (
     <PageContainer scrollable>
@@ -49,7 +45,7 @@ const NewMailFilePage = async (props: pageProps) => {
         <Suspense fallback={<FormCardSkeleton />}>
           <ScheduleForm
             initialData={null}
-            emploeesList={employeesList}
+            employeeData={employeesList}
             shifts={shiftsList as unknown as ShiftData[]}
           />
         </Suspense>
