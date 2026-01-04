@@ -1,11 +1,16 @@
 'use client';
 import React, { useRef } from 'react';
+import { useQueryState } from 'nuqs';
 import { OrganizationalReportResponse } from '../../types/organization-report';
 import OrganizationalReportTable from './organizational-report-table';
 import OrganizationalReportPrint from './organizational-report-print';
 import OrganizationalReportFilter from './organizational-report-filter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
 import { Button } from '@/components/ui/button';
 import {
   Users,
@@ -15,7 +20,8 @@ import {
   Timer,
   TrendingUp,
   Building,
-  Printer
+  Printer,
+  Underline
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import moment from 'moment';
@@ -31,6 +37,13 @@ type Props = {
 const OrganizationalReportContainer = ({ report }: Props) => {
   const printRef = useRef<HTMLDivElement>(null);
 
+  // Page size state management
+  const [pageSize, setPageSize] = useQueryState('pageSize', {
+    parse: (value) => (value ? parseInt(value) : 10),
+    serialize: (value) => (value ? value.toString() : '10'),
+    defaultValue: 10
+  });
+
   const onPrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `تقرير الحضور اليومي - ${moment(report?.data?.date).format('DD-MM-YYYY')}`,
@@ -38,6 +51,20 @@ const OrganizationalReportContainer = ({ report }: Props) => {
       console.log('تم طباعة التقرير بنجاح');
     }
   });
+
+  // Handler for page size change
+  const onPageSizeChange = (value: string) => {
+    if (value) {
+      const newPageSize = parseInt(value);
+      setPageSize(newPageSize);
+      
+      // Reload the page to fetch data with new page size
+      // The URL will be updated automatically by nuqs
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    }
+  };
 
   const formatDate = (date: string) => {
     return moment(date).format('dddd DD/MM/YYYY');
@@ -116,6 +143,27 @@ const OrganizationalReportContainer = ({ report }: Props) => {
         </div>
 
         <div className='flex items-center gap-2'>
+           <ToggleGroup 
+             type="single" 
+             variant="outline" 
+             size="sm" 
+             dir='rtl'
+             value={pageSize?.toString()}
+             onValueChange={onPageSizeChange}
+           >
+      <ToggleGroupItem value="10" aria-label="Toggle bold" dir='rtl'>
+        10
+      </ToggleGroupItem>
+      <ToggleGroupItem value="20" aria-label="Toggle italic" dir='rtl'>
+        20
+      </ToggleGroupItem>
+      <ToggleGroupItem value="100" aria-label="Toggle strikethrough" dir='rtl'>
+        100
+      </ToggleGroupItem>
+      <ToggleGroupItem value="200" aria-label="Toggle strikethrough" dir='rtl'>
+        200
+      </ToggleGroupItem>
+    </ToggleGroup>
           <OrganizationalReportFilter />
           <Button
             onClick={onPrint}
@@ -126,10 +174,7 @@ const OrganizationalReportContainer = ({ report }: Props) => {
             <Printer className='h-4 w-4' />
             طباعة التقرير
           </Button>
-          <Badge variant='outline' className='text-sm'>
-            <TrendingUp className='mr-1 h-3 w-3' />
-            تقرير يومي
-          </Badge>
+           
         </div>
       </div>
 
