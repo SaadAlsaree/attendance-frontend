@@ -2,14 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { MoreHorizontal, Copy, Plus } from 'lucide-react';
+import {  ReceiptText } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Button } from '@/components/ui/button';
 import { NotAttendanceData } from '../../types/attendance';
 
@@ -25,29 +23,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     toast.success('اسم الموظف نسخ بنجاح.');
   };
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant='ghost' className='h-8 w-8 p-0'>
-          <span className='sr-only'>فتح القائمة</span>
-          <MoreHorizontal className='h-4 w-4' />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align='end'>
-        <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => onCopy(data.fullName)}>
-          <Copy className='mr-2 h-4 w-4' />
-          نسخ الاسم الكامل
-        </DropdownMenuItem>
-        <DropdownMenuItem
+      <Tooltip>
+        <TooltipTrigger>  
+        <Button
+        variant={'outline'}
+        size={'icon'}
           onClick={() => {
-            onCopy(data.fullName);
-            router.push(`/leave/new`);
+            router.push(`/leave/new?searchTerm=${encodeURIComponent(data.fullName)}`);
           }}
         >
-          <Plus className='mr-2 h-4 w-4' />
-          إضافة موقف
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <ReceiptText  className=' h-4 w-4' />
+        </Button>
+     </TooltipTrigger>
+     <TooltipContent>
+       <p>إضافة موقف</p>
+     </TooltipContent>
+   </Tooltip>
   );
 };

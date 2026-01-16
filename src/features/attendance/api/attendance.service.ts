@@ -13,7 +13,7 @@ import {
   NotAttendanceResponse
 } from '../types/attendance';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000/';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/';
 
 export const attendanceService = {
   // Get attendance list with pagination and filters
@@ -314,9 +314,12 @@ export const attendanceService = {
     query: NotAttendanceQuery
   ): Promise<NotAttendanceResponse | null> {
     try {
-      const response = await axiosInstance.get(`${baseUrl}/attendance/not-attendance`, {
-        params: query
-      });
+      const response = await axiosInstance.get(
+        `${baseUrl}/attendance/not-attendance`,
+        {
+          params: query
+        }
+      );
       if (response.status >= 400) {
         console.error('Error fetching not attendance:', response.statusText);
         return null;
@@ -333,9 +336,12 @@ export const attendanceService = {
     query: NotAttendanceQuery
   ): Promise<NotAttendanceResponse | null> {
     try {
-      const response = await axiosClient.get(`${baseUrl}/attendance/not-attendance`, {
-        params: query
-      });
+      const response = await axiosClient.get(
+        `${baseUrl}/attendance/not-attendance`,
+        {
+          params: query
+        }
+      );
       if (response.status >= 400) {
         console.error('Error fetching not attendance:', response.statusText);
         return null;

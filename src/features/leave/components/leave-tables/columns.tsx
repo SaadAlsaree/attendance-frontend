@@ -85,9 +85,7 @@ export const columns: ColumnDef<LeaveItem>[] = [
               <div className='font-medium'>
                 {row.original.fullName || 'غير محدد'}
               </div>
-              <div className='text-muted-foreground text-sm'>
-                {row.original.code || '-'}
-              </div>
+             
             </div>
           </div>
         </Link>
