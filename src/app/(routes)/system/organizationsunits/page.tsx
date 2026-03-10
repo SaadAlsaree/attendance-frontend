@@ -10,6 +10,10 @@ import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
+import { usersPermissionsService } from "@/features/system/users-permissions/api/users-permissions.service";
 
 export const metadata = {
   title: 'الوحدات التنظيمية'
@@ -23,6 +27,16 @@ const OrganizationsUnitsPage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
 
   searchParamsCache.parse(searchParams);
+
+   const data = await usersPermissionsService.getCurrentUser();
+  
+    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+  
+  
+    // redirect to home if user is not authorized
+    if (!canAdd) {
+        redirect('/');
+    }
 
   return (
     <PageContainer scrollable={false}>

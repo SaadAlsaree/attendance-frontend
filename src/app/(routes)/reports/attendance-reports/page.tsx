@@ -7,8 +7,23 @@
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, BarChart3, Download, Calendar } from 'lucide-react';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 
-export default function AttendanceReportsPage() {
+export default async function AttendanceReportsPage() {
+
+  const data = await usersPermissionsService.getCurrentUser();
+      
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+      
+      
+  // redirect to home if user is not authorized
+        if (!canAdd) {
+            redirect('/');
+        }
+
   return (
     <div className='container mx-auto p-6'>
       <div className='mb-6 flex items-center justify-between'>

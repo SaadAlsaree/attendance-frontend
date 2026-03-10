@@ -1,8 +1,23 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
+import { usersPermissionsService } from "@/features/system/users-permissions/api/users-permissions.service";
+import { Role } from "@/features/system/users-permissions/types/users-permissions";
+import { hasAnyRole } from "@/utils/auth/auth-utils";
+import { redirect } from "next/navigation";
 
-export default function viewallattendanceNewPage() {
+export default async function viewallattendanceNewPage() {
+    const data = await usersPermissionsService.getCurrentUser();
+        
+    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+        
+        
+    // redirect to home if user is not authorized
+          if (!canAdd) {
+              redirect('/');
+          }
+    
+  
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center justify-between mb-6">

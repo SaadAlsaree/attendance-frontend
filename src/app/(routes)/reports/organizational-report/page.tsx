@@ -2,11 +2,14 @@ import { reportsService } from '@/features/reports/api/reports.service';
 import { getServerSession } from 'next-auth';
 import authOption from '@/lib/auth-option';
 import React from 'react';
-import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 import PageContainer from '@/components/layout/page-container';
 import OrganizationalReportContainer from '@/features/reports/components/organizational-report/organizational-report-container';
 import { OrganizationalReportResponse } from '@/features/reports/types/organization-report';
 import { searchParamsCache } from '@/lib/searchparams';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -21,6 +24,16 @@ const OrganizationalReportPage = async ({ searchParams }: Props) => {
   }
 
   const user = await usersPermissionsService.getCurrentUser();
+
+
+      
+  const canAdd = hasAnyRole(user, [Role.Admin, Role.Manager, Role.Employee]);
+      
+      
+  // redirect to home if user is not authorized
+        if (!canAdd) {
+            redirect('/');
+        }
 
   // Await searchParams and parse with nuqs
   const params = await searchParams;

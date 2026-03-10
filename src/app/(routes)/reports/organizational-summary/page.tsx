@@ -10,6 +10,10 @@ import {
 } from '@/features/reports/types/organizational-summary';
 import React, { Suspense } from 'react';
 import { setToStartOfDayUTC } from '@/lib/utils/date-utils';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'تقرير الموظفين',
@@ -24,6 +28,16 @@ const OrganizationalSummaryPage = async ({
   searchParams
 }: OrganizationalSummaryPageProps) => {
   const params = await searchParams;
+
+  const data = await usersPermissionsService.getCurrentUser();
+      
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+      
+      
+  // redirect to home if user is not authorized
+        if (!canAdd) {
+            redirect('/');
+        }
 
   // Normalize date to start of day in UTC
   const date = params.date

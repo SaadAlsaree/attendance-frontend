@@ -3,6 +3,10 @@ import PageContainer from '@/components/layout/page-container';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
 import { DeviceForm, devicesService } from '@/features/system/devices';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 import React, { Suspense } from 'react';
 
 type pageProps = {
@@ -11,6 +15,16 @@ type pageProps = {
 
 const page = async ({ params }: pageProps) => {
   const { id } = await params;
+
+    const data = await usersPermissionsService.getCurrentUser();
+    
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+    
+    
+  // redirect to home if user is not authorized
+  if (!canAdd) {
+      redirect('/');
+  }
 
   const device = await devicesService.getDeviceById(id);
 

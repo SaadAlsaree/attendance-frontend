@@ -1,47 +1,51 @@
-import { UserDto } from './auth';
+import { UserPermission, Role } from '@/features/system/users-permissions/types/users-permissions';
 
 /**
  * Check if the user has a specific role
  * @param user - The user to check
- * @param roleName - The role name or value to check
+ * @param role - The role to check (Role enum or numeric value)
  * @returns boolean indicating if the user has the role
  */
-export function hasRole(user: UserDto | null, roleName: string): boolean {
-    if (!user || !user.userRoles?.length) {
+export function hasRole(user: UserPermission | null | undefined, role: Role | number): boolean {
+    if (!user) {
         return false;
     }
 
-    return user.userRoles.some(
-        (role) => role.name === roleName || role.value === roleName
-    );
+    return user.role === role;
 }
 
 /**
  * Check if the user has any of the specified roles
  * @param user - The user to check
- * @param roleNames - Array of role names or values
+ * @param roles - Array of roles (Role enum or numeric values)
  * @returns boolean indicating if the user has any of the roles
  */
-export function hasAnyRole(user: UserDto | null, roleNames: string[]): boolean {
-    if (!user || !user.userRoles?.length || !roleNames.length) {
+export function hasAnyRole(user: UserPermission | null | undefined, roles: (Role | number)[]): boolean {
+    if (!user || !roles.length) {
         return false;
     }
 
-    return roleNames.some(role => hasRole(user, role));
+    return roles.includes(user.role);
 }
 
 /**
  * Check if the user has all of the specified roles
  * @param user - The user to check
- * @param roleNames - Array of role names or values
+ * @param roles - Array of roles (Role enum or numeric values)
  * @returns boolean indicating if the user has all the roles
  */
-export function hasAllRoles(user: UserDto | null, roleNames: string[]): boolean {
-    if (!user || !user.userRoles?.length || !roleNames.length) {
+export function hasAllRoles(user: UserPermission | null | undefined, roles: (Role | number)[]): boolean {
+    if (!user || !roles.length) {
         return false;
     }
 
-    return roleNames.every(role => hasRole(user, role));
+    // Since a user currently has only one role in the new structure,
+    // hasAllRoles only returns true if the array has one role and it matches the user's role.
+    if (roles.length > 1) {
+        return false;
+    }
+
+    return roles.every(role => user.role === role);
 }
 
 /**
@@ -49,16 +53,12 @@ export function hasAllRoles(user: UserDto | null, roleNames: string[]): boolean 
  * @param user - The user to check
  * @param permissionValue - The permission value to check
  * @returns boolean indicating if the user has the permission
+ * @note In the current structure, permissions are not explicitly defined.
+ * 		 This function currently returns false or can be extended if a permission system is added.
  */
-export function hasPermission(user: UserDto | null, permissionValue: string): boolean {
-    if (!user || !user.userPermissions?.length) {
-        return false;
-    }
-
-    return user.userPermissions.some(
-        (permission) =>
-            permission.value === permissionValue || permission.name === permissionValue
-    );
+export function hasPermission(_user: UserPermission | null | undefined, _permissionValue: string): boolean {
+    // Placeholder for when permissions are added to UserPermission structure
+    return false;
 }
 
 /**
@@ -67,8 +67,8 @@ export function hasPermission(user: UserDto | null, permissionValue: string): bo
  * @param permissionValues - Array of permission values
  * @returns boolean indicating if the user has any of the permissions
  */
-export function hasAnyPermission(user: UserDto | null, permissionValues: string[]): boolean {
-    if (!user || !user.userPermissions?.length || !permissionValues.length) {
+export function hasAnyPermission(user: UserPermission | null | undefined, permissionValues: string[]): boolean {
+    if (!user || !permissionValues.length) {
         return false;
     }
 
@@ -81,8 +81,8 @@ export function hasAnyPermission(user: UserDto | null, permissionValues: string[
  * @param permissionValues - Array of permission values
  * @returns boolean indicating if the user has all the permissions
  */
-export function hasAllPermissions(user: UserDto | null, permissionValues: string[]): boolean {
-    if (!user || !user.userPermissions?.length || !permissionValues.length) {
+export function hasAllPermissions(user: UserPermission | null | undefined, permissionValues: string[]): boolean {
+    if (!user || !permissionValues.length) {
         return false;
     }
 
@@ -90,43 +90,33 @@ export function hasAllPermissions(user: UserDto | null, permissionValues: string
 }
 
 /**
- * Get all role values for a user
+ * Get the current role for a user
+ * @param user - The user to get the role for
+ * @returns The user's role
+ */
+export function getUserRole(user: UserPermission | null | undefined): Role | undefined {
+    return user?.role;
+}
+
+/**
+ * Get all role values for a user (as an array for compatibility)
  * @param user - The user to get roles for
- * @returns Array of role values
+ * @returns Array containing the's role
  */
-export function getUserRoles(user: UserDto | null): string[] {
-    if (!user || !user.userRoles?.length) {
+export function getUserRoles(user: UserPermission | null | undefined): (Role | number)[] {
+    if (!user) {
         return [];
     }
 
-    return user.userRoles.map(role => role.value);
+    return [user.role];
 }
 
 /**
- * Get all permission values for a user
- * @param user - The user to get permissions for
- * @returns Array of permission values
- */
-export function getUserPermissions(user: UserDto | null): string[] {
-    if (!user || !user.userPermissions?.length) {
-        return [];
-    }
-
-    const permissions = new Set<string>();
-
-    user.userPermissions.forEach(permission => {
-        permissions.add(permission.value);
-    });
-
-    return Array.from(permissions);
-}
-
-/**
- * Check if the user is authenticated (has a valid userId and is active)
+ * Checks if the user is authenticated (has a valid id and is active)
  * @param user - The user to check
  * @returns boolean indicating if the user is authenticated
  */
-export function isAuthenticated(user: UserDto | null): boolean {
+export function isAuthenticated(user: UserPermission | null | undefined): boolean {
     return !!user && !!user.id && user.isActive;
 }
 
@@ -136,7 +126,7 @@ export function isAuthenticated(user: UserDto | null): boolean {
  * @param organizationalUnitId - The organizational unit ID
  * @returns boolean indicating if the user belongs to the organizational unit
  */
-export function isInOrganizationalUnit(user: UserDto | null, organizationalUnitId: string): boolean {
+export function isInOrganizationalUnit(user: UserPermission | null | undefined, organizationalUnitId: string): boolean {
     if (!user) {
         return false;
     }

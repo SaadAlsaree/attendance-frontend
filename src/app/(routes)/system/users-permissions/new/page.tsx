@@ -5,6 +5,10 @@ import FormCardSkeleton from '@/components/form-card-skeleton';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
 import UsersPermissionsForm from '@/features/system/users-permissions/components/users-permissions-form';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 
 export const metadata = {
   title: 'إضافة مستخدم جديد',
@@ -12,6 +16,16 @@ export const metadata = {
 };
 
 const NewUserPage = async () => {
+
+   const data = await usersPermissionsService.getCurrentUser();
+  
+    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+  
+  
+    // redirect to home if user is not authorized
+    if (!canAdd) {
+        redirect('/');
+    }
   // Fetch organizations data once and cache it
   const organizationsResponse =
     await organizationalService.getOrganizationalUnits();

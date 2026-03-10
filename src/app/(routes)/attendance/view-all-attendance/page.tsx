@@ -4,9 +4,11 @@ import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 // import AttendanceActions from '@/features/attendance/components/attendance-actions';
 import AttendanceListing from '@/features/attendance/components/attendance-listing';
-// import { employeeService } from '@/features/employee/api/employees.service';
-// import { EmployeeData } from '@/features/employee/types/employees';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
 import { searchParamsCache } from '@/lib/searchparams';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
@@ -20,6 +22,17 @@ type pageProps = {
 
 const ViewAllAttendancePage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
+  
+  const data = await usersPermissionsService.getCurrentUser();
+      
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee]);
+      
+      
+  // redirect to home if user is not authorized
+        if (!canAdd) {
+            redirect('/');
+        }
+  
 
   // const employees = await employeeService.getEmployees({
   //   page: 1,

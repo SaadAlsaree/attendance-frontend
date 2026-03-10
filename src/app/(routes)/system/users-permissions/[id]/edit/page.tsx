@@ -5,6 +5,9 @@ import { IOrganizationalUnitList } from '@/features/organizational-unit/types/or
 import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 import UsersPermissionsForm from '@/features/system/users-permissions/components/users-permissions-form';
 import React, { Suspense } from 'react';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 
 type pageProps = {
   params: Promise<{ id: string }>;
@@ -12,6 +15,16 @@ type pageProps = {
 
 const page = async (props: pageProps) => {
   const { id } = await props.params;
+
+   const data = await usersPermissionsService.getCurrentUser();
+  
+    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+  
+  
+    // redirect to home if user is not authorized
+    if (!canAdd) {
+        redirect('/');
+    }
 
   const user = await usersPermissionsService.getUserPermissionById(id);
 

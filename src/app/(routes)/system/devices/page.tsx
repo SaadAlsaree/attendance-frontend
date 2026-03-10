@@ -4,12 +4,17 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import { DevicesListing } from '@/features/system/devices';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
 import { searchParamsCache } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
+import { hasAnyRole } from '@/utils/auth/auth-utils';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+
 
 export const metadata = {
   title: 'الأجهزة'
@@ -21,6 +26,16 @@ type pageProps = {
 
 const DevicesPage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
+
+  const data = await usersPermissionsService.getCurrentUser();
+    
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+    
+    
+  // redirect to home if user is not authorized
+      if (!canAdd) {
+          redirect('/');
+      }
 
   searchParamsCache.parse(searchParams);
   return (
