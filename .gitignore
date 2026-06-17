@@ -37,3 +37,13 @@ next-env.d.ts
 .idea/
 # clerk configuration (can include secrets)
 /.clerk/
+
+# local-only docs, e2e testing, and assistant files (never git-tracked)
+.local
+.local/
+.claude
+.claude/
+CLAUDE.md
+# playwright artifacts (in case run from here)
+/playwright-report/
+/test-results/

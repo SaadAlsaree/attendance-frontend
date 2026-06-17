@@ -58,6 +58,11 @@ export enum LeaveType {
     Permitted = 13, //   تنسيب
     Cycle = 14,     // دورة
     Workshop = 15,  // ورشة عمل
+    FiveYearLeave = 16, // إجازة 5 سنوات
+    Assignment = 17,    // تكليف
+    GuardDescent = 18,  // نزول خفر
+    Exempted = 19,      // معفي
+    PeriodicLeave = 20, // إجازة دورية
 }
 
 // خريطة لعرض الاسم المقابل لكل نوع
@@ -77,5 +82,10 @@ export const LeaveTypeDisplay: Record<LeaveType, string> = {
     [LeaveType.Permitted]: "تنسيب",
     [LeaveType.Cycle]: "دورة",
     [LeaveType.Workshop]: "ورشة عمل",
+    [LeaveType.FiveYearLeave]: "إجازة 5 سنوات",
+    [LeaveType.Assignment]: "تكليف",
+    [LeaveType.GuardDescent]: "نزول خفر",
+    [LeaveType.Exempted]: "معفي",
+    [LeaveType.PeriodicLeave]: "إجازة دورية",
 };
 
