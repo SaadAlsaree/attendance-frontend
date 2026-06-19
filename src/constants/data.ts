@@ -151,6 +151,14 @@ export const navItems: NavItem[] = [
         shortcut: ['l', 'r'],
         requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
       },
+      {
+        title: 'Employee Report',
+        arabicTitle: 'تقرير موظف',
+        url: '/reports/employee-report',
+        icon: 'user',
+        shortcut: ['e', 'r'],
+        requiredRoles: [Role.Admin],
+      },
     ]
   },
   {

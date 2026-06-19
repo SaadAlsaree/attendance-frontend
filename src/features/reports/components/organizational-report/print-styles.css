@@ -146,9 +146,11 @@
     page-break-before: auto !important;
   }
 
-  /* Large units that might need page break */
+  /* Large units: let them flow right after the stats and break ACROSS pages
+     instead of being forced onto a new page (which left page 1 nearly empty). */
   .print-unit.large-unit {
-    page-break-before: always !important;
+    page-break-before: auto !important;
+    page-break-inside: auto !important;
   }
 
   .print-unit-header {

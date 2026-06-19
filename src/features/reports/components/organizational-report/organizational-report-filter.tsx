@@ -234,9 +234,9 @@ const OrganizationalReportFilter = ({
                 <SelectValue placeholder='اختر الجهة' />
               </SelectTrigger>
               <SelectContent>
-                {organizationalUnits?.map((unit) => (
+                {organizationalUnits?.map((unit: any) => (
                   <SelectItem key={unit.id} value={unit.id}>
-                    {unit.name} ({unit.code})
+                    {unit.unitName ?? unit.name} ({unit.unitCode ?? unit.code})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -313,9 +313,9 @@ const OrganizationalReportFilter = ({
                 {organizationalUnitId && (
                   <Badge variant='secondary' className='text-xs'>
                     الجهة:{' '}
-                    {organizationalUnits?.find(
+                    {(organizationalUnits as any[])?.find(
                       (u) => u.id === organizationalUnitId
-                    )?.name || 'اختر الجهة'}
+                    )?.unitName || 'اختر الجهة'}
                   </Badge>
                 )}
                 {date && (

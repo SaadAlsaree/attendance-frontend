@@ -69,21 +69,13 @@ export default async function RootLayout({
             enableColorScheme
           >
             <QueryClientProvider>
-              <ThemeProvider
-                attribute='class'
-                defaultTheme='system'
-                enableSystem
-                disableTransitionOnChange
-                enableColorScheme
-              >
-                <Providers activeThemeValue={activeThemeValue as string}>
-                  <Toaster />
-                  {/* {process.env.NODE_ENV === 'development' && (
-                    <TwentyFirstToolbar config={{ plugins: [ReactPlugin] }} />
-                  )} */}
-                  {children}
-                </Providers>
-              </ThemeProvider>
+              <Providers activeThemeValue={activeThemeValue as string}>
+                <Toaster />
+                {/* {process.env.NODE_ENV === 'development' && (
+                  <TwentyFirstToolbar config={{ plugins: [ReactPlugin] }} />
+                )} */}
+                {children}
+              </Providers>
             </QueryClientProvider>
           </ThemeProvider>
         </NuqsAdapter>

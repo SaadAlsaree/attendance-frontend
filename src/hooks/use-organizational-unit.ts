@@ -49,7 +49,9 @@ export function useOrganizationalUnits(params: UseOrganizationalUnitParams = {})
     };
 
     return {
-        organizationalUnits: data?.data ?? [],
+        // The /organizational-units endpoint returns a flat array (not the paginated
+        // { data: [...] } envelope other endpoints use), so accept either shape.
+        organizationalUnits: (Array.isArray(data) ? data : data?.data) ?? [],
         isLoading,
         error,
         refetch,

@@ -219,8 +219,24 @@ export const setAuthToken = (token: string | null) => {
 // Error handling interceptor for client
 axiosClient.interceptors.request.use(
     async (config) => {
-        // The token will be set by setAuthToken function called from components
-        
+        // Ensure client-side requests carry the auth token. This mirrors the
+        // server interceptor (getServerSession) by pulling the NextAuth session
+        // token per-request, so calls no longer depend on a component having
+        // called setAuthToken() first — that manual approach is racy because
+        // concurrent requests share axiosClient.defaults and clear each other's
+        // header in their `finally`, which is why the filter dropdowns 401'd.
+        try {
+            if (typeof window !== 'undefined' && !config.headers.Authorization) {
+                const { getSession } = await import('next-auth/react');
+                const session = (await getSession()) as { accessToken?: string } | null;
+                if (session?.accessToken) {
+                    config.headers.Authorization = `Bearer ${session.accessToken}`;
+                }
+            }
+        } catch {
+            // If the session can't be read, continue unauthenticated (server returns 401).
+        }
+
         // Add client IP header for client-side requests
         try {
             const clientIP = await getClientIPFromAPI();

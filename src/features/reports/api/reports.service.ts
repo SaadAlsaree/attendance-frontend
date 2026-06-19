@@ -10,6 +10,10 @@ import {
   OrganizationalSummaryResponse
 } from '../types/organizational-summary';
 import { OrganizationalReportRequest } from '../types/organization-report';
+import {
+  EmployeeReportRequest,
+  EmployeeReportResponse
+} from '../types/employee-report';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
 
@@ -132,6 +136,25 @@ export const reportsService = {
       return response.data as OrganizationalSummaryResponse;
     } catch (error) {
       console.error('Error fetching organization:', error);
+      return null;
+    }
+  },
+
+  // reports/employee — admin-only per-employee report (from–to)
+  async getEmployeeReport(
+    query: EmployeeReportRequest
+  ): Promise<EmployeeReportResponse | null> {
+    try {
+      const response = await axiosInstance.get(`${baseUrl}/reports/employee`, {
+        params: query
+      });
+      if (response.status >= 400) {
+        console.error('Error fetching employee report:', response.statusText);
+        return null;
+      }
+      return response.data as EmployeeReportResponse;
+    } catch (error) {
+      console.error('Error fetching employee report:', error);
       return null;
     }
   }

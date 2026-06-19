@@ -211,6 +211,20 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
             .print-no-break {
               page-break-inside: avoid;
             }
+
+            .print-subsection {
+              margin-top: 15px;
+              page-break-inside: avoid;
+            }
+
+            .print-subsection-title {
+              font-size: 13px;
+              font-weight: bold;
+              background: #f5f5f5;
+              border: 1px solid #ddd;
+              border-bottom: none;
+              padding: 8px 12px;
+            }
           }
         `}</style>
 
@@ -300,6 +314,62 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
                 ))}
               </tbody>
             </table>
+
+            {/* Non-fingerprinted employees (غير مبصمين) */}
+            {unit.nonFingerprintedEmployees?.length > 0 && (
+              <div className='print-subsection'>
+                <div className='print-subsection-title'>
+                  غير المبصمين ({unit.nonFingerprintedEmployees.length})
+                </div>
+                <table className='print-table'>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '48px' }}>#</th>
+                      <th>اسم الموظف</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {unit.nonFingerprintedEmployees.map((employee, index) => (
+                      <tr key={employee.employeeId}>
+                        <td>{index + 1}</td>
+                        <td className='print-employee-name'>
+                          {employee.employeeName}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Actions / statuses (الاجراءات) */}
+            {unit.actionEmployees?.length > 0 && (
+              <div className='print-subsection'>
+                <div className='print-subsection-title'>
+                  الإجراءات ({unit.actionEmployees.length})
+                </div>
+                <table className='print-table'>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '48px' }}>#</th>
+                      <th>اسم الموظف</th>
+                      <th>الإجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {unit.actionEmployees.map((employee, index) => (
+                      <tr key={employee.employeeId}>
+                        <td>{index + 1}</td>
+                        <td className='print-employee-name'>
+                          {employee.employeeName}
+                        </td>
+                        <td>{employee.actionName}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         ))}
 
@@ -315,7 +385,8 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
           }}
         >
           <p>
-            تم إنشاء هذا التقرير في: {moment().format('DD/MM/YYYY hh:mm A')}
+            تم إنشاء هذا التقرير في:{' '}
+            {moment(report?.data?.generatedAt).format('DD/MM/YYYY hh:mm A')}
           </p>
           <p>نظام إدارة الحضور والانصراف</p>
         </div>

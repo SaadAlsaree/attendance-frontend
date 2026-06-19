@@ -48,12 +48,16 @@ export function useEmployees(params: UseEmployeesParams = {}) {
     //     queryClient.invalidateQueries({ queryKey: ['employees'] });
     // };
 
+    // The /employees endpoint returns { data: [...], totalCount, page, ... } (the
+    // employee array directly on `data`, pagination fields at the top level). Accept
+    // that shape and the older nested { data: { data: [...], totalCount } } one.
+    const body = data as any;
     return {
-        employees: data?.data?.data ?? [],
-        totalCount: data?.data?.totalCount ?? 0,
-        page: data?.data?.page ?? 1,
-        pageSize: data?.data?.pageSize ?? 10,
-        totalPages: data?.data?.totalPages ?? 1,
+        employees: (Array.isArray(body?.data) ? body.data : body?.data?.data) ?? [],
+        totalCount: body?.totalCount ?? body?.data?.totalCount ?? 0,
+        page: body?.page ?? body?.data?.page ?? 1,
+        pageSize: body?.pageSize ?? body?.data?.pageSize ?? 10,
+        totalPages: body?.totalPages ?? body?.data?.totalPages ?? 1,
         isLoading,
         error,
         refetch,
