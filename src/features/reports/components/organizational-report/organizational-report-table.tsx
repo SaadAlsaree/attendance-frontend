@@ -76,6 +76,12 @@ const OrganizationalReportTable = ({ report }: Props) => {
                 <div className='flex flex-col gap-2'>
                   <h3 className='text-sm font-medium'>{unit.unitName}</h3>
                   <p className='text-muted-foreground flex items-center gap-1 text-sm'>
+                    <Badge variant='blue-outline' className='text-xs'>
+                      {unit.totalEmployees}
+                    </Badge>
+                    إجمالي الموظفين
+                  </p>
+                  <p className='text-muted-foreground flex items-center gap-1 text-sm'>
                     <Badge variant='green-outline' className='text-xs'>
                       {unit.totalAttendances}
                     </Badge>
