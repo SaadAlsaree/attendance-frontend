@@ -136,10 +136,17 @@
     color: #777 !important;
   }
 
-  /* Unit sections */
+  /* Page 1 is the title + KPI summary; the detail tables start on page 2 and
+     then flow continuously. */
+  .print-details {
+    page-break-before: always !important;
+  }
+
+  /* Unit sections — allow long units to flow across pages instead of being
+     pushed whole onto a new page (which left earlier pages blank). */
   .print-unit {
     margin-bottom: 25px !important;
-    page-break-inside: avoid !important;
+    page-break-inside: auto !important;
   }
 
   .print-unit:nth-child(odd) {
@@ -161,6 +168,8 @@
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .print-unit-title {
@@ -197,6 +206,16 @@
     font-weight: bold !important;
     color: #000 !important;
     font-size: 11px !important;
+  }
+
+  /* Repeat the table header on every page a long table spans, and never
+     split a row across a page boundary. */
+  .print-table thead {
+    display: table-header-group !important;
+  }
+
+  .print-table tr {
+    page-break-inside: avoid !important;
   }
 
   .print-employee-name {

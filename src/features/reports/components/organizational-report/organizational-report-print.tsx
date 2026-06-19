@@ -5,16 +5,32 @@ import { Users, UserCheck, Calendar, AlertTriangle, Timer } from 'lucide-react';
 import moment from 'moment';
 import 'moment/locale/ar';
 import './print-styles.css';
+import {
+  BadgeTone,
+  ReportStatusKey,
+  getRowStatusBadges,
+  getUnitRows
+} from './report-status-filters';
 
 // Set Arabic locale for moment
 moment.locale('ar');
 
+// Map a status tone to one of the existing print-badge classes.
+const PRINT_BADGE_CLASS: Record<BadgeTone, string> = {
+  green: 'print-badge-normal',
+  red: 'print-badge-late',
+  yellow: 'print-badge-late',
+  gray: 'print-badge-early',
+  purple: 'print-badge-early'
+};
+
 type Props = {
   report: OrganizationalReportResponse;
+  status?: ReportStatusKey;
 };
 
 const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
-  ({ report }, ref) => {
+  ({ report, status = 'all' }, ref) => {
     const formatDate = (date: string) => {
       return moment(date).format('dddd DD/MM/YYYY');
     };
@@ -22,6 +38,13 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
     const formatTime = (time: string) => {
       return moment(time).format('hh:mm A');
     };
+
+    // Unified-row formatters (handle the empty time/day cells for
+    // non-fingerprinted and action rows).
+    const t = (time: string | null) =>
+      time ? moment(time).locale('ar').format('hh:mm A') : '—';
+    const day = (date: string | null) =>
+      date ? moment(date).locale('ar').format('dddd') : '—';
 
     const getAttendancePercentage = () => {
       if (report?.data?.totalEmployees === 0) return 0;
@@ -132,7 +155,6 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
 
             .print-unit {
               margin-bottom: 30px;
-              page-break-inside: avoid;
             }
 
             .print-unit-header {
@@ -143,6 +165,8 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
               display: flex;
               justify-content: space-between;
               align-items: center;
+              page-break-inside: avoid;
+              page-break-after: avoid;
             }
 
             .print-unit-title {
@@ -214,7 +238,6 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
 
             .print-subsection {
               margin-top: 15px;
-              page-break-inside: avoid;
             }
 
             .print-subsection-title {
@@ -224,6 +247,7 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
               border: 1px solid #ddd;
               border-bottom: none;
               padding: 8px 12px;
+              page-break-after: avoid;
             }
           }
         `}</style>
@@ -245,14 +269,12 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
           ))}
         </div>
 
-        {/* Units and Employees */}
-        {report?.data?.units?.map((unit, unitIndex) => (
-          <div
-            key={unit.unitId}
-            className={`print-unit print-no-break ${
-              unit.employeeDetails.length > 10 ? 'large-unit' : ''
-            } ${unitIndex > 0 && unitIndex % 2 === 0 ? 'print-break-before' : ''}`}
-          >
+        {/* Detail tables start on page 2 — page 1 is the title + KPI summary. */}
+        <div className='print-details'>
+        {report?.data?.units?.map((unit) => {
+          const rows = getUnitRows(unit, status, report?.data?.date);
+          return (
+          <div key={unit.unitId} className='print-unit'>
             <div className='print-unit-header'>
               <div className='print-unit-title'>{unit.unitName}</div>
               <div className='print-unit-stats'>
@@ -266,112 +288,58 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
             <table className='print-table'>
               <thead>
                 <tr>
+                  <th style={{ width: '40px' }}>#</th>
                   <th>اسم الموظف</th>
-                  <th>الجهة التنظيمية</th>
+                  <th>الجهة</th>
                   <th>اليوم</th>
-                  <th>التاريخ</th>
                   <th>وقت الدخول</th>
                   <th>وقت الخروج</th>
-                  <th>متأخر</th>
-                  <th>مبكر</th>
+                  <th>الحالة</th>
                   <th>الوقت الإضافي</th>
                 </tr>
               </thead>
               <tbody>
-                {unit.employeeDetails.map((employee) => (
-                  <tr key={employee.employeeId}>
+                {rows.length === 0 && (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '10px' }}>
+                      لا يوجد موظفون ضمن هذه الحالة
+                    </td>
+                  </tr>
+                )}
+                {rows.map((row, index) => (
+                  <tr key={row.key}>
+                    <td>{index + 1}</td>
                     <td className='print-employee-name'>
-                      <div>{employee.employeeName}</div>
-                      <div className='print-employee-code'>
-                        {employee.employeeCode}
-                      </div>
-                    </td>
-                    <td>{employee.organizationalUnitName}</td>
-                    <td>{moment(employee.date).format('dddd')}</td>
-                    <td>{moment(employee.date).format('DD/MM/YYYY')}</td>
-                    <td>{formatTime(employee.checkInTime)}</td>
-                    <td>
-                      {employee.checkOutTime
-                        ? formatTime(employee.checkOutTime)
-                        : 'غير مبصم'}
-                    </td>
-                    <td>
-                      {employee.isLate && (
-                        <span className='print-badge print-badge-late'>
-                          متأخر
-                        </span>
+                      <div>{row.employeeName}</div>
+                      {row.employeeCode && (
+                        <div className='print-employee-code'>
+                          {row.employeeCode}
+                        </div>
                       )}
                     </td>
+                    <td>{row.organizationalUnitName}</td>
+                    <td>{day(row.date)}</td>
+                    <td>{t(row.checkInTime)}</td>
+                    <td>{t(row.checkOutTime)}</td>
                     <td>
-                      {employee.isEarlyLeave && (
-                        <span className='print-badge print-badge-early'>
-                          مبكر
+                      {getRowStatusBadges(row).map((b, i) => (
+                        <span
+                          key={i}
+                          className={`print-badge ${PRINT_BADGE_CLASS[b.tone]}`}
+                        >
+                          {b.label}
                         </span>
-                      )}
+                      ))}
                     </td>
-                    <td>{employee.overtimeDuration || '-'}</td>
+                    <td>{row.overtimeDuration || '-'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
-            {/* Non-fingerprinted employees (غير مبصمين) */}
-            {unit.nonFingerprintedEmployees?.length > 0 && (
-              <div className='print-subsection'>
-                <div className='print-subsection-title'>
-                  غير المبصمين ({unit.nonFingerprintedEmployees.length})
-                </div>
-                <table className='print-table'>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '48px' }}>#</th>
-                      <th>اسم الموظف</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unit.nonFingerprintedEmployees.map((employee, index) => (
-                      <tr key={employee.employeeId}>
-                        <td>{index + 1}</td>
-                        <td className='print-employee-name'>
-                          {employee.employeeName}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Actions / statuses (الاجراءات) */}
-            {unit.actionEmployees?.length > 0 && (
-              <div className='print-subsection'>
-                <div className='print-subsection-title'>
-                  الإجراءات ({unit.actionEmployees.length})
-                </div>
-                <table className='print-table'>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '48px' }}>#</th>
-                      <th>اسم الموظف</th>
-                      <th>الإجراء</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unit.actionEmployees.map((employee, index) => (
-                      <tr key={employee.employeeId}>
-                        <td>{index + 1}</td>
-                        <td className='print-employee-name'>
-                          {employee.employeeName}
-                        </td>
-                        <td>{employee.actionName}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
-        ))}
+          );
+        })}
+        </div>
 
         {/* Footer */}
         <div
