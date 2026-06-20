@@ -28,7 +28,8 @@ import {
 } from '../utils/leaves';
 import moment from 'moment';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { canWrite } from '@/utils/auth/auth-utils';
+import { canWrite, hasRole } from '@/utils/auth/auth-utils';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
 
 interface LeaveViewPageProps {
   data: LeaveItem;
@@ -91,6 +92,12 @@ export default function LeaveViewPage({ data }: LeaveViewPageProps) {
     !data.createdAt ||
     moment().diff(moment(data.createdAt), 'hours', true) <= 24;
 
+  // Feature 13 (فتح التعديل على الاجازات الطويلة للادمن فقط): Admin only may edit a long/old leave
+  // past the 24h window. Mirrors the backend bypass (Role.Admin only — not SuperAdmin). This only
+  // un-grays the button for admins; the backend role branch remains the sole authority.
+  const isAdmin = hasRole(user, Role.Admin);
+  const canEdit = isAdmin || withinEditWindow;
+
   return (
     <div className='w-full space-y-6'>
       <div className='flex items-center justify-between'>
@@ -107,10 +114,8 @@ export default function LeaveViewPage({ data }: LeaveViewPageProps) {
             <>
               <Button
                 variant='default'
-                disabled={!withinEditWindow}
-                title={
-                  withinEditWindow ? undefined : 'انتهت مدة التعديل لهذا الموقف'
-                }
+                disabled={!canEdit}
+                title={canEdit ? undefined : 'انتهت مدة التعديل لهذا الموقف'}
                 onClick={() => router.push(`/leave/leaves/${data.id}/edit`)}
               >
                 <Edit className='mr-2 h-4 w-4' />
