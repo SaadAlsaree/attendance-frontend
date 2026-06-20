@@ -21,7 +21,7 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
     items: []
   },
   {
@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'settings',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
     items: [
       {
         title: 'View All Attendance',
@@ -63,7 +63,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'user',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
     items: [
       {
         title: 'Employee',
@@ -77,7 +77,9 @@ export const navItems: NavItem[] = [
         arabicTitle: 'إضافة/تعديل الموظفين',
         url: '/employee/addedit-employees',
         icon: 'userPen',
-        shortcut: ['a', 'e']
+        shortcut: ['a', 'e'],
+        // Write screen — never show to view-only roles (e.g. security officers)
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee]
       },
 
     ]
@@ -133,7 +135,7 @@ export const navItems: NavItem[] = [
     url: '/leave',
     icon: 'page',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
   },
   {
     title: 'Reports',
@@ -141,6 +143,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'post',
     isActive: false,
+    // Security officers have NO report access (not monitoring data).
     requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
     items: [
       {
@@ -167,6 +170,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'post',
     isActive: false,
+    // Security officers have NO report access (not monitoring data).
     requiredRoles: [Role.Admin, Role.Manager],
     items: [
       // {

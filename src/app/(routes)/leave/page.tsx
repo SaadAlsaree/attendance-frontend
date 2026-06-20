@@ -10,6 +10,8 @@ import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 export const metadata = {
   title: 'إدارة المواقف'
@@ -22,18 +24,24 @@ type pageProps = {
 const LeavePage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
 
+  // View-only roles (e.g. security officers) can browse but not create a موقف.
+  const currentUser = await usersPermissionsService.getCurrentUser();
+  const showCreate = canWrite(currentUser);
+
   searchParamsCache.parse(searchParams);
   return (
     <PageContainer scrollable={false}>
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <Heading title='المواقف' description='إدارة المواقف' />
-          <Link
-            href='/leave/new'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
-          >
-            <IconPlus className='mr-2 h-4 w-4' /> إضافة موقف جديد
-          </Link>
+          {showCreate && (
+            <Link
+              href='/leave/new'
+              className={cn(buttonVariants(), 'text-xs md:text-sm')}
+            >
+              <IconPlus className='mr-2 h-4 w-4' /> إضافة موقف جديد
+            </Link>
+          )}
         </div>
         <Separator />
 

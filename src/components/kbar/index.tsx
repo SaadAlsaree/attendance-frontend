@@ -11,9 +11,22 @@ import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import RenderResults from './render-result';
 import useThemeSwitching from './use-theme-switching';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+
+// Mirror of the sidebar role gating: items with no requiredRoles are unrestricted.
+function hasRequiredRoles(
+  userRole: number | undefined,
+  requiredRoles?: Role[]
+): boolean {
+  if (!userRole || !requiredRoles || !requiredRoles.length) return true;
+  return requiredRoles.includes(userRole as Role);
+}
 
 export default function KBar({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { user } = useCurrentUser();
+  const userRole = user?.role;
 
   // These action are for the navigation
   const actions = useMemo(() => {
@@ -22,7 +35,9 @@ export default function KBar({ children }: { children: React.ReactNode }) {
       router.push(url);
     };
 
-    return navItems.flatMap((navItem) => {
+    return navItems
+      .filter((navItem) => hasRequiredRoles(userRole, navItem.requiredRoles))
+      .flatMap((navItem) => {
       // Only include base action if the navItem has a real URL and is not just a container
       const baseAction =
         navItem.url !== '#'
@@ -39,20 +54,24 @@ export default function KBar({ children }: { children: React.ReactNode }) {
 
       // Map child items into actions
       const childActions =
-        navItem.items?.map((childItem) => ({
-          id: `${childItem.title.toLowerCase()}Action`,
-          name: childItem.title,
-          shortcut: childItem.shortcut,
-          keywords: childItem.title.toLowerCase(),
-          section: navItem.title,
-          subtitle: `Go to ${childItem.title}`,
-          perform: () => navigateTo(childItem.url)
-        })) ?? [];
+        navItem.items
+          ?.filter((childItem) =>
+            hasRequiredRoles(userRole, childItem.requiredRoles)
+          )
+          .map((childItem) => ({
+            id: `${childItem.title.toLowerCase()}Action`,
+            name: childItem.title,
+            shortcut: childItem.shortcut,
+            keywords: childItem.title.toLowerCase(),
+            section: navItem.title,
+            subtitle: `Go to ${childItem.title}`,
+            perform: () => navigateTo(childItem.url)
+          })) ?? [];
 
       // Return only valid actions (ignoring null base actions for containers)
       return baseAction ? [baseAction, ...childActions] : childActions;
     });
-  }, [router]);
+  }, [router, userRole]);
 
   return (
     <KBarProvider actions={actions}>

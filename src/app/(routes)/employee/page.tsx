@@ -12,7 +12,7 @@ import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 import { Role } from '@/features/system/users-permissions/types/users-permissions';
-import { hasAnyRole } from '@/utils/auth/auth-utils';
+import { hasAnyRole, canWrite } from '@/utils/auth/auth-utils';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
@@ -27,16 +27,17 @@ const CustomWorkflowPage = async (props: pageProps) => {
   const searchParams = await props.searchParams;
 
     const data = await usersPermissionsService.getCurrentUser();
-        
-    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
-        
-        
+
+    // View-only roles (e.g. security officers) may browse employees but not add/edit.
+    const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.SecurityOfficer]);
+    const showAdd = canWrite(data);
+
     // redirect to home if user is not authorized
-          if (!canAdd) {
+          if (!canView) {
               redirect('/');
           }
-    
-  
+
+
 
   searchParamsCache.parse(searchParams);
   return (
@@ -44,12 +45,14 @@ const CustomWorkflowPage = async (props: pageProps) => {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <Heading title='الموظفين' description='إدارة الموظفين' />
-          <Link
-            href='/employee/addedit-employees'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
-          >
-            <IconPlus className='mr-2 h-4 w-4' /> إضافة موظف جديد
-          </Link>
+          {showAdd && (
+            <Link
+              href='/employee/addedit-employees'
+              className={cn(buttonVariants(), 'text-xs md:text-sm')}
+            >
+              <IconPlus className='mr-2 h-4 w-4' /> إضافة موظف جديد
+            </Link>
+          )}
         </div>
         <Separator />
 

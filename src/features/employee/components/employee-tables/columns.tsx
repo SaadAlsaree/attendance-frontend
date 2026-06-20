@@ -16,6 +16,43 @@ import {
 import { formatDate } from '../../utils/employees';
 import Link from 'next/link';
 import { EmployeeData } from '../../types/employees';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
+
+// Row actions as a component so it can read the current user (hooks). View-only
+// roles (e.g. security officers) see "عرض" only — never "تعديل".
+function EmployeeRowActions({ employee }: { employee: EmployeeData }) {
+  const { user } = useCurrentUser();
+  const showEdit = canWrite(user);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant='ghost' className='h-8 w-8 p-0'>
+          <span className='sr-only'>فتح القائمة</span>
+          <MoreHorizontal className='h-4 w-4' />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align='end'>
+        <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href={`/employee/${employee.id}`}>
+            <Eye className='ml-2 h-4 w-4' />
+            عرض
+          </Link>
+        </DropdownMenuItem>
+        {showEdit && (
+          <DropdownMenuItem asChild>
+            <Link href={`/employee/addedit-employees/${employee.id}/edit`}>
+              <Edit className='ml-2 h-4 w-4' />
+              تعديل
+            </Link>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export const columns: ColumnDef<EmployeeData, unknown>[] = [
   {
@@ -130,35 +167,6 @@ export const columns: ColumnDef<EmployeeData, unknown>[] = [
     size: 80,
     minSize: 60,
     maxSize: 100,
-    cell: ({ row }) => {
-      const employee = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>فتح القائمة</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/employee/${employee.id}`}>
-                <Eye className='ml-2 h-4 w-4' />
-                عرض
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/employee/addedit-employees/${employee.id}/edit`}>
-                <Edit className='ml-2 h-4 w-4' />
-                تعديل
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    }
+    cell: ({ row }) => <EmployeeRowActions employee={row.original} />
   }
 ];

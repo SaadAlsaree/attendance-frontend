@@ -49,6 +49,33 @@ export function hasAllRoles(user: UserPermission | null | undefined, roles: (Rol
 }
 
 /**
+ * Roles that are strictly view-only (عرض فقط) and must never see write/create/edit
+ * affordances. Security officers (ضباط الامن) are monitoring-only.
+ */
+export const VIEW_ONLY_ROLES: (Role | number)[] = [Role.SecurityOfficer];
+
+/**
+ * Minimal role-bearing shape, so these helpers accept both `UserPermission`
+ * (server, role: Role) and `UserPermissionData` (client hook, role: number).
+ */
+type RoleBearer = { role: Role | number } | null | undefined;
+
+/**
+ * Whether the user is a view-only role (e.g. security officer).
+ */
+export function isViewOnly(user: RoleBearer): boolean {
+    return !!user && VIEW_ONLY_ROLES.includes(user.role);
+}
+
+/**
+ * Whether the user is allowed to perform write actions (create/update/delete).
+ * View-only roles return false. Used to gate create/edit buttons across the app.
+ */
+export function canWrite(user: RoleBearer): boolean {
+    return !!user && !isViewOnly(user);
+}
+
+/**
  * Check if the user has a specific permission
  * @param user - The user to check
  * @param permissionValue - The permission value to check

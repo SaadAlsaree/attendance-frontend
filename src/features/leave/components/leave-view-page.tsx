@@ -27,6 +27,8 @@ import {
   isLeaveRejected
 } from '../utils/leaves';
 import moment from 'moment';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 interface LeaveViewPageProps {
   data: LeaveItem;
@@ -34,6 +36,9 @@ interface LeaveViewPageProps {
 
 export default function LeaveViewPage({ data }: LeaveViewPageProps) {
   const router = useRouter();
+  const { user } = useCurrentUser();
+  // View-only roles (e.g. security officers) see no write actions.
+  const showWrite = canWrite(user);
 
   // Helper function to determine leave type badge variant
   const getLeaveTypeVariant = (leaveType: LeaveType): AllBadgeVariants => {
@@ -98,7 +103,7 @@ export default function LeaveViewPage({ data }: LeaveViewPageProps) {
             <ArrowLeft className='mr-2 h-4 w-4' />
             رجوع
           </Button>
-          {isLeavePending(data.status) && (
+          {showWrite && isLeavePending(data.status) && (
             <>
               <Button
                 variant='default'
@@ -298,7 +303,7 @@ export default function LeaveViewPage({ data }: LeaveViewPageProps) {
       </Card>
 
       {/* Actions */}
-      {isLeavePending(data.status) && (
+      {showWrite && isLeavePending(data.status) && (
         <Card>
           <CardHeader>
             <CardTitle>الإجراءات</CardTitle>

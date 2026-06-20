@@ -30,6 +30,8 @@ import {
   getLogMethodText
 } from '../utils/attendance';
 import AttendanceApproveDialog from './attendnce-approve';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 interface AttendanceViewProps {
   data: AttendanceResponse;
@@ -38,6 +40,9 @@ interface AttendanceViewProps {
 export default function AttendanceViewPage({ data }: AttendanceViewProps) {
   const router = useRouter();
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const { user } = useCurrentUser();
+  // View-only roles (e.g. security officers) see no write actions.
+  const showWrite = canWrite(user);
 
   // Helper function to determine badge variant based on attendance status
   const getStatusVariant = (status: AttendanceStatus) => {
@@ -81,7 +86,7 @@ export default function AttendanceViewPage({ data }: AttendanceViewProps) {
           </p>
         </div>
         <div className='flex space-x-2'>
-          {!data.approvedBy && (
+          {showWrite && !data.approvedBy && (
             <Button
               onClick={() => setApproveDialogOpen(true)}
               className='bg-green-600 hover:bg-green-700'
@@ -89,13 +94,15 @@ export default function AttendanceViewPage({ data }: AttendanceViewProps) {
               اعتماد الحضور
             </Button>
           )}
-          <Button
-            onClick={() =>
-              router.push(`/attendance/view-all-attendance/${data.id}/edit`)
-            }
-          >
-            تعديل الحضور
-          </Button>
+          {showWrite && (
+            <Button
+              onClick={() =>
+                router.push(`/attendance/view-all-attendance/${data.id}/edit`)
+              }
+            >
+              تعديل الحضور
+            </Button>
+          )}
           <Button
             variant='outline'
             onClick={() => router.push('/attendance/view-all-attendance')}

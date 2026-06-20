@@ -26,11 +26,12 @@ const ViewAllAttendancePage = async (props: pageProps) => {
   
   const data = await usersPermissionsService.getCurrentUser();
       
-  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee]);
-      
-      
+  // View gate: monitoring roles (incl. view-only security officers) may view.
+  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer]);
+
+
   // redirect to home if user is not authorized
-        if (!canAdd) {
+        if (!canView) {
             redirect('/');
         }
   

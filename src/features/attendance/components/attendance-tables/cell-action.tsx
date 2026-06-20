@@ -19,6 +19,8 @@ import { useAuthApi } from '@/hooks/use-auth-api';
 import AttendanceApproveDialog from '../attendnce-approve';
 import { useEmployees } from '@/hooks/use-employees';
 import { Separator } from '@/components/ui/separator';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 interface CellActionProps {
   data: AttendanceResponse;
@@ -32,6 +34,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [checkOutDialogOpen, setCheckOutDialogOpen] = useState(false);
   const { authApiCall } = useAuthApi();
   const { employees } = useEmployees();
+  const { user } = useCurrentUser();
+  // View-only roles (e.g. security officers) may only view attendance.
+  const showWrite = canWrite(user);
 
   const onDelete = async () => {
     try {
@@ -80,26 +85,32 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <Eye className='mr-2 h-4 w-4' />
             عرض
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() =>
-              router.push(`/attendance/view-all-attendance/${data.id}/edit`)
-            }
-          >
-            <Edit className='mr-2 h-4 w-4' />
-            تعديل
-          </DropdownMenuItem>
+          {showWrite && (
+            <DropdownMenuItem
+              onClick={() =>
+                router.push(`/attendance/view-all-attendance/${data.id}/edit`)
+              }
+            >
+              <Edit className='mr-2 h-4 w-4' />
+              تعديل
+            </DropdownMenuItem>
+          )}
 
-          {!data.approvedBy && (
+          {showWrite && !data.approvedBy && (
             <DropdownMenuItem onClick={() => setApproveDialogOpen(true)}>
               <CheckCircle className='mr-2 h-4 w-4' />
               اعتماد
             </DropdownMenuItem>
           )}
-          <Separator />
-          <DropdownMenuItem onClick={() => setCheckOutDialogOpen(true)}>
-            <LogOut className='mr-2 h-4 w-4 text-red-500' />
-            تسجيل الخروج
-          </DropdownMenuItem>
+          {showWrite && (
+            <>
+              <Separator />
+              <DropdownMenuItem onClick={() => setCheckOutDialogOpen(true)}>
+                <LogOut className='mr-2 h-4 w-4 text-red-500' />
+                تسجيل الخروج
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

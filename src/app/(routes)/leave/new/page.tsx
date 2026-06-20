@@ -4,6 +4,9 @@ import { EmployeeData } from '@/features/employee/types/employees';
 import LeaveForm from '@/features/leave/components/leave-form';
 import { searchParamsCache } from '@/lib/searchparams';
 import { SearchParams } from 'nuqs';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import { canWrite } from '@/utils/auth/auth-utils';
+import { redirect } from 'next/navigation';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -11,6 +14,12 @@ type pageProps = {
 
 export default async function newLeavePage(props: pageProps) {
   const searchParams = await props.searchParams;
+
+  // View-only roles (e.g. security officers) cannot create a موقف.
+  const currentUser = await usersPermissionsService.getCurrentUser();
+  if (!canWrite(currentUser)) {
+    redirect('/leave');
+  }
 
   searchParamsCache.parse(searchParams);
 

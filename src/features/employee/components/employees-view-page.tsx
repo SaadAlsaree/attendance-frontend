@@ -31,6 +31,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import AddEditEmployeesListing from './employees-listing';
 import { EmployeeData } from '../types/employees';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 type Props = {
   employeeData: EmployeeData;
@@ -40,6 +42,9 @@ export default function EmployeesViewPage({ employeeData }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('view');
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const { user } = useCurrentUser();
+  // View-only roles (e.g. security officers) see no edit/add affordances.
+  const showWrite = canWrite(user);
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -113,13 +118,15 @@ export default function EmployeesViewPage({ employeeData }: Props) {
                 </CardDescription>
               </div>
             </div>
-            <Button
-              onClick={() => router.push(`/employee?edit=${employeeData.id}`)}
-              className='flex items-center gap-2'
-            >
-              <Edit className='h-4 w-4' />
-              تعديل
-            </Button>
+            {showWrite && (
+              <Button
+                onClick={() => router.push(`/employee?edit=${employeeData.id}`)}
+                className='flex items-center gap-2'
+              >
+                <Edit className='h-4 w-4' />
+                تعديل
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -128,10 +135,14 @@ export default function EmployeesViewPage({ employeeData }: Props) {
             onValueChange={setActiveTab}
             className='w-full'
           >
-            <TabsList className='grid w-full grid-cols-3'>
+            <TabsList
+              className={`grid w-full ${showWrite ? 'grid-cols-3' : 'grid-cols-2'}`}
+            >
               <TabsTrigger value='view'>عرض البيانات</TabsTrigger>
               <TabsTrigger value='list'>قائمة الموظفين</TabsTrigger>
-              <TabsTrigger value='add'>إضافة موظف جديد</TabsTrigger>
+              {showWrite && (
+                <TabsTrigger value='add'>إضافة موظف جديد</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value='view' className='mt-6'>
@@ -434,16 +445,18 @@ export default function EmployeesViewPage({ employeeData }: Props) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className='space-y-3'>
-                      <Button
-                        className='w-full justify-start'
-                        variant='outline'
-                        onClick={() =>
-                          router.push(`/employee?edit=${employeeData.id}`)
-                        }
-                      >
-                        <Edit className='mr-2 h-4 w-4' />
-                        تعديل بيانات الموظف
-                      </Button>
+                      {showWrite && (
+                        <Button
+                          className='w-full justify-start'
+                          variant='outline'
+                          onClick={() =>
+                            router.push(`/employee?edit=${employeeData.id}`)
+                          }
+                        >
+                          <Edit className='mr-2 h-4 w-4' />
+                          تعديل بيانات الموظف
+                        </Button>
+                      )}
                       <Button
                         className='w-full justify-start'
                         variant='outline'

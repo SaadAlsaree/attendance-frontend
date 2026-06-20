@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/tooltip"
 import { Button } from '@/components/ui/button';
 import { NotAttendanceData } from '../../types/attendance';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 interface CellActionProps {
   data: NotAttendanceData;
@@ -17,11 +19,18 @@ interface CellActionProps {
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
+  const { user } = useCurrentUser();
 
   const onCopy = (name: string) => {
     navigator.clipboard.writeText(name);
     toast.success('اسم الموظف نسخ بنجاح.');
   };
+
+  // View-only roles (e.g. security officers) cannot create a موقف.
+  if (!canWrite(user)) {
+    return null;
+  }
+
   return (
       <Tooltip>
         <TooltipTrigger>  
