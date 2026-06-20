@@ -14,6 +14,10 @@ import {
   EmployeeReportRequest,
   EmployeeReportResponse
 } from '../types/employee-report';
+import {
+  OvertimeReportRequest,
+  OvertimeReportResponse
+} from '../types/overtime-report';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
 
@@ -155,6 +159,25 @@ export const reportsService = {
       return response.data as EmployeeReportResponse;
     } catch (error) {
       console.error('Error fetching employee report:', error);
+      return null;
+    }
+  },
+
+  // reports/overtime — overtime report with a from–to filter spanning previous months
+  async getOvertimeReport(
+    query: OvertimeReportRequest
+  ): Promise<OvertimeReportResponse | null> {
+    try {
+      const response = await axiosInstance.get(`${baseUrl}/reports/overtime`, {
+        params: query
+      });
+      if (response.status >= 400) {
+        console.error('Error fetching overtime report:', response.statusText);
+        return null;
+      }
+      return response.data as OvertimeReportResponse;
+    } catch (error) {
+      console.error('Error fetching overtime report:', error);
       return null;
     }
   }

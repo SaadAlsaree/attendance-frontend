@@ -199,13 +199,14 @@ export const navItems: NavItem[] = [
         shortcut: ['l', 'r'],
         requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
       },
-      // {
-      //   title: 'Overtime Reports',
-      //   arabicTitle: 'تقارير العمل الإضافي',
-      //   url: '/reports/overtime-reports',
-      //   icon: 'settings',
-      //   shortcut: ['o', 'r']
-      // },
+      {
+        title: 'Overtime Report',
+        arabicTitle: 'تقرير العمل الإضافي',
+        url: '/reports/overtime-report',
+        icon: 'settings',
+        shortcut: ['o', 'r'],
+        requiredRoles: [Role.Admin, Role.SuperAdmin, Role.Manager],
+      },
       // {
       //   title: 'Leave Reports',
       //   arabicTitle: 'تقارير الإجازة',
