@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -109,24 +109,42 @@ export default function AttendanceScheduleForm({
   const [excludedDateOpen, setExcludedDateOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Filter employees based on search term
-  const filteredEmployees = employeeData?.filter((employee) =>
-    employee.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Employees are searched server-side (by full name OR code) via the page's `searchTerm`
+  // query param, so render the server-provided list directly — no client-side re-filter
+  // (which previously stripped matches found by employee code).
+  const displayedEmployees = employeeData;
 
-  // Handle search input change
+  // Handle search input change — keep the input responsive, debounce the server round-trip
   const handleSearchChange = useCallback(
     (value: string) => {
       setSearchTerm(value);
-      if (initialData) {
-        router.push(`/schedule/${initialData.id}?searchTerm=${value}`);
-      } else {
-        router.push(`/schedule/create-schedule?searchTerm=${value}`);
+
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
       }
+
+      searchDebounceRef.current = setTimeout(() => {
+        const qs = value ? `?searchTerm=${encodeURIComponent(value)}` : '';
+        if (initialData) {
+          router.push(`/schedule/${initialData.id}${qs}`);
+        } else {
+          router.push(`/schedule/create-schedule${qs}`);
+        }
+      }, 350);
     },
     [router, initialData]
   );
+
+  // Clear any pending debounced navigation on unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema(initialData)),
@@ -478,7 +496,7 @@ export default function AttendanceScheduleForm({
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className='w-[300px] p-0'>
-                            <Command>
+                            <Command shouldFilter={false}>
                               <CommandInput
                                 placeholder='ابحث عن موظف...'
                                 value={searchTerm}
@@ -487,7 +505,7 @@ export default function AttendanceScheduleForm({
                               <CommandList>
                                 <CommandEmpty>لا يوجد موظفين</CommandEmpty>
                                 <CommandGroup>
-                                  {filteredEmployees?.map((employee) => (
+                                  {displayedEmployees?.map((employee) => (
                                     <CommandItem
                                       value={employee.fullName}
                                       key={employee.id}

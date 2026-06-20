@@ -9,6 +9,8 @@ import { EmployeeData } from '@/features/employee/types/employees';
 import { shiftService } from '@/features/shift/api/shift.service';
 import { ShiftData } from '@/features/shift';
 import { searchParamsCache } from '@/lib/searchparams';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
+import Unauthorized from '@/components/auth/unauthorized';
 
 export const metadata = {
   title: 'إضافة جدول دوام جديد',
@@ -25,6 +27,16 @@ const NewMailFilePage = async (props: pageProps) => {
   searchParamsCache.parse(searchParams);
 
   const searchTerm = searchParamsCache.get('searchTerm');
+
+  // Admin-only: schedule creation is restricted to Admin (1) and SuperAdmin (8) — spec «للادمن فقط»
+  const currentUser = await usersPermissionsService.getCurrentUser();
+  if (currentUser?.role != 1 && currentUser?.role != 8) {
+    return (
+      <PageContainer>
+        <Unauthorized />
+      </PageContainer>
+    );
+  }
 
   const shifts = await shiftService.getShiftsList({
     page: 1,

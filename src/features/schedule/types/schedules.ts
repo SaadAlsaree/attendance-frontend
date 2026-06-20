@@ -76,6 +76,9 @@ export interface ScheduleDayResponse {
 export interface CreateScheduleDayRequest {
     shiftId: string;
     dayOfWeek: number;
+    // "YYYY-MM-DD" — the date-range create form always supplies this and the backend
+    // validator requires it. Optional here only so the legacy day-of-week helpers compile.
+    scheduleDayDate?: string;
     isActive: boolean;
     notes?: string;
 }
