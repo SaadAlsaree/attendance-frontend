@@ -208,9 +208,15 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
         if (value !== null) {
           const processedValue = Array.isArray(value)
             ? value
-            : typeof value === 'string' && /[^a-zA-Z0-9]/.test(value)
-              ? value.split(/[^a-zA-Z0-9]+/).filter(Boolean)
-              : [value];
+            : // A single YYYY-MM-DD date must stay a plain string (same shape the
+              // date picker produces). Splitting it on '-' shreds it into
+              // ['2026','06','20'], which the date chip then mis-parses as epoch
+              // (Jan 1 1970). Only multi-value strings should be split into arrays.
+              typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+              ? value
+              : typeof value === 'string' && /[^a-zA-Z0-9]/.test(value)
+                ? value.split(/[^a-zA-Z0-9]+/).filter(Boolean)
+                : [value];
 
           filters.push({
             id: key,

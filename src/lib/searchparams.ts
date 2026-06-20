@@ -24,6 +24,7 @@ export const searchParams = {
   searchTerm: parseAsString,
   attendanceStatus: parseAsString,
   date: parseAsString,
+  attendanceDefaultsApplied: parseAsString,
   role: parseAsInteger,
   isActive: parseAsString,
   employeeSearch: parseAsString,
