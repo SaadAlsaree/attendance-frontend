@@ -19,9 +19,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { UserPermission } from '../../types/users-permissions';
+import { UserPermission, Role } from '../../types/users-permissions';
 import ResetPasswordDialog from '../reset-password-dialog';
 import ChangePasswordDialog from '../change-password-dialog';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import Link from 'next/link';
 
 interface RowActionsProps {
@@ -29,12 +30,15 @@ interface RowActionsProps {
   isCurrentUser?: boolean;
 }
 
-export default function RowActions({
-  user,
-  isCurrentUser = false
-}: RowActionsProps) {
+export default function RowActions({ user }: RowActionsProps) {
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+
+  const { user: currentUser } = useCurrentUser();
+  const isSelf = !!currentUser && currentUser.id === user.id;
+  // Password reset of another user is restricted to Admin / SuperAdmin (feature 06).
+  const canReset =
+    currentUser?.role === Role.Admin || currentUser?.role === Role.SuperAdmin;
 
   return (
     <>
@@ -67,17 +71,17 @@ export default function RowActions({
               تغيير الدور
             </Link>
           </DropdownMenuItem>
-          {isCurrentUser ? (
+          {isSelf ? (
             <DropdownMenuItem onClick={() => setChangePasswordOpen(true)}>
               <Lock className='mr-2 h-4 w-4' />
               تغيير كلمة المرور
             </DropdownMenuItem>
-          ) : (
+          ) : canReset ? (
             <DropdownMenuItem onClick={() => setResetPasswordOpen(true)}>
               <UserX className='mr-2 h-4 w-4' />
               إعادة تعيين كلمة المرور
             </DropdownMenuItem>
-          )}
+          ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem className='text-red-600'>
             <Trash2 className='mr-2 h-4 w-4' />

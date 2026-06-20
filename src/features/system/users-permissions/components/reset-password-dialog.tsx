@@ -67,7 +67,7 @@ export default function ResetPasswordDialog({
     setLoading(true);
     try {
       const result = await authApiCall(() =>
-        usersPermissionsService.resetPassword({
+        usersPermissionsService.resetPasswordClient({
           userId: user.id,
           newPassword: data.newPassword,
           confirmPassword: data.confirmPassword
@@ -107,10 +107,10 @@ export default function ResetPasswordDialog({
           </DialogTitle>
           <DialogDescription>
             {user ? (
-              <div className='flex items-center gap-2'>
+              <span className='flex items-center gap-2'>
                 <User className='h-4 w-4' />
                 <span>إعادة تعيين كلمة المرور للمستخدم: {user.username}</span>
-              </div>
+              </span>
             ) : (
               'أدخل كلمة المرور الجديدة للمستخدم'
             )}

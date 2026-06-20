@@ -15,8 +15,15 @@ import {
   Key
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { UserPermission, getRoleDisplayName } from '../types/users-permissions';
+import { useState } from 'react';
+import {
+  UserPermission,
+  Role,
+  getRoleDisplayName
+} from '../types/users-permissions';
 import { formatDate } from '@/lib/format';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import ResetPasswordDialog from './reset-password-dialog';
 
 interface UsersPermissionsViewPageProps {
   data: UserPermission;
@@ -26,6 +33,12 @@ export default function UsersPermissionsViewPage({
   data
 }: UsersPermissionsViewPageProps) {
   const router = useRouter();
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+
+  const { user: currentUser } = useCurrentUser();
+  // Password reset is restricted to Admin / SuperAdmin (feature 06).
+  const canReset =
+    currentUser?.role === Role.Admin || currentUser?.role === Role.SuperAdmin;
 
   return (
     <div className='space-y-6'>
@@ -191,18 +204,16 @@ export default function UsersPermissionsViewPage({
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='flex flex-col gap-2'>
-              <Button
-                variant='outline'
-                className='justify-start'
-                onClick={() =>
-                  router.push(
-                    `/system/users-permissions/${data.id}/reset-password`
-                  )
-                }
-              >
-                <Key className='mr-2 h-4 w-4' />
-                إعادة تعيين كلمة المرور
-              </Button>
+              {canReset && (
+                <Button
+                  variant='outline'
+                  className='justify-start'
+                  onClick={() => setResetPasswordOpen(true)}
+                >
+                  <Key className='mr-2 h-4 w-4' />
+                  إعادة تعيين كلمة المرور
+                </Button>
+              )}
               <Button
                 variant='outline'
                 className='justify-start'
@@ -219,6 +230,14 @@ export default function UsersPermissionsViewPage({
           </CardContent>
         </Card>
       </div>
+
+      {canReset && (
+        <ResetPasswordDialog
+          isOpen={resetPasswordOpen}
+          onClose={() => setResetPasswordOpen(false)}
+          user={data}
+        />
+      )}
     </div>
   );
 }
