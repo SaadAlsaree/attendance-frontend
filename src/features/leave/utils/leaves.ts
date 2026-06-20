@@ -123,12 +123,14 @@ export const LEAVE_ERROR_MESSAGES = {
     INVALID_STATUS_VALUE: 'Status must be a valid value',
 } as const;
 
-// Status Constants
+// Status Constants — must match backend LeaveStatus enum
+// (Pending=1, Approved=2, Rejected=3, Cancelled=4). Previously off-by-one (0-3),
+// which made isLeavePending()/status badges/list filters wrong across the module.
 export const LEAVE_STATUS = {
-    PENDING: 0,
-    APPROVED: 1,
-    REJECTED: 2,
-    CANCELLED: 3,
+    PENDING: 1,
+    APPROVED: 2,
+    REJECTED: 3,
+    CANCELLED: 4,
 } as const;
 
 export const LEAVE_STATUS_DISPLAY: Record<number, string> = {
@@ -148,7 +150,7 @@ export const formSchema = (initialData: LeaveItem | null) => {
         startDate: z.string().min(1, "Start date is required"),
         endDate: z.string().min(1, "End date is required"),
         reason: z.string().min(1, "Reason is required").max(500, "Reason cannot exceed 500 characters"),
-        status: z.number().min(0, "Status is required").max(3, "Status must be between 0 and 3").optional(),
+        status: z.number().min(1, "Status is required").max(5, "Status must be between 1 and 5").optional(),
         rejectionReason: z.string().max(500, "Rejection reason cannot exceed 500 characters").optional(),
     }).refine((data) => {
         if (data.startDate && data.endDate) {

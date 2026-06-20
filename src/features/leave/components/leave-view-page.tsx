@@ -80,6 +80,12 @@ export default function LeaveViewPage({ data }: LeaveViewPageProps) {
 
   const leaveDuration = calculateLeaveDays(data.startDate, data.endDate);
 
+  // Feature 08: a status (موقف) is editable only within 24h of being recorded.
+  // Advisory client check; the backend (Leave.EditWindowExpired) is the source of truth.
+  const withinEditWindow =
+    !data.createdAt ||
+    moment().diff(moment(data.createdAt), 'hours', true) <= 24;
+
   return (
     <div className='w-full space-y-6'>
       <div className='flex items-center justify-between'>
@@ -96,6 +102,10 @@ export default function LeaveViewPage({ data }: LeaveViewPageProps) {
             <>
               <Button
                 variant='default'
+                disabled={!withinEditWindow}
+                title={
+                  withinEditWindow ? undefined : 'انتهت مدة التعديل لهذا الموقف'
+                }
                 onClick={() => router.push(`/leave/leaves/${data.id}/edit`)}
               >
                 <Edit className='mr-2 h-4 w-4' />

@@ -61,8 +61,13 @@ export const LeavesService = {
       }
 
       return response.data || null;
-    } catch (error) {
-      return null;
+    } catch (error: any) {
+      // Surface the backend's ProblemDetails message (e.g. the Arabic
+      // Leave.EditWindowExpired error) instead of swallowing it. Return a
+      // structured error rather than throwing — an edit-window rejection is an
+      // expected outcome, and throwing would trip the Next.js dev error overlay.
+      const detail = error?.response?.data?.detail || error?.response?.data?.title;
+      return { error: detail || 'لم يتم تعديل طلب الإجازة!' };
     }
   },
 
