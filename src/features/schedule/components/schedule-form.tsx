@@ -8,8 +8,7 @@ import {
   addDays,
   differenceInDays,
   isAfter,
-  isBefore,
-  startOfDay
+  isBefore
 } from 'date-fns';
 import {
   CalendarIcon,
@@ -95,6 +94,12 @@ interface AttendanceScheduleFormProps {
   employeeData?: EmployeeData[];
   shifts: ShiftData[];
   initialData?: AttendanceScheduleResponse | null;
+}
+
+function normalizeToStartOfDay(date: Date): Date {
+  const normalizedDate = new Date(date);
+  normalizedDate.setHours(0, 0, 0, 0);
+  return normalizedDate;
 }
 
 export default function AttendanceScheduleForm({
@@ -280,7 +285,10 @@ export default function AttendanceScheduleForm({
     if (watchedStartDate && watchedEndDate) {
       const start = new Date(watchedStartDate);
       const end = new Date(watchedEndDate);
-      if (isBefore(date, startOfDay(start)) || isAfter(date, startOfDay(end))) {
+      if (
+        isBefore(date, normalizeToStartOfDay(start)) ||
+        isAfter(date, normalizeToStartOfDay(end))
+      ) {
         toast.error('التاريخ المستثنى يجب أن يكون ضمن فترة الجدولة');
         return;
       }
@@ -644,7 +652,10 @@ export default function AttendanceScheduleForm({
                         }}
                         disabled={(date) => {
                           // Disable past dates
-                          return isBefore(date, startOfDay(new Date()));
+                          return isBefore(
+                            date,
+                            normalizeToStartOfDay(new Date())
+                          );
                         }}
                         initialFocus
                       />
@@ -692,7 +703,10 @@ export default function AttendanceScheduleForm({
                         disabled={(date) => {
                           if (!watchedStartDate) return false;
                           const start = new Date(watchedStartDate);
-                          return isBefore(date, startOfDay(start));
+                          return isBefore(
+                            date,
+                            normalizeToStartOfDay(start)
+                          );
                         }}
                         initialFocus
                       />
@@ -944,8 +958,8 @@ export default function AttendanceScheduleForm({
                       const start = new Date(watchedStartDate);
                       const end = new Date(watchedEndDate);
                       return (
-                        isBefore(date, startOfDay(start)) ||
-                        isAfter(date, startOfDay(end))
+                        isBefore(date, normalizeToStartOfDay(start)) ||
+                        isAfter(date, normalizeToStartOfDay(end))
                       );
                     }}
                     initialFocus

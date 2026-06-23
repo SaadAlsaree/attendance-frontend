@@ -1,12 +1,18 @@
 import { UserPermission, Role } from '@/features/system/users-permissions/types/users-permissions';
 
 /**
+ * Minimal role-bearing shape, so these helpers accept both `UserPermission`
+ * (server, role: Role) and `UserPermissionData` (client hook, role: number).
+ */
+type RoleBearer = { role: Role | number } | null | undefined;
+
+/**
  * Check if the user has a specific role
  * @param user - The user to check
  * @param role - The role to check (Role enum or numeric value)
  * @returns boolean indicating if the user has the role
  */
-export function hasRole(user: UserPermission | null | undefined, role: Role | number): boolean {
+export function hasRole(user: RoleBearer, role: Role | number): boolean {
     if (!user) {
         return false;
     }
@@ -20,7 +26,7 @@ export function hasRole(user: UserPermission | null | undefined, role: Role | nu
  * @param roles - Array of roles (Role enum or numeric values)
  * @returns boolean indicating if the user has any of the roles
  */
-export function hasAnyRole(user: UserPermission | null | undefined, roles: (Role | number)[]): boolean {
+export function hasAnyRole(user: RoleBearer, roles: (Role | number)[]): boolean {
     if (!user || !roles.length) {
         return false;
     }
@@ -34,7 +40,7 @@ export function hasAnyRole(user: UserPermission | null | undefined, roles: (Role
  * @param roles - Array of roles (Role enum or numeric values)
  * @returns boolean indicating if the user has all the roles
  */
-export function hasAllRoles(user: UserPermission | null | undefined, roles: (Role | number)[]): boolean {
+export function hasAllRoles(user: RoleBearer, roles: (Role | number)[]): boolean {
     if (!user || !roles.length) {
         return false;
     }
@@ -53,12 +59,6 @@ export function hasAllRoles(user: UserPermission | null | undefined, roles: (Rol
  * affordances. Security officers (ضباط الامن) are monitoring-only.
  */
 export const VIEW_ONLY_ROLES: (Role | number)[] = [Role.SecurityOfficer];
-
-/**
- * Minimal role-bearing shape, so these helpers accept both `UserPermission`
- * (server, role: Role) and `UserPermissionData` (client hook, role: number).
- */
-type RoleBearer = { role: Role | number } | null | undefined;
 
 /**
  * Whether the user is a view-only role (e.g. security officer).
@@ -121,7 +121,7 @@ export function hasAllPermissions(user: UserPermission | null | undefined, permi
  * @param user - The user to get the role for
  * @returns The user's role
  */
-export function getUserRole(user: UserPermission | null | undefined): Role | undefined {
+export function getUserRole(user: RoleBearer): Role | number | undefined {
     return user?.role;
 }
 
@@ -130,7 +130,7 @@ export function getUserRole(user: UserPermission | null | undefined): Role | und
  * @param user - The user to get roles for
  * @returns Array containing the's role
  */
-export function getUserRoles(user: UserPermission | null | undefined): (Role | number)[] {
+export function getUserRoles(user: RoleBearer): (Role | number)[] {
     if (!user) {
         return [];
     }

@@ -22,8 +22,7 @@ import {
   XCircle,
   Calendar
 } from 'lucide-react';
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface RecentActivity {
@@ -99,9 +98,8 @@ const ActivityItem: React.FC<{ activity: RecentActivity; index: number }> = ({
   };
 
   const statusBadge = getStatusBadge(activity.status);
-  const timeAgo = formatDistanceToNow(parseISO(activity.timestamp), {
-    addSuffix: true,
-    locale: ar
+  const timeAgo = formatDistanceToNow(new Date(activity.timestamp), {
+    addSuffix: true
   });
 
   return (

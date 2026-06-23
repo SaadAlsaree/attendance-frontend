@@ -21,8 +21,7 @@ import {
   X,
   Clock
 } from 'lucide-react';
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import { ar } from 'date-fns/locale';
+import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface Alert {
@@ -94,9 +93,8 @@ const AlertItem: React.FC<{ alert: Alert; index: number }> = ({
   };
 
   const severityBadge = getSeverityBadge(alert.severity);
-  const timeAgo = formatDistanceToNow(parseISO(alert.createdAt), {
-    addSuffix: true,
-    locale: ar
+  const timeAgo = formatDistanceToNow(new Date(alert.createdAt), {
+    addSuffix: true
   });
 
   return (
@@ -152,9 +150,8 @@ const AlertItem: React.FC<{ alert: Alert; index: number }> = ({
           {alert.isResolved && alert.resolvedAt && (
             <div className='text-xs text-green-600'>
               تم الحل{' '}
-              {formatDistanceToNow(parseISO(alert.resolvedAt), {
-                addSuffix: true,
-                locale: ar
+              {formatDistanceToNow(new Date(alert.resolvedAt), {
+                addSuffix: true
               })}
             </div>
           )}

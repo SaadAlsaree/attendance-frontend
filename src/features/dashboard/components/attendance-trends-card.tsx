@@ -37,7 +37,7 @@ import {
   UserX,
   Clock
 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
 interface AttendanceTrend {
@@ -130,7 +130,7 @@ export function AttendanceTrendsCard({
   // Process data for chart
   const chartData = trends.dailyTrends.map((day) => ({
     ...day,
-    date: format(parseISO(day.date), 'dd/MM', { locale: ar }),
+    date: format(new Date(day.date), 'dd/MM', { locale: ar }),
     totalEmployees: day.presentCount + day.absentCount,
     attendanceRate: (
       (day.presentCount / (day.presentCount + day.absentCount)) *
