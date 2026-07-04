@@ -34,7 +34,7 @@ const ShiftPage = async (props: pageProps) => {
 
   // Only Admin (1) / SuperAdmin (8) may create schedules — spec «للادمن فقط»
   const currentUser = await usersPermissionsService.getCurrentUser();
-  const canCreateSchedule = currentUser?.role == 1 || currentUser?.role == 8;
+  const canCreateSchedule = currentUser?.role == 1 || currentUser?.role == 8 || currentUser?.role == 12;
 
   return (
     <PageContainer scrollable={false}>

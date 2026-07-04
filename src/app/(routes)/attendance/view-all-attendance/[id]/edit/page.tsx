@@ -25,7 +25,7 @@ const page = async (props: pageProps) => {
 
   const data = await usersPermissionsService.getCurrentUser();
       
-  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager, Role.OrgSupervisor]);
       
       
   // redirect to home if user is not authorized

@@ -28,9 +28,9 @@ const AssignShiftsPage = async (props: pageProps) => {
 
   const searchTerm = searchParamsCache.get('searchTerm');
 
-  // Admin-only write screen (Admin = 1, SuperAdmin = 8) — matches the backend policy
+  // Scoped write screen (Admin = 1, SuperAdmin = 8, OrgSupervisor = 12) — matches the backend policy
   const currentUser = await usersPermissionsService.getCurrentUser();
-  if (currentUser?.role != 1 && currentUser?.role != 8) {
+  if (currentUser?.role != 1 && currentUser?.role != 8 && currentUser?.role != 12) {
     return (
       <PageContainer>
         <Unauthorized />
