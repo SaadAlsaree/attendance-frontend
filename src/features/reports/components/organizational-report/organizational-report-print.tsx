@@ -4,6 +4,10 @@ import { OrganizationalReportResponse } from '../../types/organization-report';
 import { Users, UserCheck, Calendar, AlertTriangle, Timer } from 'lucide-react';
 import moment from 'moment';
 import 'moment/locale/ar';
+// Importing a moment locale silently makes it the GLOBAL default, which breaks
+// SSR hydration everywhere (server renders 'en' digits, client renders Arabic).
+// Register it, then restore the default — all usages here call .locale('ar') explicitly.
+moment.locale('en');
 import './print-styles.css';
 import {
   BadgeTone,
@@ -12,8 +16,6 @@ import {
   getUnitRows
 } from './report-status-filters';
 
-// Set Arabic locale for moment
-moment.locale('ar');
 
 // Map a status tone to one of the existing print-badge classes.
 const PRINT_BADGE_CLASS: Record<BadgeTone, string> = {
@@ -32,11 +34,11 @@ type Props = {
 const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
   ({ report, status = 'all' }, ref) => {
     const formatDate = (date: string) => {
-      return moment(date).format('dddd DD/MM/YYYY');
+      return moment(date).locale('ar').format('dddd DD/MM/YYYY');
     };
 
     const formatTime = (time: string) => {
-      return moment(time).format('hh:mm A');
+      return moment(time).locale('ar').format('hh:mm A');
     };
 
     // Unified-row formatters (handle the empty time/day cells for
@@ -354,7 +356,7 @@ const OrganizationalReportPrint = forwardRef<HTMLDivElement, Props>(
         >
           <p>
             تم إنشاء هذا التقرير في:{' '}
-            {moment(report?.data?.generatedAt).format('DD/MM/YYYY hh:mm A')}
+            {moment(report?.data?.generatedAt).locale('ar').format('DD/MM/YYYY hh:mm A')}
           </p>
           <p>نظام إدارة الحضور والانصراف</p>
         </div>

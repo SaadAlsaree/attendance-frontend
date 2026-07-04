@@ -106,6 +106,15 @@ export const navItems: NavItem[] = [
         icon: 'page',
         shortcut: ['s', 'h']
       },
+      {
+        title: 'Assign Shifts',
+        arabicTitle: 'تثبيت الدوام',
+        url: '/schedule/assign-shifts',
+        icon: 'userPen',
+        shortcut: ['a', 's'],
+        // Write screen — admin only (feature 14, spec heading «ادارة الجداول»)
+        requiredRoles: [Role.Admin]
+      },
       // {
       //   title: 'Assign Schedules',
       //   arabicTitle: 'تعيين الجداول',

@@ -2,6 +2,10 @@
 import React, { forwardRef } from 'react';
 import moment from 'moment';
 import 'moment/locale/ar';
+// Importing a moment locale silently makes it the GLOBAL default, which breaks
+// SSR hydration everywhere (server renders 'en' digits, client renders Arabic).
+// Register it, then restore the default — all usages here call .locale('ar') explicitly.
+moment.locale('en');
 import { OvertimeReportResponse } from '../../types/overtime-report';
 import './overtime-print-styles.css';
 

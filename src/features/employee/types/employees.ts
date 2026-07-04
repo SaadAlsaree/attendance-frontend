@@ -61,6 +61,27 @@ export interface AssignManagerRequest {
     managerId: string;
 }
 
+// Weekly fixed-shift pattern (feature 14 — تثبيت الدوام)
+// dayOfWeek uses the .NET convention: 0=Sunday (الأحد) … 6=Saturday (السبت)
+export interface WeeklyShiftDay {
+    dayOfWeek: number;
+    shiftId: string;
+}
+
+// Full-replace payload for PUT /employees/{id}/weekly-shifts (empty days = clear pattern)
+export interface AssignWeeklyShiftsRequest {
+    days: WeeklyShiftDay[];
+}
+
+// Weekly pattern entry as returned by GET /employees/{id}
+export interface EmployeeWeeklyShift {
+    dayOfWeek: number;
+    shiftId: string;
+    shiftName: string;
+    startTime: string;
+    endTime: string;
+}
+
 // Employee registration response
 export interface EmployeeRegistrationResponse {
     id: string; // Guid of created employee
@@ -91,6 +112,8 @@ export interface EmployeeData {
     faceImageUrl?: string;
     roleName: string;
     statusName: string;
+    // Present on GET /employees/{id} (feature 14)
+    weeklyShifts?: EmployeeWeeklyShift[];
 }
 
 // Profile response (matches backend ProfileResponse)

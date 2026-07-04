@@ -22,6 +22,7 @@ export const searchParams = {
   sortBy: parseAsString,
   sortOrder: parseAsString,
   searchTerm: parseAsString,
+  tab: parseAsString,
   attendanceStatus: parseAsString,
   date: parseAsString,
   attendanceDefaultsApplied: parseAsString,
