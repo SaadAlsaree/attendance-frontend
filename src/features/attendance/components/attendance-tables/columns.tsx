@@ -237,7 +237,7 @@ export const columns: ColumnDef<AttendanceResponse>[] = [
       const minutes = row.getValue('workingMinutes') as number | null;
       return (
         <div className=''>
-          {minutes ? formatWorkingTime(minutes) : '-'}
+          {minutes != null ? formatWorkingTime(minutes) : '-'}
         </div>
       );
     }
