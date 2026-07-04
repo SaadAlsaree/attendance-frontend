@@ -178,7 +178,8 @@ export default function EmployeeViewPage({ employee }: Props) {
 
   // Helper function to calculate total hours from minutes
   const formatWorkingHours = (minutes: number | null): string => {
-    if (!minutes) return '0 ساعات';
+    if (minutes == null) return '-';
+    if (minutes === 0) return '0 ساعات';
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     if (hours === 0) {

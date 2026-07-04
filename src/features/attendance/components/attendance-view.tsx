@@ -190,7 +190,7 @@ export default function AttendanceViewPage({ data }: AttendanceViewProps) {
                   مدة العمل
                 </p>
                 <p className='text-sm'>
-                  {data.workingMinutes
+                  {data.workingMinutes != null
                     ? formatWorkingTime(data.workingMinutes)
                     : 'غير محدد'}
                 </p>
@@ -236,7 +236,7 @@ export default function AttendanceViewPage({ data }: AttendanceViewProps) {
                   وقت العمل
                 </p>
                 <p className='text-sm'>
-                  {data.workingMinutes
+                  {data.workingMinutes != null
                     ? `${formatWorkingTime(data.workingMinutes)} ساعة`
                     : 'غير محدد'}
                 </p>
