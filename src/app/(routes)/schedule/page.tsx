@@ -3,7 +3,11 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import { ScheduleListing } from '@/features/schedule';
+import {
+  FixedShiftListing,
+  ScheduleListing,
+  ScheduleTabs
+} from '@/features/schedule';
 import { searchParamsCache } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
 import { IconPlus } from '@tabler/icons-react';
@@ -25,6 +29,9 @@ const ShiftPage = async (props: pageProps) => {
 
   searchParamsCache.parse(searchParams);
 
+  // «الجداول» (default) vs «الدوام الثابت» (fixed weekly patterns — feature 14)
+  const tab = searchParamsCache.get('tab') === 'fixed' ? 'fixed' : 'schedules';
+
   // Only Admin (1) / SuperAdmin (8) may create schedules — spec «للادمن فقط»
   const currentUser = await usersPermissionsService.getCurrentUser();
   const canCreateSchedule = currentUser?.role == 1 || currentUser?.role == 8;
@@ -45,12 +52,15 @@ const ShiftPage = async (props: pageProps) => {
         </div>
         <Separator />
 
+        <ScheduleTabs active={tab} />
+
         <Suspense
+          key={tab}
           fallback={
             <DataTableSkeleton columnCount={6} rowCount={8} filterCount={2} />
           }
         >
-          <ScheduleListing />
+          {tab === 'fixed' ? <FixedShiftListing /> : <ScheduleListing />}
         </Suspense>
       </div>
     </PageContainer>

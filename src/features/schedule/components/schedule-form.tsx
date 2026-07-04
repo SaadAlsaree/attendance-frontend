@@ -21,7 +21,8 @@ import {
   CheckCircle,
   Info,
   Check,
-  ChevronsUpDown
+  ChevronsUpDown,
+  AlertTriangle
 } from 'lucide-react';
 
 import {
@@ -73,8 +74,10 @@ import { cn } from '@/lib/utils';
 import {
   ScheduleType,
   type AttendanceScheduleResponse,
+  type FixedShiftDay,
   SCHEDULE_TYPE_OPTIONS
 } from '../types/schedules';
+import { summarizeWeeklyPattern } from '../utils/weekly-pattern';
 import {
   formSchema,
   type FormData,
@@ -83,6 +86,7 @@ import {
   formatDate
 } from '../utils/schedule';
 import { EmployeeData } from '@/features/employee/types/employees';
+import { employeeService } from '@/features/employee/api/employees.service';
 import { ShiftData } from '@/features/shift';
 import { scheduleService } from '@/features/schedule/api/schedule.service';
 import { useAuthApi } from '@/hooks/use-auth-api';
@@ -115,6 +119,12 @@ export default function AttendanceScheduleForm({
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Fixed weekly pattern (تثبيت الدوام) of the selected employee — informational
+  // warning only, never blocks submission. Feature 14.
+  const [fixedPattern, setFixedPattern] = useState<FixedShiftDay[] | null>(
+    null
+  );
+  const fixedPatternRequestRef = useRef(0);
 
   // Employees are searched server-side (by full name OR code) via the page's `searchTerm`
   // query param, so render the server-provided list directly — no client-side re-filter
@@ -174,6 +184,33 @@ export default function AttendanceScheduleForm({
 
   const watchedStartDate = form.watch('startDate');
   const watchedEndDate = form.watch('endDate');
+
+  // When an employee is picked (create mode), check whether they already have a
+  // fixed weekly pattern so the admin knows a schedule is only needed for
+  // temporary exceptions. Failures stay silent — the warning is informational.
+  const watchedEmployeeId = form.watch('employeeId');
+  useEffect(() => {
+    if (initialData || !watchedEmployeeId) {
+      setFixedPattern(null);
+      return;
+    }
+    const requestId = ++fixedPatternRequestRef.current;
+    authApiCall(() => employeeService.getEmployeeByIdClient(watchedEmployeeId))
+      .then((detail) => {
+        if (requestId !== fixedPatternRequestRef.current) {
+          return; // superseded by a newer selection
+        }
+        const weeklyShifts = detail?.data?.weeklyShifts || [];
+        setFixedPattern(
+          weeklyShifts.length > 0 ? (weeklyShifts as FixedShiftDay[]) : null
+        );
+      })
+      .catch(() => {
+        if (requestId === fixedPatternRequestRef.current) {
+          setFixedPattern(null);
+        }
+      });
+  }, [watchedEmployeeId, initialData, authApiCall]);
 
   // Helper function to convert JavaScript day (0-6) to our day format (1-7)
   const getDayOfWeek = (date: Date): number => {
@@ -580,6 +617,21 @@ export default function AttendanceScheduleForm({
                   )}
                 </div>
               </div>
+
+              {fixedPattern && (
+                <Alert className='border-amber-500/60 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200'>
+                  <AlertTriangle className='h-4 w-4 !text-amber-600' />
+                  <AlertDescription>
+                    هذا الموظف لديه <strong>دوام ثابت</strong>:{' '}
+                    {summarizeWeeklyPattern(fixedPattern).join(' · ')}
+                    <br />
+                    لا حاجة لإنشاء جدول له — أنشئ جدولاً فقط إذا أردت تغيير
+                    دوامه لفترة محددة (مثلاً نقله إلى خفر لأسبوعين)، وخلال هذه
+                    الفترة يعمل الموظف حسب الجدول، ثم يعود تلقائياً إلى دوامه
+                    الثابت.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className='flex items-center space-x-2'>
                 <Controller

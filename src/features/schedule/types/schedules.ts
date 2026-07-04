@@ -148,6 +148,33 @@ export interface MySchedulesQuery {
     sortOrder?: string;
 }
 
+// Fixed weekly pattern (feature 14 — تثبيت الدوام)
+// dayOfWeek uses the .NET convention: 0=Sunday (الأحد) … 6=Saturday (السبت)
+export interface FixedShiftDay {
+    dayOfWeek: number;
+    shiftId: string;
+    shiftName: string;
+    startTime: string;
+    endTime: string;
+}
+
+// One row per employee that has a fixed weekly pattern (GET /employees/weekly-shifts)
+export interface EmployeeWeeklyShiftsRow {
+    employeeId: string;
+    fullName: string;
+    empId: string;
+    organizationalUnitName: string | null;
+    days: FixedShiftDay[];
+}
+
+export interface EmployeeWeeklyShiftsQuery {
+    page?: number;
+    pageSize?: number;
+    searchTerm?: string;
+}
+
+export type EmployeeWeeklyShiftsListResponse = PaginatedResponse<EmployeeWeeklyShiftsRow>;
+
 // Response Types
 export type AttendanceScheduleListResponse = PaginatedResponse<AttendanceScheduleResponse>;
 export type AttendanceScheduleDetailResponse = IResponse<AttendanceScheduleResponse>;
