@@ -28,9 +28,11 @@ import {
 import { useReactToPrint } from 'react-to-print';
 import moment from 'moment';
 import 'moment/locale/ar';
+// Importing a moment locale silently makes it the GLOBAL default, which breaks
+// SSR hydration everywhere (server renders 'en' digits, client renders Arabic).
+// Register it, then restore the default — all usages here call .locale('ar') explicitly.
+moment.locale('en');
 
-// Set Arabic locale for moment
-moment.locale('ar');
 
 type Props = {
   report: OrganizationalReportResponse;
@@ -56,7 +58,7 @@ const OrganizationalReportContainer = ({ report }: Props) => {
 
   const onPrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `تقرير الحضور اليومي - ${moment(report?.data?.date).format('DD-MM-YYYY')}`,
+    documentTitle: `تقرير الحضور اليومي - ${moment(report?.data?.date).locale('ar').format('DD-MM-YYYY')}`,
     onAfterPrint: () => {
       console.log('تم طباعة التقرير بنجاح');
     }
@@ -77,7 +79,7 @@ const OrganizationalReportContainer = ({ report }: Props) => {
   };
 
   const formatDate = (date: string) => {
-    return moment(date).format('dddd DD/MM/YYYY');
+    return moment(date).locale('ar').format('dddd DD/MM/YYYY');
   };
 
   const getAttendancePercentage = () => {

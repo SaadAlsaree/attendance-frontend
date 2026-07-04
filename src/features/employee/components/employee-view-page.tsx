@@ -96,7 +96,26 @@ interface EmployeeData {
   leaveDays: number;
   attendanceSchedules: AttendanceSchedule;
   attendances: Attendance[];
+  weeklyShifts?: WeeklyShift[];
 }
+
+interface WeeklyShift {
+  dayOfWeek: number; // 0=Sunday (الأحد) … 6=Saturday (السبت)
+  shiftId: string;
+  shiftName: string;
+  startTime: string;
+  endTime: string;
+}
+
+const WEEK_DAY_NAMES = [
+  'الأحد',
+  'الاثنين',
+  'الثلاثاء',
+  'الأربعاء',
+  'الخميس',
+  'الجمعة',
+  'السبت'
+];
 
 type Props = {
   employee: EmployeeData;
@@ -637,6 +656,26 @@ export default function EmployeeViewPage({ employee }: Props) {
                     <p className='mt-1 text-base font-medium'>
                       {employee?.organizationalUnitName}
                     </p>
+                  </div>
+                  <div>
+                    <label className='text-sm font-medium text-gray-500'>
+                      الدوام الثابت
+                    </label>
+                    {employee?.weeklyShifts?.length ? (
+                      <div className='mt-1 space-y-1'>
+                        {employee.weeklyShifts.map((day) => (
+                          <p key={day.dayOfWeek} className='text-sm'>
+                            <span className='inline-block w-20 font-medium'>
+                              {WEEK_DAY_NAMES[day.dayOfWeek]}:
+                            </span>
+                            {day.shiftName} ({day.startTime.slice(0, 5)} -{' '}
+                            {day.endTime.slice(0, 5)})
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className='mt-1 text-base font-medium'>غير محدد</p>
+                    )}
                   </div>
                 </div>
                 <div className='space-y-4'>

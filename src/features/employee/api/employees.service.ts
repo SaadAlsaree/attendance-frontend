@@ -10,6 +10,7 @@ import {
   ChangePasswordRequest,
   UpdateRoleRequest,
   AssignManagerRequest,
+  AssignWeeklyShiftsRequest,
   ProfileResponse,
   EmployeeUpdateRequest
 } from '../types/employees';
@@ -372,6 +373,23 @@ export const employeeService = {
       return response.status === 204;
     } catch (error) {
       console.error('Error assigning manager:', error);
+      return false;
+    }
+  },
+
+  // Assign weekly fixed-shift pattern — feature 14 (client-side, full replace)
+  async assignWeeklyShiftsClient(
+    id: string,
+    data: AssignWeeklyShiftsRequest
+  ): Promise<boolean> {
+    try {
+      const response = await axiosClient.put(
+        `${baseUrl}/employees/${id}/weekly-shifts`,
+        data
+      );
+      return response.status === 204;
+    } catch (error) {
+      console.error('Error assigning weekly shifts:', error);
       return false;
     }
   },
