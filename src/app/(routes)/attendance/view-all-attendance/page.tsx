@@ -29,7 +29,7 @@ const ViewAllAttendancePage = async (props: pageProps) => {
   const data = await usersPermissionsService.getCurrentUser();
       
   // View gate: monitoring roles (incl. view-only security officers) may view.
-  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer]);
+  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor]);
 
 
   // redirect to home if user is not authorized
@@ -39,7 +39,7 @@ const ViewAllAttendancePage = async (props: pageProps) => {
   
 
   // Manual check-in is a write action — admins only (devices remain the normal path)
-  const canCheckIn = hasAnyRole(data, [Role.Admin]);
+  const canCheckIn = hasAnyRole(data, [Role.Admin, Role.OrgSupervisor]);
 
   let employeesList: EmployeeData[] = [];
   if (canCheckIn) {

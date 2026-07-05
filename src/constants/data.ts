@@ -21,7 +21,7 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
     items: []
   },
   {
@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'settings',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
     items: [
       {
         title: 'View All Attendance',
@@ -63,7 +63,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'user',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
     items: [
       {
         title: 'Employee',
@@ -90,7 +90,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'page',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
     items: [
       {
         title: 'Create Schedules',
@@ -112,8 +112,8 @@ export const navItems: NavItem[] = [
         url: '/schedule/assign-shifts',
         icon: 'userPen',
         shortcut: ['a', 's'],
-        // Write screen — admin only (feature 14, spec heading «ادارة الجداول»)
-        requiredRoles: [Role.Admin]
+        // Write screen — admin + org supervisor (feature 14/17, spec heading «ادارة الجداول»)
+        requiredRoles: [Role.Admin, Role.OrgSupervisor]
       },
       // {
       //   title: 'Assign Schedules',
@@ -144,7 +144,7 @@ export const navItems: NavItem[] = [
     url: '/leave',
     icon: 'page',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
   },
   {
     title: 'Reports',

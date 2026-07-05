@@ -28,9 +28,9 @@ const NewMailFilePage = async (props: pageProps) => {
 
   const searchTerm = searchParamsCache.get('searchTerm');
 
-  // Admin-only: schedule creation is restricted to Admin (1) and SuperAdmin (8) — spec «للادمن فقط»
+  // Scoped: schedule creation is Admin (1), SuperAdmin (8) and OrgSupervisor (12, own unit tree)
   const currentUser = await usersPermissionsService.getCurrentUser();
-  if (currentUser?.role != 1 && currentUser?.role != 8) {
+  if (currentUser?.role != 1 && currentUser?.role != 8 && currentUser?.role != 12) {
     return (
       <PageContainer>
         <Unauthorized />

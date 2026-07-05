@@ -29,7 +29,7 @@ const CustomWorkflowPage = async (props: pageProps) => {
     const data = await usersPermissionsService.getCurrentUser();
 
     // View-only roles (e.g. security officers) may browse employees but not add/edit.
-    const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.SecurityOfficer]);
+    const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.SecurityOfficer, Role.OrgSupervisor]);
     const showAdd = canWrite(data);
 
     // redirect to home if user is not authorized

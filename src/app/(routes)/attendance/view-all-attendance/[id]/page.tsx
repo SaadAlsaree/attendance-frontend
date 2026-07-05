@@ -24,7 +24,7 @@ const page = async (props: pageProps) => {
   const data = await usersPermissionsService.getCurrentUser();
       
   // View gate: monitoring roles (incl. view-only security officers) may view.
-  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer]);
+  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor]);
 
 
   // redirect to home if user is not authorized
