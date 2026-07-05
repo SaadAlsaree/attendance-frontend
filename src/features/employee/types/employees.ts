@@ -105,6 +105,8 @@ export interface EmployeeData {
     managerId?: string;
     managerName?: string;
     isManager: boolean;
+    // True when the employee has a fixed weekly shift pattern (تثبيت الدوام) — from the list endpoint.
+    hasFixedShift: boolean;
     role: Role;
     userLogin: string;
     status: UserStatus;

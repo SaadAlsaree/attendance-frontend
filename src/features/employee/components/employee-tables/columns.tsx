@@ -4,7 +4,14 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, Search } from 'lucide-react';
+import {
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Search,
+  CalendarClock,
+  CalendarPlus
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,13 +24,20 @@ import { formatDate } from '../../utils/employees';
 import Link from 'next/link';
 import { EmployeeData } from '../../types/employees';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { canWrite } from '@/utils/auth/auth-utils';
+import { canWrite, hasAnyRole } from '@/utils/auth/auth-utils';
+import { Role } from '@/features/system/users-permissions/types/users-permissions';
+
+// Roles allowed to assign a fixed weekly pattern (matches the assign-shifts page guard).
+// 12 = OrgSupervisor (feature 17) — a numeric literal so this branch, which predates that
+// enum member, still compiles; it lights up automatically once feature 17 merges.
+const ASSIGN_FIXED_SHIFT_ROLES = [Role.Admin, Role.SuperAdmin, 12];
 
 // Row actions as a component so it can read the current user (hooks). View-only
 // roles (e.g. security officers) see "عرض" only — never "تعديل".
 function EmployeeRowActions({ employee }: { employee: EmployeeData }) {
   const { user } = useCurrentUser();
   const showEdit = canWrite(user);
+  const canAssignShift = hasAnyRole(user, ASSIGN_FIXED_SHIFT_ROLES);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -46,6 +60,16 @@ function EmployeeRowActions({ employee }: { employee: EmployeeData }) {
             <Link href={`/employee/addedit-employees/${employee.id}/edit`}>
               <Edit className='ml-2 h-4 w-4' />
               تعديل
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {canAssignShift && (
+          <DropdownMenuItem asChild>
+            <Link
+              href={`/schedule/assign-shifts?searchTerm=${encodeURIComponent(employee.empId)}`}
+            >
+              <CalendarPlus className='ml-2 h-4 w-4' />
+              {employee.hasFixedShift ? 'تعديل الدوام الثابت' : 'تثبيت الدوام'}
             </Link>
           </DropdownMenuItem>
         )}
@@ -148,6 +172,35 @@ export const columns: ColumnDef<EmployeeData, unknown>[] = [
         </Badge>
       );
     }
+  },
+  {
+    // Fixed weekly shift pattern (تثبيت الدوام). The column `id` is the URL filter
+    // param name, so `meta.options` renders a faceted filter driving `?hasFixedShift=`.
+    id: 'hasFixedShift',
+    accessorKey: 'hasFixedShift',
+    header: 'الدوام الثابت',
+    enableHiding: true,
+    size: 120,
+    minSize: 90,
+    maxSize: 150,
+    cell: ({ row }) => {
+      const hasFixedShift = row.original.hasFixedShift;
+      return (
+        <Badge variant={hasFixedShift ? 'default' : 'secondary'}>
+          {hasFixedShift ? 'مثبت' : 'غير مثبت'}
+        </Badge>
+      );
+    },
+    meta: {
+      label: 'الدوام الثابت',
+      variant: 'select',
+      icon: CalendarClock,
+      options: [
+        { label: 'مثبت', value: 'true' },
+        { label: 'غير مثبت', value: 'false' }
+      ]
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'createdAt',

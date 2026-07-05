@@ -33,6 +33,7 @@ export const searchParams = {
   organizationalUnitId: parseAsString,
   shiftId: parseAsString,
   includeSubUnits: parseAsString,
+  hasFixedShift: parseAsString,
   pageNumber: parseAsInteger.withDefault(1)
 
   // advanced filter
