@@ -63,6 +63,7 @@ const AssignShiftsPage = async (props: pageProps) => {
           <AssignWeeklyShiftsForm
             employees={employeesList}
             shifts={shiftsList}
+            initialSearchTerm={searchTerm ?? ''}
           />
         </Suspense>
       </div>

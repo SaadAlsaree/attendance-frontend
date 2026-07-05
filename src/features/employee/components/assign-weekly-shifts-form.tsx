@@ -71,11 +71,15 @@ const shiftLabel = (shift: ShiftData) =>
 interface AssignWeeklyShiftsFormProps {
   employees: EmployeeData[];
   shifts: ShiftData[];
+  // When the page is deep-linked with ?searchTerm=<empId> (e.g. from the employee
+  // table's «تثبيت الدوام» action), the matching employee is pre-selected on load.
+  initialSearchTerm?: string;
 }
 
 export default function AssignWeeklyShiftsForm({
   employees,
-  shifts
+  shifts,
+  initialSearchTerm = ''
 }: AssignWeeklyShiftsFormProps) {
   const { authApiCall } = useAuthApi();
   const router = useRouter();
@@ -165,6 +169,25 @@ export default function AssignWeeklyShiftsForm({
     setEmployeeOpen(false);
     loadEmployeePattern(employee);
   };
+
+  // One-time pre-selection: when the page is deep-linked to a specific employee
+  // (searchTerm from the employee table's «تثبيت الدوام» action), select them on
+  // load so the pattern editor opens on that employee instead of an empty picker.
+  // Guarded by a ref so a later manual search never re-overrides the user's choice.
+  const didPreselectRef = useRef(false);
+  useEffect(() => {
+    if (didPreselectRef.current) return;
+    const term = initialSearchTerm.trim();
+    if (!term || employees.length === 0) return;
+    const match =
+      employees.find((e) => e.empId === term) ??
+      (employees.length === 1 ? employees[0] : null);
+    if (match) {
+      didPreselectRef.current = true;
+      setSelectedEmployee(match);
+      loadEmployeePattern(match);
+    }
+  }, [initialSearchTerm, employees, loadEmployeePattern]);
 
   const applyQuickFill = () => {
     if (!quickShift) {
