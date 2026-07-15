@@ -13,7 +13,7 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:
 
 export const shiftService = {
   // Get shifts list with pagination and filters
-  async getShiftsList(query: ShiftQuery): Promise<ShiftResponse | null> {
+  async getShiftsList(query: ShiftQuery): Promise<ShiftListResponse | null> {
     try {
       const response = await axiosInstance.get(`${baseUrl}/shifts`, {
         params: query
@@ -22,7 +22,7 @@ export const shiftService = {
         console.error('Error fetching shifts list:', response.statusText);
         return null;
       }
-      return response.data as ShiftResponse;
+      return response.data as ShiftListResponse;
     } catch (error) {
       console.error('Error fetching shifts list:', error);
       return null;

@@ -161,7 +161,7 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-report',
         icon: 'settings',
         shortcut: ['l', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
       },
       {
         title: 'Employee Report',
@@ -180,7 +180,7 @@ export const navItems: NavItem[] = [
     icon: 'post',
     isActive: false,
     // Security officers have NO report access (not monitoring data).
-    requiredRoles: [Role.Admin, Role.Manager],
+    requiredRoles: [Role.Admin, Role.Manager, Role.OrgSupervisor],
     items: [
       // {
       //   title: 'Comprehensive Attendance Report',
@@ -202,7 +202,7 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-summary',
         icon: 'post',
         shortcut: ['a', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
       },
       {
         title: 'Organizational Report',
@@ -210,7 +210,7 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-report',
         icon: 'settings',
         shortcut: ['l', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
       },
       {
         title: 'Overtime Report',

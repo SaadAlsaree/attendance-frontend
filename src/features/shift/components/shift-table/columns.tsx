@@ -16,11 +16,11 @@ import { ShiftData, ShiftResponse } from '@/features/shift/types/shift';
 import { formatTime, formatDate, getActiveStatusText } from '../../utils/shift';
 import { CellAction } from './cell-action';
 
-export const columns: ColumnDef<ShiftResponse>[] = [
+export const columns: ColumnDef<ShiftData>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='اسم المناوبة' />
     ),
     cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
@@ -52,7 +52,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'shiftTypeName',
     accessorKey: 'shiftTypeName',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='نوع المناوبة' />
     ),
     cell: ({ cell }) => {
@@ -67,7 +67,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'startTime',
     accessorKey: 'startTime',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='وقت البداية الدوام' />
     ),
     cell: ({ cell }) => {
@@ -87,7 +87,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'endTime',
     accessorKey: 'endTime',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='وقت النهاية الدوام' />
     ),
     cell: ({ cell }) => {
@@ -107,7 +107,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='الوصف' />
     ),
     cell: ({ cell }) => {
@@ -122,7 +122,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'gracePeriodMinutes',
     accessorKey: 'gracePeriodMinutes',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='فترة السماح' />
     ),
     cell: ({ cell }) => {
@@ -141,7 +141,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'maxLateMinutes',
     accessorKey: 'maxLateMinutes',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='أقصى تأخير' />
     ),
     cell: ({ cell }) => {
@@ -160,7 +160,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'allowEarlyCheckIn',
     accessorKey: 'allowEarlyCheckIn',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='التسجيل المبكر' />
     ),
     cell: ({ cell }) => {
@@ -185,7 +185,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'allowLateCheckOut',
     accessorKey: 'allowLateCheckOut',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='التسجيل المتأخر' />
     ),
     cell: ({ cell }) => {
@@ -210,7 +210,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'isActive',
     accessorKey: 'isActive',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='الحالة' />
     ),
     cell: ({ cell }) => {
@@ -229,7 +229,7 @@ export const columns: ColumnDef<ShiftResponse>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: ({ column }: { column: Column<ShiftResponse, unknown> }) => (
+    header: ({ column }: { column: Column<ShiftData, unknown> }) => (
       <DataTableColumnHeader column={column} title='تاريخ الإنشاء' />
     ),
     cell: ({ cell }) => {

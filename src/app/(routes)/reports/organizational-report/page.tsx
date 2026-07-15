@@ -28,7 +28,7 @@ const OrganizationalReportPage = async ({ searchParams }: Props) => {
 
       
   // Security officers have NO report access (reports are not monitoring data).
-  const canView = hasAnyRole(user, [Role.Admin, Role.Manager, Role.Employee]);
+  const canView = hasAnyRole(user, [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor]);
 
 
   // redirect to home if user is not authorized
