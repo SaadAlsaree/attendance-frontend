@@ -12,7 +12,7 @@ import {
   EmployeeWeeklyShiftsListResponse
 } from '../types/schedules';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const scheduleService = {
   // Get schedules list with pagination and filters

@@ -15,7 +15,7 @@ import {
   EmployeeUpdateRequest
 } from '../types/employees';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const employeeService = {
   // Register new employee
