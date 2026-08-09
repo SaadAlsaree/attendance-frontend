@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-url';
 import {
   DevicePayload,
   DeviceQuery,
@@ -7,7 +8,7 @@ import {
   DeviceData
 } from '../types/devices';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = getApiBaseUrl();
 
 export const devicesService = {
   // Get devices list with pagination and filters (server-side)

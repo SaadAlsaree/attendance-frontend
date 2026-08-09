@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-url';
 import {
   CreateAttendanceLogRequest,
   UpdateAttendanceLogRequest,
@@ -7,7 +8,7 @@ import {
   AttendanceLogDetailResponse
 } from '../types/attendance-logs';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = getApiBaseUrl();
 
 export const attendanceLogService = {
   // Get attendance logs list with pagination and filters

@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-url';
 import {
   CreateShiftRequest,
   UpdateShiftRequest,
@@ -9,7 +10,7 @@ import {
   ShiftResponse
 } from '../types/shift';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = getApiBaseUrl();
 
 export const shiftService = {
   // Get shifts list with pagination and filters

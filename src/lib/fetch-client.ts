@@ -1,7 +1,6 @@
 // lib/fetch-client.ts
 import { getSession } from 'next-auth/react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+import { getApiBaseUrl } from './api-url';
 
 /**
  * Base fetch client for making HTTP requests
@@ -10,6 +9,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
  * @returns Response data
  */
 export async function fetchClient(url: string, options: RequestInit = {}) {
+  const apiUrl = getApiBaseUrl();
+
   // Try to get the session token if we're in a browser environment
   let authHeader = {};
   if (typeof window !== 'undefined') {
@@ -33,7 +34,7 @@ export async function fetchClient(url: string, options: RequestInit = {}) {
   };
 
   // Prepare full URL (handle relative vs absolute URLs)
-  const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
+  const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
 
   // Make the request
   const response = await fetch(fullUrl, {

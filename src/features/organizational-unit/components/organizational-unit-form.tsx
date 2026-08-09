@@ -45,6 +45,8 @@ interface OrganizationalUnitFormProps {
   parentUnits?: IOrganizationalUnitList[];
 }
 
+const NO_PARENT_UNIT_VALUE = 'none';
+
 export default function OrganizationalUnitForm({
   initialData,
   pageTitle,
@@ -174,8 +176,12 @@ export default function OrganizationalUnitForm({
                   <FormItem>
                     <FormLabel>الجهة الأم</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value ?? NO_PARENT_UNIT_VALUE}
+                      onValueChange={(value) =>
+                        field.onChange(
+                          value === NO_PARENT_UNIT_VALUE ? undefined : value
+                        )
+                      }
                     >
                       <FormControl className='w-full'>
                         <SelectTrigger>
@@ -183,11 +189,16 @@ export default function OrganizationalUnitForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {parentUnits?.map((unit) => (
-                          <SelectItem key={unit.id} value={unit.id}>
-                            {unit.unitName}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value={NO_PARENT_UNIT_VALUE}>
+                          بدون جهة أم
+                        </SelectItem>
+                        {parentUnits
+                          .filter((unit) => unit.id !== initialData?.id)
+                          .map((unit) => (
+                            <SelectItem key={unit.id} value={unit.id}>
+                              {unit.unitName}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

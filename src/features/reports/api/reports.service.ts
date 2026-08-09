@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-url';
 
 // Import types from individual files
 import {
@@ -11,7 +12,7 @@ import {
 } from '../types/organizational-summary';
 import { OrganizationalReportRequest } from '../types/organization-report';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000';
+const baseUrl = getApiBaseUrl();
 
 export const reportsService = {
   // Get attendance report

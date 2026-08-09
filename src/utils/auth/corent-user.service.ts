@@ -1,9 +1,10 @@
 import { axiosInstance, axiosClient } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-url';
 import { IResponse } from '@/types/response';
 import { UserDto } from './auth';
 import { UserPermissionData } from '@/features/system/users-permissions/types/users-permissions';
 
-const baseUrl = process.env.API_URL || 'http://localhost:7000';
+const baseUrl = getApiBaseUrl();
 
 class CurrentUserService {
   private cache: {
