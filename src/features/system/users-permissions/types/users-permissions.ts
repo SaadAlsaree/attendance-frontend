@@ -94,6 +94,8 @@ export enum Role {
     SuperAdmin = 8,
     SystemUser = 9,
     SystemManager = 10,
+    SecurityOfficer = 11,
+    OrgSupervisor = 12,
 }
 
 export enum UserStatus {
@@ -125,6 +127,8 @@ export const RoleDisplayNames: Record<Role, string> = {
     [Role.SuperAdmin]: "مدير النظام",
     [Role.SystemUser]: "مستخدم النظام",
     [Role.SystemManager]: "مدير النظام",
+    [Role.SecurityOfficer]: "ضابط أمن",
+    [Role.OrgSupervisor]: "مشرف جهة",
 };
 
 export function getRoleDisplayName(role: Role): string {

@@ -1,4 +1,4 @@
-﻿import PageContainer from '@/components/layout/page-container';
+import PageContainer from '@/components/layout/page-container';
 
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
@@ -31,11 +31,12 @@ const OrganizationalSummaryPage = async ({
 
   const data = await usersPermissionsService.getCurrentUser();
       
-  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
-      
-      
+  // Security officers have NO report access (reports are not monitoring data).
+  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.OrgSupervisor]);
+
+
   // redirect to home if user is not authorized
-        if (!canAdd) {
+        if (!canView) {
             redirect('/');
         }
 

@@ -1,0 +1,168 @@
+/* Self-contained print styles for the overtime report.
+ * NOTE: we deliberately do NOT reuse organizational-report/print-styles.css here,
+ * because that file hard-codes a running @page header of "التقرير الموقف اليومي"
+ * (a generic daily-status title) on every page. This sheet uses the correct
+ * "تقرير العمل الإضافي" running header instead. */
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Arial', sans-serif !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    color: #000 !important;
+    background: white !important;
+  }
+
+  /* Hide UI chrome that should never print */
+  .no-print,
+  .print-hidden,
+  button,
+  .sidebar,
+  .navigation,
+  .header-controls,
+  .lucide,
+  .icon,
+  svg {
+    display: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 15mm;
+    direction: rtl;
+  }
+
+  /* Correct running header/footer for THIS report */
+  @page :first {
+    margin-top: 20mm;
+    @top-center {
+      content: "تقرير العمل الإضافي";
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+
+  @page :left {
+    margin-left: 20mm;
+    margin-right: 15mm;
+    @top-left {
+      content: "تقرير العمل الإضافي";
+      font-size: 12px;
+    }
+    @bottom-left {
+      content: "صفحة " counter(page) " من " counter(pages);
+      font-size: 10px;
+    }
+  }
+
+  @page :right {
+    margin-left: 15mm;
+    margin-right: 20mm;
+    @top-right {
+      content: "تقرير العمل الإضافي";
+      font-size: 12px;
+    }
+    @bottom-right {
+      content: "صفحة " counter(page) " من " counter(pages);
+      font-size: 10px;
+    }
+  }
+
+  .print-container {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    direction: rtl !important;
+    font-family: 'Arial', sans-serif !important;
+  }
+
+  .print-header {
+    text-align: center !important;
+    border-bottom: 2px solid #000 !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 20px !important;
+    page-break-after: avoid !important;
+  }
+
+  .print-title {
+    font-size: 22px !important;
+    font-weight: bold !important;
+    margin-bottom: 6px !important;
+    color: #000 !important;
+  }
+
+  .print-meta {
+    font-size: 12px !important;
+    color: #666 !important;
+    margin-top: 6px !important;
+  }
+
+  .print-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 24px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-stat-card {
+    border: 1px solid #ddd !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+  }
+
+  .print-stat-title {
+    font-size: 11px !important;
+    color: #666 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .print-stat-value {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: #000 !important;
+  }
+
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1px solid #ddd !important;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #ddd !important;
+    padding: 8px !important;
+    text-align: center !important;
+    font-size: 11px !important;
+  }
+
+  .print-table th {
+    background: #f5f5f5 !important;
+    font-weight: bold !important;
+  }
+
+  /* Repeat the table header on every page; never split a row across pages */
+  .print-table thead {
+    display: table-header-group !important;
+  }
+
+  .print-table tr {
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Hidden on screen; react-to-print clones it into the print document */
+@media screen {
+  .print-container {
+    display: none;
+  }
+}

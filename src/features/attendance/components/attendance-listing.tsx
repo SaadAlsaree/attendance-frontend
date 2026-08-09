@@ -21,6 +21,8 @@ export default async function AttendanceListing({
   const date = dateParam || undefined;
   const statusParam = searchParams?.status as string | undefined;
   const organizationId = searchParams?.organizationId as string | undefined;
+  const sortBy = searchParams?.sortBy as string | undefined;
+  const sortOrder = searchParams?.sortOrder as string | undefined;
 
   const filters = {
     page: page ? parseInt(String(page)) : undefined,
@@ -28,7 +30,9 @@ export default async function AttendanceListing({
     ...(searchTerm && { searchTerm: searchTerm }),
     ...(date && { date: date }),
     ...(statusParam && { status: parseInt(statusParam) }),
-    ...(organizationId && { organizationId: organizationId })
+    ...(organizationId && { organizationId: organizationId }),
+    ...(sortBy && { sortBy: sortBy }),
+    ...(sortOrder && { sortOrder: sortOrder })
   };
 
   const data = await attendanceService.getAttendanceList(filters);

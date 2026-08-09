@@ -21,7 +21,7 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
     items: []
   },
   {
@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'settings',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
     items: [
       {
         title: 'View All Attendance',
@@ -63,7 +63,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'user',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
     items: [
       {
         title: 'Employee',
@@ -77,7 +77,9 @@ export const navItems: NavItem[] = [
         arabicTitle: 'إضافة/تعديل الموظفين',
         url: '/employee/addedit-employees',
         icon: 'userPen',
-        shortcut: ['a', 'e']
+        shortcut: ['a', 'e'],
+        // Write screen — never show to view-only roles (e.g. security officers)
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee]
       },
 
     ]
@@ -88,7 +90,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'page',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
     items: [
       {
         title: 'Create Schedules',
@@ -103,6 +105,15 @@ export const navItems: NavItem[] = [
         url: '/schedule/shifts',
         icon: 'page',
         shortcut: ['s', 'h']
+      },
+      {
+        title: 'Assign Shifts',
+        arabicTitle: 'تثبيت الدوام',
+        url: '/schedule/assign-shifts',
+        icon: 'userPen',
+        shortcut: ['a', 's'],
+        // Write screen — admin + org supervisor (feature 14/17, spec heading «ادارة الجداول»)
+        requiredRoles: [Role.Admin, Role.OrgSupervisor]
       },
       // {
       //   title: 'Assign Schedules',
@@ -133,7 +144,7 @@ export const navItems: NavItem[] = [
     url: '/leave',
     icon: 'page',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+    requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.SecurityOfficer, Role.OrgSupervisor],
   },
   {
     title: 'Reports',
@@ -141,6 +152,7 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'post',
     isActive: false,
+    // Security officers have NO report access (not monitoring data).
     requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
     items: [
       {
@@ -149,7 +161,15 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-report',
         icon: 'settings',
         shortcut: ['l', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
+      },
+      {
+        title: 'Employee Report',
+        arabicTitle: 'تقرير موظف',
+        url: '/reports/employee-report',
+        icon: 'user',
+        shortcut: ['e', 'r'],
+        requiredRoles: [Role.Admin],
       },
     ]
   },
@@ -159,7 +179,8 @@ export const navItems: NavItem[] = [
     url: '#',
     icon: 'post',
     isActive: false,
-    requiredRoles: [Role.Admin, Role.Manager],
+    // Security officers have NO report access (not monitoring data).
+    requiredRoles: [Role.Admin, Role.Manager, Role.OrgSupervisor],
     items: [
       // {
       //   title: 'Comprehensive Attendance Report',
@@ -181,7 +202,7 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-summary',
         icon: 'post',
         shortcut: ['a', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
       },
       {
         title: 'Organizational Report',
@@ -189,15 +210,16 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-report',
         icon: 'settings',
         shortcut: ['l', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
       },
-      // {
-      //   title: 'Overtime Reports',
-      //   arabicTitle: 'تقارير العمل الإضافي',
-      //   url: '/reports/overtime-reports',
-      //   icon: 'settings',
-      //   shortcut: ['o', 'r']
-      // },
+      {
+        title: 'Overtime Report',
+        arabicTitle: 'تقرير العمل الإضافي',
+        url: '/reports/overtime-report',
+        icon: 'settings',
+        shortcut: ['o', 'r'],
+        requiredRoles: [Role.Admin, Role.SuperAdmin, Role.Manager],
+      },
       // {
       //   title: 'Leave Reports',
       //   arabicTitle: 'تقارير الإجازة',

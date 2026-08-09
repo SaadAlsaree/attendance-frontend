@@ -81,9 +81,9 @@ export interface ShiftQuery {
 }
 
 // Response Types
-export type ShiftListResponse = PaginatedResponse<ShiftResponse>;
-export type ShiftDetailResponse = IResponse<ShiftResponse>;
-export type ApiShiftResponse = ApiResponse<ShiftResponse>;
+export type ShiftListResponse = PaginatedResponse<ShiftData>;
+export type ShiftDetailResponse = IResponse<ShiftData>;
+export type ApiShiftResponse = ApiResponse<ShiftData>;
 
 // Utility Types
 export interface ShiftTypeOption {

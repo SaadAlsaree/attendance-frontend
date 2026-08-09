@@ -2,7 +2,7 @@ import { axiosInstance, axiosClient } from '@/lib/axios';
 import { getApiBaseUrl } from '@/lib/api-url';
 import { LeaveFilter, LeaveItem, LeaveResponse } from '../types/leaves';
 
-const baseUrl = getApiBaseUrl();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const LeavesService = {
   ///leaves
@@ -62,8 +62,13 @@ export const LeavesService = {
       }
 
       return response.data || null;
-    } catch (error) {
-      return null;
+    } catch (error: any) {
+      // Surface the backend's ProblemDetails message (e.g. the Arabic
+      // Leave.EditWindowExpired error) instead of swallowing it. Return a
+      // structured error rather than throwing — an edit-window rejection is an
+      // expected outcome, and throwing would trip the Next.js dev error overlay.
+      const detail = error?.response?.data?.detail || error?.response?.data?.title;
+      return { error: detail || 'لم يتم تعديل طلب الإجازة!' };
     }
   },
 

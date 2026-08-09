@@ -22,8 +22,10 @@ export const searchParams = {
   sortBy: parseAsString,
   sortOrder: parseAsString,
   searchTerm: parseAsString,
+  tab: parseAsString,
   attendanceStatus: parseAsString,
   date: parseAsString,
+  attendanceDefaultsApplied: parseAsString,
   role: parseAsInteger,
   isActive: parseAsString,
   employeeSearch: parseAsString,
@@ -31,6 +33,7 @@ export const searchParams = {
   organizationalUnitId: parseAsString,
   shiftId: parseAsString,
   includeSubUnits: parseAsString,
+  hasFixedShift: parseAsString,
   pageNumber: parseAsInteger.withDefault(1)
 
   // advanced filter

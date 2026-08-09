@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -8,8 +8,7 @@ import {
   addDays,
   differenceInDays,
   isAfter,
-  isBefore,
-  startOfDay
+  isBefore
 } from 'date-fns';
 import {
   CalendarIcon,
@@ -22,7 +21,8 @@ import {
   CheckCircle,
   Info,
   Check,
-  ChevronsUpDown
+  ChevronsUpDown,
+  AlertTriangle
 } from 'lucide-react';
 
 import {
@@ -74,8 +74,10 @@ import { cn } from '@/lib/utils';
 import {
   ScheduleType,
   type AttendanceScheduleResponse,
+  type FixedShiftDay,
   SCHEDULE_TYPE_OPTIONS
 } from '../types/schedules';
+import { summarizeWeeklyPattern } from '../utils/weekly-pattern';
 import {
   formSchema,
   type FormData,
@@ -84,6 +86,7 @@ import {
   formatDate
 } from '../utils/schedule';
 import { EmployeeData } from '@/features/employee/types/employees';
+import { employeeService } from '@/features/employee/api/employees.service';
 import { ShiftData } from '@/features/shift';
 import { scheduleService } from '@/features/schedule/api/schedule.service';
 import { useAuthApi } from '@/hooks/use-auth-api';
@@ -95,6 +98,12 @@ interface AttendanceScheduleFormProps {
   employeeData?: EmployeeData[];
   shifts: ShiftData[];
   initialData?: AttendanceScheduleResponse | null;
+}
+
+function normalizeToStartOfDay(date: Date): Date {
+  const normalizedDate = new Date(date);
+  normalizedDate.setHours(0, 0, 0, 0);
+  return normalizedDate;
 }
 
 export default function AttendanceScheduleForm({
@@ -109,24 +118,48 @@ export default function AttendanceScheduleForm({
   const [excludedDateOpen, setExcludedDateOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Filter employees based on search term
-  const filteredEmployees = employeeData?.filter((employee) =>
-    employee.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Fixed weekly pattern (تثبيت الدوام) of the selected employee — informational
+  // warning only, never blocks submission. Feature 14.
+  const [fixedPattern, setFixedPattern] = useState<FixedShiftDay[] | null>(
+    null
   );
+  const fixedPatternRequestRef = useRef(0);
 
-  // Handle search input change
+  // Employees are searched server-side (by full name OR code) via the page's `searchTerm`
+  // query param, so render the server-provided list directly — no client-side re-filter
+  // (which previously stripped matches found by employee code).
+  const displayedEmployees = employeeData;
+
+  // Handle search input change — keep the input responsive, debounce the server round-trip
   const handleSearchChange = useCallback(
     (value: string) => {
       setSearchTerm(value);
-      if (initialData) {
-        router.push(`/schedule/${initialData.id}?searchTerm=${value}`);
-      } else {
-        router.push(`/schedule/create-schedule?searchTerm=${value}`);
+
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
       }
+
+      searchDebounceRef.current = setTimeout(() => {
+        const qs = value ? `?searchTerm=${encodeURIComponent(value)}` : '';
+        if (initialData) {
+          router.push(`/schedule/${initialData.id}${qs}`);
+        } else {
+          router.push(`/schedule/create-schedule${qs}`);
+        }
+      }, 350);
     },
     [router, initialData]
   );
+
+  // Clear any pending debounced navigation on unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema(initialData)),
@@ -151,6 +184,33 @@ export default function AttendanceScheduleForm({
 
   const watchedStartDate = form.watch('startDate');
   const watchedEndDate = form.watch('endDate');
+
+  // When an employee is picked (create mode), check whether they already have a
+  // fixed weekly pattern so the admin knows a schedule is only needed for
+  // temporary exceptions. Failures stay silent — the warning is informational.
+  const watchedEmployeeId = form.watch('employeeId');
+  useEffect(() => {
+    if (initialData || !watchedEmployeeId) {
+      setFixedPattern(null);
+      return;
+    }
+    const requestId = ++fixedPatternRequestRef.current;
+    authApiCall(() => employeeService.getEmployeeByIdClient(watchedEmployeeId))
+      .then((detail) => {
+        if (requestId !== fixedPatternRequestRef.current) {
+          return; // superseded by a newer selection
+        }
+        const weeklyShifts = detail?.data?.weeklyShifts || [];
+        setFixedPattern(
+          weeklyShifts.length > 0 ? (weeklyShifts as FixedShiftDay[]) : null
+        );
+      })
+      .catch(() => {
+        if (requestId === fixedPatternRequestRef.current) {
+          setFixedPattern(null);
+        }
+      });
+  }, [watchedEmployeeId, initialData, authApiCall]);
 
   // Helper function to convert JavaScript day (0-6) to our day format (1-7)
   const getDayOfWeek = (date: Date): number => {
@@ -262,7 +322,10 @@ export default function AttendanceScheduleForm({
     if (watchedStartDate && watchedEndDate) {
       const start = new Date(watchedStartDate);
       const end = new Date(watchedEndDate);
-      if (isBefore(date, startOfDay(start)) || isAfter(date, startOfDay(end))) {
+      if (
+        isBefore(date, normalizeToStartOfDay(start)) ||
+        isAfter(date, normalizeToStartOfDay(end))
+      ) {
         toast.error('التاريخ المستثنى يجب أن يكون ضمن فترة الجدولة');
         return;
       }
@@ -478,7 +541,7 @@ export default function AttendanceScheduleForm({
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className='w-[300px] p-0'>
-                            <Command>
+                            <Command shouldFilter={false}>
                               <CommandInput
                                 placeholder='ابحث عن موظف...'
                                 value={searchTerm}
@@ -487,7 +550,7 @@ export default function AttendanceScheduleForm({
                               <CommandList>
                                 <CommandEmpty>لا يوجد موظفين</CommandEmpty>
                                 <CommandGroup>
-                                  {filteredEmployees?.map((employee) => (
+                                  {displayedEmployees?.map((employee) => (
                                     <CommandItem
                                       value={employee.fullName}
                                       key={employee.id}
@@ -554,6 +617,21 @@ export default function AttendanceScheduleForm({
                   )}
                 </div>
               </div>
+
+              {fixedPattern && (
+                <Alert className='border-amber-500/60 bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200'>
+                  <AlertTriangle className='h-4 w-4 !text-amber-600' />
+                  <AlertDescription>
+                    هذا الموظف لديه <strong>دوام ثابت</strong>:{' '}
+                    {summarizeWeeklyPattern(fixedPattern).join(' · ')}
+                    <br />
+                    لا حاجة لإنشاء جدول له — أنشئ جدولاً فقط إذا أردت تغيير
+                    دوامه لفترة محددة (مثلاً نقله إلى خفر لأسبوعين)، وخلال هذه
+                    الفترة يعمل الموظف حسب الجدول، ثم يعود تلقائياً إلى دوامه
+                    الثابت.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className='flex items-center space-x-2'>
                 <Controller
@@ -626,7 +704,10 @@ export default function AttendanceScheduleForm({
                         }}
                         disabled={(date) => {
                           // Disable past dates
-                          return isBefore(date, startOfDay(new Date()));
+                          return isBefore(
+                            date,
+                            normalizeToStartOfDay(new Date())
+                          );
                         }}
                         initialFocus
                       />
@@ -674,7 +755,10 @@ export default function AttendanceScheduleForm({
                         disabled={(date) => {
                           if (!watchedStartDate) return false;
                           const start = new Date(watchedStartDate);
-                          return isBefore(date, startOfDay(start));
+                          return isBefore(
+                            date,
+                            normalizeToStartOfDay(start)
+                          );
                         }}
                         initialFocus
                       />
@@ -926,8 +1010,8 @@ export default function AttendanceScheduleForm({
                       const start = new Date(watchedStartDate);
                       const end = new Date(watchedEndDate);
                       return (
-                        isBefore(date, startOfDay(start)) ||
-                        isAfter(date, startOfDay(end))
+                        isBefore(date, normalizeToStartOfDay(start)) ||
+                        isAfter(date, normalizeToStartOfDay(end))
                       );
                     }}
                     initialFocus

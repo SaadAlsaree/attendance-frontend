@@ -8,7 +8,7 @@ import {
   AttendanceLogDetailResponse
 } from '../types/attendance-logs';
 
-const baseUrl = getApiBaseUrl();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const attendanceLogService = {
   // Get attendance logs list with pagination and filters

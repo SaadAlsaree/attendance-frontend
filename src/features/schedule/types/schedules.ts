@@ -76,6 +76,9 @@ export interface ScheduleDayResponse {
 export interface CreateScheduleDayRequest {
     shiftId: string;
     dayOfWeek: number;
+    // "YYYY-MM-DD" — the date-range create form always supplies this and the backend
+    // validator requires it. Optional here only so the legacy day-of-week helpers compile.
+    scheduleDayDate?: string;
     isActive: boolean;
     notes?: string;
 }
@@ -144,6 +147,33 @@ export interface MySchedulesQuery {
     sortBy?: string;
     sortOrder?: string;
 }
+
+// Fixed weekly pattern (feature 14 — تثبيت الدوام)
+// dayOfWeek uses the .NET convention: 0=Sunday (الأحد) … 6=Saturday (السبت)
+export interface FixedShiftDay {
+    dayOfWeek: number;
+    shiftId: string;
+    shiftName: string;
+    startTime: string;
+    endTime: string;
+}
+
+// One row per employee that has a fixed weekly pattern (GET /employees/weekly-shifts)
+export interface EmployeeWeeklyShiftsRow {
+    employeeId: string;
+    fullName: string;
+    empId: string;
+    organizationalUnitName: string | null;
+    days: FixedShiftDay[];
+}
+
+export interface EmployeeWeeklyShiftsQuery {
+    page?: number;
+    pageSize?: number;
+    searchTerm?: string;
+}
+
+export type EmployeeWeeklyShiftsListResponse = PaginatedResponse<EmployeeWeeklyShiftsRow>;
 
 // Response Types
 export type AttendanceScheduleListResponse = PaginatedResponse<AttendanceScheduleResponse>;

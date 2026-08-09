@@ -10,7 +10,7 @@ import {
   IOrganizationalUnitQuery
 } from '@/features/organizational-unit/types/organizational';
 
-const baseUrl = getApiBaseUrl();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const organizationalService = {
   // Get all organizational units

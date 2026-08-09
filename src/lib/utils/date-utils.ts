@@ -89,4 +89,18 @@ export function setToEndOfDayUTC(date: Date): Date {
         date.getDate(),
         23, 59, 59, 999
     ));
-} 
+}
+
+/**
+ * Today's date as YYYY-MM-DD in the Baghdad (Asia/Baghdad, UTC+3) timezone.
+ * Use this instead of `toISOString().slice(0,10)`, which leaks UTC and returns
+ * the previous day between 00:00-02:59 local time.
+ */
+export function getBaghdadToday(): string {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Baghdad',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date()); // en-CA formats as YYYY-MM-DD
+}

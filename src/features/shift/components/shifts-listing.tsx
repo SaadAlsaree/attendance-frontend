@@ -1,6 +1,6 @@
 import ShiftTable from './shift-table';
 import { searchParamsCache } from '@/lib/searchparams';
-import { ShiftResponse } from '../types/shift';
+import { ShiftData } from '../types/shift';
 import { shiftService } from '../api/shift.service';
 import { columns } from './shift-table/columns';
 
@@ -16,11 +16,11 @@ export default async function ShiftsListing() {
   };
 
   const data = await shiftService.getShiftsList(filters);
-  const totalShifts = data?.totalItems || 0;
-  const shifts = data?.data as unknown as ShiftResponse[];
+  const totalShifts = data?.totalCount || 0;
+  const shifts = data?.data || [];
 
   return (
-    <ShiftTable<ShiftResponse, unknown>
+    <ShiftTable<ShiftData, unknown>
       data={shifts}
       totalItems={totalShifts}
       columns={columns}

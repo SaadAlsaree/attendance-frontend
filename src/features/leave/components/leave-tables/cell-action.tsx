@@ -17,6 +17,8 @@ import { LeaveItem } from '@/features/leave/types/leaves';
 import { LeavesService } from '@/features/leave/api/approvereject-leaves.service';
 import { useAuthApi } from '@/hooks/use-auth-api';
 import { AlertModal } from '@/components/modal/alert-modal';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { canWrite } from '@/utils/auth/auth-utils';
 
 interface CellActionProps {
   data: LeaveItem;
@@ -27,6 +29,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { authApiCall } = useAuthApi();
+  const { user } = useCurrentUser();
+  // View-only roles (e.g. security officers) may only view details.
+  const showEdit = canWrite(user);
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -155,12 +160,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             عرض التفاصيل
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => router.push(`/leave/${data.id}/edit`)}
-          >
-            <Copy className='mr-2 h-4 w-4' />
-            تعديل
-          </DropdownMenuItem>
+          {showEdit && (
+            <DropdownMenuItem
+              onClick={() => router.push(`/leave/${data.id}/edit`)}
+            >
+              <Copy className='mr-2 h-4 w-4' />
+              تعديل
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

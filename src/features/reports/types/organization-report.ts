@@ -14,6 +14,17 @@ export interface EmployeeDetail {
     overtimeDuration: string | null;
 }
 
+export interface NonFingerprintedEmployee {
+    employeeId: string;
+    employeeName: string;
+}
+
+export interface ActionEmployee {
+    employeeId: string;
+    employeeName: string;
+    actionName: string;
+}
+
 export interface Unit {
     unitId: string;
     unitName: string;
@@ -28,6 +39,8 @@ export interface Unit {
     totalLeaves: number;
     totalOvertime: number;
     employeeDetails: EmployeeDetail[];
+    nonFingerprintedEmployees: NonFingerprintedEmployee[];
+    actionEmployees: ActionEmployee[];
 }
 
 export interface OrganizationalReportData {

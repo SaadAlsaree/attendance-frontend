@@ -115,7 +115,10 @@ export default function LeaveForm({
           )
         );
 
-        if (response) {
+        if (response && (response as { error?: string }).error) {
+          // Backend rejected with a message (e.g. the Arabic edit-window error).
+          toast.error((response as { error: string }).error);
+        } else if (response) {
           toast.success('تم تعديل طلب الإجازة بنجاح!');
           router.push('/leave/leaves');
           router.refresh();
@@ -136,9 +139,11 @@ export default function LeaveForm({
           toast.error('لم يتم إنشاء طلب الإجازة!');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Only genuinely unexpected errors reach here; expected backend rejections
+      // (e.g. the Arabic edit-window error) are returned, not thrown.
       console.error(error);
-      toast.error('حدث خطأ!');
+      toast.error(error?.message || 'حدث خطأ!');
     } finally {
       setLoading(false);
     }

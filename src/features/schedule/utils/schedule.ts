@@ -101,6 +101,7 @@ export const formatSchedulePayload = (formData: FormData): CreateAttendanceSched
             .map(day => ({
                 shiftId: day.shiftId,
                 dayOfWeek: day.dayOfWeek ?? 1,
+                scheduleDayDate: day.scheduleDayDate,
                 isActive: day.isActive,
                 notes: day.notes,
             })),

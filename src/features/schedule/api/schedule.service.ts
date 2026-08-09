@@ -8,10 +8,12 @@ import {
   MySchedulesQuery,
   AttendanceScheduleListResponse,
   AttendanceScheduleDetailResponse,
-  ApiAttendanceScheduleResponse
+  ApiAttendanceScheduleResponse,
+  EmployeeWeeklyShiftsQuery,
+  EmployeeWeeklyShiftsListResponse
 } from '../types/schedules';
 
-const baseUrl = getApiBaseUrl();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const scheduleService = {
   // Get schedules list with pagination and filters
@@ -152,6 +154,26 @@ export const scheduleService = {
   },
 
   // Client-side methods (using axiosClient)
+  // Fixed weekly patterns list — feature 14 (server-side)
+  async getFixedShiftsList(
+    query: EmployeeWeeklyShiftsQuery
+  ): Promise<EmployeeWeeklyShiftsListResponse | null> {
+    try {
+      const response = await axiosInstance.get(
+        `${baseUrl}/employees/weekly-shifts`,
+        { params: query }
+      );
+      if (response.status >= 400) {
+        console.error('Error fetching fixed shifts list:', response.statusText);
+        return null;
+      }
+      return (response.data as EmployeeWeeklyShiftsListResponse) || null;
+    } catch (error) {
+      console.error('Error fetching fixed shifts list:', error);
+      return null;
+    }
+  },
+
   async getSchedulesListClient(
     query: AttendanceScheduleQuery
   ): Promise<AttendanceScheduleListResponse | null> {

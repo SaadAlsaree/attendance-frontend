@@ -11,12 +11,22 @@ export default async function EmployeesListing() {
   const status = searchParamsCache.get('status');
   const parentUnitId = searchParamsCache.get('parentUnitId');
 
+  // Fixed-shift facet: the toolbar emits a comma-separated selection, so forward the
+  // filter only when exactly one of true/false is chosen (both / none = no filter).
+  const hasFixedShiftSelection = (searchParamsCache.get('hasFixedShift') ?? '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter((v) => v === 'true' || v === 'false');
+  const hasFixedShift =
+    hasFixedShiftSelection.length === 1 ? hasFixedShiftSelection[0] : undefined;
+
   const filters = {
     page: page ? Number(page) : 1,
     pageSize: pageSize ? Number(pageSize) : 10,
     ...(searchTerm && { searchTerm }),
     ...(status && { status: Number(status) }),
-    ...(parentUnitId && { parentUnitId })
+    ...(parentUnitId && { parentUnitId }),
+    ...(hasFixedShift && { hasFixedShift })
   };
 
   const data = await employeeService.getEmployees(filters);

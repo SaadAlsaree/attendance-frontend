@@ -5,6 +5,8 @@ import { OrganizationalReportResponse } from '../../types/organization-report';
 import OrganizationalReportTable from './organizational-report-table';
 import OrganizationalReportPrint from './organizational-report-print';
 import OrganizationalReportFilter from './organizational-report-filter';
+import ReportStatusFilter from './report-status-filter';
+import { ReportStatusKey } from './report-status-filters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -26,9 +28,11 @@ import {
 import { useReactToPrint } from 'react-to-print';
 import moment from 'moment';
 import 'moment/locale/ar';
+// Importing a moment locale silently makes it the GLOBAL default, which breaks
+// SSR hydration everywhere (server renders 'en' digits, client renders Arabic).
+// Register it, then restore the default — all usages here call .locale('ar') explicitly.
+moment.locale('en');
 
-// Set Arabic locale for moment
-moment.locale('ar');
 
 type Props = {
   report: OrganizationalReportResponse;
@@ -44,9 +48,17 @@ const OrganizationalReportContainer = ({ report }: Props) => {
     defaultValue: 10
   });
 
+  // Status filter — client-side only (shallow URL update, no server refetch).
+  // Drives both the on-screen table and the print view.
+  const [status, setStatus] = useQueryState<ReportStatusKey>('reportStatus', {
+    parse: (value) => (value as ReportStatusKey) || 'all',
+    serialize: (value) => value,
+    defaultValue: 'all'
+  });
+
   const onPrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `تقرير الحضور اليومي - ${moment(report?.data?.date).format('DD-MM-YYYY')}`,
+    documentTitle: `تقرير الحضور اليومي - ${moment(report?.data?.date).locale('ar').format('DD-MM-YYYY')}`,
     onAfterPrint: () => {
       console.log('تم طباعة التقرير بنجاح');
     }
@@ -67,7 +79,7 @@ const OrganizationalReportContainer = ({ report }: Props) => {
   };
 
   const formatDate = (date: string) => {
-    return moment(date).format('dddd DD/MM/YYYY');
+    return moment(date).locale('ar').format('dddd DD/MM/YYYY');
   };
 
   const getAttendancePercentage = () => {
@@ -202,8 +214,14 @@ const OrganizationalReportContainer = ({ report }: Props) => {
             </Card>
           ))}
         </div>
+        {/* Status filter bar */}
+        <ReportStatusFilter
+          data={report?.data}
+          value={status}
+          onChange={setStatus}
+        />
         {/* Detailed Report Table */}
-        <OrganizationalReportTable report={report} />
+        <OrganizationalReportTable report={report} status={status} />
       </div>
 
       {/* Summary Cards for Mobile */}
@@ -252,7 +270,7 @@ const OrganizationalReportContainer = ({ report }: Props) => {
 
       {/* Hidden Print Component */}
       <div style={{ display: 'none' }}>
-        <OrganizationalReportPrint ref={printRef} report={report} />
+        <OrganizationalReportPrint ref={printRef} report={report} status={status} />
       </div>
     </div>
   );

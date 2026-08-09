@@ -258,7 +258,7 @@ export default function CheckOutFormDialog({
               <div>
                 <span className='text-muted-foreground'>مدة العمل:</span>
                 <p className='font-medium'>
-                  {attendance.workingMinutes
+                  {attendance.workingMinutes != null
                     ? `${Math.floor(attendance.workingMinutes / 60)} ساعة و ${attendance.workingMinutes % 60} دقيقة`
                     : 'غير محدد'}
                 </p>

@@ -12,7 +12,7 @@ import {
   Role
 } from '../types/users-permissions';
 
-const baseUrl = getApiBaseUrl();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
 
 export const usersPermissionsService = {
   // Get users permissions list with pagination and filters
