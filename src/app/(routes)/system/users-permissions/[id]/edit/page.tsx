@@ -4,6 +4,7 @@ import { organizationalService } from '@/features/organizational-unit/api/organi
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
 import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 import UsersPermissionsForm from '@/features/system/users-permissions/components/users-permissions-form';
+import { sitesService } from '@/features/system/sites/api/sites.service';
 import React, { Suspense } from 'react';
 import { Role } from '@/features/system/users-permissions/types/users-permissions';
 import { hasAnyRole } from '@/utils/auth/auth-utils';
@@ -32,7 +33,8 @@ const page = async (props: pageProps) => {
 
   const organizationsData = organizations?.data as IOrganizationalUnitList[];
 
-  console.log(user);
+  const sitesData = (await sitesService.getSites()) ?? [];
+
   return (
     <PageContainer>
       <div className='flex-1 space-y-4'>
@@ -41,6 +43,7 @@ const page = async (props: pageProps) => {
             initialData={user}
             pageTitle='تعديل المستخدم'
             organizations={organizationsData}
+            sites={sitesData}
           />
         </Suspense>
       </div>

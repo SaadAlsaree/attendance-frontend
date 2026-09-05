@@ -5,6 +5,7 @@ import FormCardSkeleton from '@/components/form-card-skeleton';
 import { organizationalService } from '@/features/organizational-unit/api/organizational.service';
 import { IOrganizationalUnitList } from '@/features/organizational-unit/types/organizational';
 import UsersPermissionsForm from '@/features/system/users-permissions/components/users-permissions-form';
+import { sitesService } from '@/features/system/sites/api/sites.service';
 import { Role } from '@/features/system/users-permissions/types/users-permissions';
 import { hasAnyRole } from '@/utils/auth/auth-utils';
 import { redirect } from 'next/navigation';
@@ -32,6 +33,8 @@ const NewUserPage = async () => {
   const organizationsData =
     (organizationsResponse?.data as IOrganizationalUnitList[]) || [];
 
+  const sitesData = (await sitesService.getSites()) ?? [];
+
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
@@ -40,6 +43,7 @@ const NewUserPage = async () => {
             initialData={null}
             pageTitle='إضافة مستخدم جديد'
             organizations={organizationsData}
+            sites={sitesData}
           />
         </Suspense>
       </div>

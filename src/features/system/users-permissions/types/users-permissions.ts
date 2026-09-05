@@ -8,6 +8,8 @@ export interface UserPermission {
     createdAt: string;
     lastLoginDate: string;
     organizationalUnitId: string;
+    siteId?: string;
+    siteName?: string;
     organizationalUnitName: string;
     organizationalUnitCode: string;
 }
@@ -43,6 +45,8 @@ export interface UpdateUserRequest {
     status: UserStatus;
     isActive: boolean;
     organizationalUnitId?: string;
+    siteId?: string;
+    siteName?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -67,7 +71,10 @@ export interface CreateUserRequest {
     password: string;
     confirmPassword: string;
     role: Role;
-    organizationalUnitId: string;
+    // Optional: a SiteSupervisor is scoped by its site and has no organizational unit.
+    organizationalUnitId?: string;
+    siteId?: string;
+    siteName?: string;
 }
 
 export interface UserPermissionData {
@@ -80,6 +87,8 @@ export interface UserPermissionData {
     lastLoginDate: string;
     status: number;
     organizationalUnitId: string;
+    siteId?: string;
+    siteName?: string;
     organizationalUnitName: string;
 }
 
@@ -96,6 +105,7 @@ export enum Role {
     SystemManager = 10,
     SecurityOfficer = 11,
     OrgSupervisor = 12,
+    SiteSupervisor = 13,
 }
 
 export enum UserStatus {
@@ -129,6 +139,7 @@ export const RoleDisplayNames: Record<Role, string> = {
     [Role.SystemManager]: "مدير النظام",
     [Role.SecurityOfficer]: "ضابط أمن",
     [Role.OrgSupervisor]: "مشرف جهة",
+    [Role.SiteSupervisor]: "مشرف موقع",
 };
 
 export function getRoleDisplayName(role: Role): string {

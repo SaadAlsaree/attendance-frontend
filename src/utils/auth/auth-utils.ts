@@ -56,9 +56,16 @@ export function hasAllRoles(user: RoleBearer, roles: (Role | number)[]): boolean
 
 /**
  * Roles that are strictly view-only (عرض فقط) and must never see write/create/edit
- * affordances. Security officers (ضباط الامن) are monitoring-only.
+ * affordances. Security officers (ضباط الامن) are monitoring-only, and site supervisors
+ * (مشرفو المواقع) only monitor their site's employees.
+ *
+ * This list is a blacklist: `canWrite` allows by default, so a role omitted here gets every
+ * create/edit/delete button in the app. Add view-only roles here the moment they are introduced.
  */
-export const VIEW_ONLY_ROLES: (Role | number)[] = [Role.SecurityOfficer];
+export const VIEW_ONLY_ROLES: (Role | number)[] = [
+    Role.SecurityOfficer,
+    Role.SiteSupervisor
+];
 
 /**
  * Whether the user is a view-only role (e.g. security officer).

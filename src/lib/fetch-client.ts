@@ -1,6 +1,6 @@
 // lib/fetch-client.ts
 import { getSession } from 'next-auth/react';
-import { getApiBaseUrl } from './api-base';
+import { getApiBaseUrl } from './api-url';
 
 /**
  * Base fetch client for making HTTP requests

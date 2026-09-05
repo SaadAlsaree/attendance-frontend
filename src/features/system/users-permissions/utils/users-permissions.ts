@@ -100,8 +100,29 @@ export const formSchema = (initialData?: any) => {
         status: isEditMode
             ? z.string().min(1, "حالة المستخدم مطلوبة")
             : z.string().optional(),
-        organizationalUnitId: z.string().min(1, "الوحدة التنظيمية مطلوبة"),
+        // Optional: a SiteSupervisor is scoped by its site, not by a unit, and legitimately has none.
+        organizationalUnitId: z.string().optional(),
+        siteId: z.string().optional(),
         isActive: z.boolean().default(true),
+    }).refine((data) => {
+        // A site supervisor draws its whole access scope from its site — the API rejects one
+        // without a site, so block it here too rather than surfacing a server error.
+        if (data.role === String(Role.SiteSupervisor)) {
+            return !!data.siteId;
+        }
+        return true;
+    }, {
+        message: "الموقع مطلوب لدور مشرف الموقع",
+        path: ["siteId"],
+    }).refine((data) => {
+        // Every other role still needs a unit; only the site supervisor is exempt.
+        if (data.role !== String(Role.SiteSupervisor)) {
+            return !!data.organizationalUnitId;
+        }
+        return true;
+    }, {
+        message: "الوحدة التنظيمية مطلوبة",
+        path: ["organizationalUnitId"],
     }).refine((data) => {
         // Only validate password match if passwords are provided
         if (isEditMode) {
