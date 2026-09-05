@@ -92,9 +92,11 @@ async function getClientIPFromAPI(forwardHeaders?: Record<string, string>): Prom
     }
 }
 
-// Create a base axios instance without auth headers
+// Create a base axios instance without auth headers.
+// No baseURL: every caller passes a URL already prefixed with getApiBaseUrl(), and
+// on the client that prefix is the rooted path `/backend-api`, which axios would
+// otherwise concatenate onto a baseURL a second time.
 const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -197,9 +199,8 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-// create axios instance for client side
+// create axios instance for client side (no baseURL, same reason as above)
 const axiosClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

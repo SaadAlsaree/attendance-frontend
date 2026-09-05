@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import {
   CreateAttendanceRequest,
   UpdateAttendanceRequest,
@@ -13,7 +14,7 @@ import {
   NotAttendanceResponse
 } from '../types/attendance';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000/';
+const baseUrl = getApiBaseUrl();
 
 export const attendanceService = {
   // Get attendance list with pagination and filters

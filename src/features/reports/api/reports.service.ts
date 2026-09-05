@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 
 // Import types from individual files
 import {
@@ -19,7 +20,7 @@ import {
   OvertimeReportResponse
 } from '../types/overtime-report';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+const baseUrl = getApiBaseUrl();
 
 export const reportsService = {
   // Get attendance report

@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import {
   UserPermission,
   UsersPermissionsResponse,
@@ -11,7 +12,7 @@ import {
   Role
 } from '../types/users-permissions';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+const baseUrl = getApiBaseUrl();
 
 export const usersPermissionsService = {
   // Get users permissions list with pagination and filters

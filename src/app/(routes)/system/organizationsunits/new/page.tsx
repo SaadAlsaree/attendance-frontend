@@ -1,70 +1,50 @@
-﻿import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save } from "lucide-react";
+import React, { Suspense } from 'react';
+import PageContainer from '@/components/layout/page-container';
+import FormCardSkeleton from '@/components/form-card-skeleton';
+import {
+  OrganizationsUnitsForm,
+  organizationsUnitsService,
+  IOrganizationalUnitList
+} from '@/features/system/organizationsunits';
+import { usersPermissionsService } from '@/features/system/users-permissions/api/users-permissions.service';
 import { Role } from '@/features/system/users-permissions/types/users-permissions';
 import { hasAnyRole } from '@/utils/auth/auth-utils';
 import { redirect } from 'next/navigation';
-import { usersPermissionsService } from "@/features/system/users-permissions/api/users-permissions.service";
 
-export default async function organizationsunitsNewPage() {
-   const data = await usersPermissionsService.getCurrentUser();
-  
-    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
-  
-  
-    // redirect to home if user is not authorized
-    if (!canAdd) {
-        redirect('/');
-    }
+export const metadata = {
+  title: 'إضافة وحدة تنظيمية جديدة',
+  description: 'إضافة وحدة أو جهة إدارية جديدة للنظام'
+};
+
+export default async function OrganizationsUnitsNewPage() {
+  const data = await usersPermissionsService.getCurrentUser();
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager, Role.SuperAdmin]);
+
+  // redirect to home if user is not authorized
+  if (!canAdd) {
+    redirect('/');
+  }
+
+  const response = await organizationsUnitsService.getOrganizationalUnits();
+
+  let parentUnits: IOrganizationalUnitList[] = [];
+  if (Array.isArray(response?.data)) {
+    parentUnits = response.data;
+  } else if (Array.isArray(response)) {
+    parentUnits = response;
+  }
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create New Organizational Units</h1>
-            <p className="text-muted-foreground">
-              Add a new Organizational Units to the system
-            </p>
-          </div>
-        </div>
-        <Button>
-          <Save className="mr-2 h-4 w-4" />
-          Save
-        </Button>
+    <PageContainer scrollable>
+      <div className='flex-1 space-y-4'>
+        <Suspense fallback={<FormCardSkeleton />}>
+          <OrganizationsUnitsForm
+            initialData={null}
+            pageTitle='إضافة وحدة تنظيمية جديدة'
+            parentUnits={parentUnits}
+          />
+        </Suspense>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>New Organizational Units</CardTitle>
-          <CardDescription>
-            Fill in the details to create a new Organizational Units
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Name</label>
-              <input 
-                type="text" 
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Enter name"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Description</label>
-              <textarea 
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md"
-                rows={3}
-                placeholder="Enter description"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </PageContainer>
   );
 }

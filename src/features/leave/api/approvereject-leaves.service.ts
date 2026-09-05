@@ -1,7 +1,8 @@
 import { axiosInstance, axiosClient } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import { LeaveFilter, LeaveItem, LeaveResponse } from '../types/leaves';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+const baseUrl = getApiBaseUrl();
 
 export const LeavesService = {
   ///leaves

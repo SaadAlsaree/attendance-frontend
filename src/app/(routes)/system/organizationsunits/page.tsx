@@ -3,7 +3,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import OrganizationalUnitListing from '@/features/employee/components/employees-listing';
+import { OrganizationsUnitsListing } from '@/features/system/organizationsunits';
 import { searchParamsCache } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
 import { IconPlus } from '@tabler/icons-react';
@@ -28,15 +28,14 @@ const OrganizationsUnitsPage = async (props: pageProps) => {
 
   searchParamsCache.parse(searchParams);
 
-   const data = await usersPermissionsService.getCurrentUser();
-  
-    const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager]);
-  
-  
-    // redirect to home if user is not authorized
-    if (!canAdd) {
-        redirect('/');
-    }
+  const data = await usersPermissionsService.getCurrentUser();
+
+  const canAdd = hasAnyRole(data, [Role.Admin, Role.Manager, Role.SuperAdmin]);
+
+  // redirect to home if user is not authorized
+  if (!canAdd) {
+    redirect('/');
+  }
 
   return (
     <PageContainer scrollable={false}>
@@ -44,7 +43,7 @@ const OrganizationsUnitsPage = async (props: pageProps) => {
         <div className='flex items-start justify-between'>
           <Heading
             title='الوحدات التنظيمية'
-            description='إدارة الهيكل التنظيمي للمؤسسة'
+            description='إدارة الهيكل التنظيمي والجهات الإدارية للمؤسسة'
           />
           <Link
             href='/system/organizationsunits/new'
@@ -57,10 +56,10 @@ const OrganizationsUnitsPage = async (props: pageProps) => {
 
         <Suspense
           fallback={
-            <DataTableSkeleton columnCount={4} rowCount={8} filterCount={2} />
+            <DataTableSkeleton columnCount={6} rowCount={8} filterCount={2} />
           }
         >
-          <OrganizationalUnitListing />
+          <OrganizationsUnitsListing />
         </Suspense>
       </div>
     </PageContainer>

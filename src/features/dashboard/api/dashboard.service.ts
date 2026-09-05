@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import { DashboardData, DashboardRequest } from '../types/dashboard';
 import { ApiResponse, QuickStatsRequest } from '../types/quick-stats';
 import {
@@ -6,7 +7,7 @@ import {
   DashboardStatsRequest
 } from '../types/dashboard-stats';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000/';
+const baseUrl = getApiBaseUrl();
 
 export const dashboardService = {
   // Get complete dashboard data

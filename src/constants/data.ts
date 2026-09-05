@@ -202,7 +202,7 @@ export const navItems: NavItem[] = [
         url: '/reports/organizational-summary',
         icon: 'post',
         shortcut: ['a', 'r'],
-        requiredRoles: [Role.Admin, Role.Manager, Role.Employee, Role.OrgSupervisor],
+        requiredRoles: [Role.Admin, Role.Manager, Role.Employee],
       },
       {
         title: 'Organizational Report',

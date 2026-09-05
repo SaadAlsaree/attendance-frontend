@@ -1,7 +1,6 @@
 // lib/fetch-client.ts
 import { getSession } from 'next-auth/react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+import { getApiBaseUrl } from './api-base';
 
 /**
  * Base fetch client for making HTTP requests
@@ -32,8 +31,10 @@ export async function fetchClient(url: string, options: RequestInit = {}) {
     ...options.headers
   };
 
-  // Prepare full URL (handle relative vs absolute URLs)
-  const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
+  // Prepare full URL (handle relative vs absolute URLs). Resolved per call, not at
+  // module load: `authorize()` runs this in the node process, where the base must be
+  // the absolute API host — `fetch` on the server cannot take a rooted path.
+  const fullUrl = url.startsWith('http') ? url : `${getApiBaseUrl()}${url}`;
 
   // Make the request
   const response = await fetch(fullUrl, {

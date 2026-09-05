@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import {
   EmployeeRegistrationRequest,
   EmployeeRegistrationApiResponse,
@@ -15,7 +16,7 @@ import {
   EmployeeUpdateRequest
 } from '../types/employees';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+const baseUrl = getApiBaseUrl();
 
 export const employeeService = {
   // Register new employee

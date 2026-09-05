@@ -1,4 +1,5 @@
 import { axiosInstance, axiosClient } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import { IResponseList, IResponse } from '@/types/response';
 import {
   IOrganizationalUnitResponse,
@@ -9,7 +10,7 @@ import {
   IOrganizationalUnitQuery
 } from '@/features/organizational-unit/types/organizational';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+const baseUrl = getApiBaseUrl();
 
 export const organizationalService = {
   // Get all organizational units

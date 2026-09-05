@@ -8,9 +8,12 @@ import {
 export const searchParams = {
   page: parseAsInteger.withDefault(1),
   pageSize: parseAsInteger.withDefault(10),
+  perPage: parseAsInteger.withDefault(10),
   parentUnitId: parseAsString,
   status: parseAsInteger,
   searchText: parseAsString,
+  unitName: parseAsString,
+  unitCode: parseAsString,
   startDate: parseAsString,
   endDate: parseAsString,
   employeeId: parseAsString,

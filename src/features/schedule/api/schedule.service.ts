@@ -1,4 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import {
   CreateAttendanceScheduleRequest,
   UpdateAttendanceScheduleRequest,
@@ -12,7 +13,7 @@ import {
   EmployeeWeeklyShiftsListResponse
 } from '../types/schedules';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fp28-back.inss.local:7000';
+const baseUrl = getApiBaseUrl();
 
 export const scheduleService = {
   // Get schedules list with pagination and filters

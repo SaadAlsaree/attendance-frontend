@@ -1,12 +1,14 @@
 import { axiosInstance, axiosClient } from '@/lib/axios';
+import { getApiBaseUrl } from '@/lib/api-base';
 import { IResponse } from '@/types/response';
 import { UserDto } from './auth';
 import { UserPermissionData } from '@/features/system/users-permissions/types/users-permissions';
 
-// Use the public var so the CLIENT path (axiosClient → /users/me) resolves the API
-// host too. `API_URL` is server-only (not inlined into the browser bundle), so the
-// client previously fell back to :7000 and failed CORS. NEXT_PUBLIC_* works on both.
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7080';
+// Resolved per runtime: the browser gets the same-origin `/backend-api` path that
+// nginx proxies to the API, the node process gets the API host directly. A plain
+// `http://…:7000` here is blocked as mixed content on the HTTPS page, which is why
+// the client path (axiosClient → /users/me) used to fail.
+const baseUrl = getApiBaseUrl();
 
 class CurrentUserService {
   private cache: {
