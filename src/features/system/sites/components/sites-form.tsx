@@ -17,7 +17,6 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,8 +28,9 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ArrowRight, MapPin, Save } from 'lucide-react';
+import { ArrowRight, MapPin, Plus, Save, Search, X } from 'lucide-react';
 import { Spinner } from '@/components/spinner';
+import { matchesArabicSearch } from '@/lib/arabic-search';
 import { ISiteDetails } from '../types/sites';
 import { IOrganizationalUnitList } from '@/features/system/organizationsunits/types/organizationsunits';
 import { sitesService } from '../api/sites.service';
@@ -68,19 +68,33 @@ export default function SitesForm({
 
   const selectedUnitIds = form.watch('organizationalUnitIds');
 
-  const filteredUnits = useMemo(() => {
-    const term = unitSearch.trim().toLowerCase();
-
-    if (!term) {
-      return organizationalUnits;
-    }
-
-    return organizationalUnits.filter(
-      (unit) =>
-        unit.unitName?.toLowerCase().includes(term) ||
-        unit.unitCode?.toLowerCase().includes(term)
+  // Selected units always stay visible so a search can never hide what is already ticked —
+  // otherwise a user could search, tick, search again and think their earlier picks were lost.
+  const { suggestions, selectedUnits } = useMemo(() => {
+    const selected = organizationalUnits.filter((unit) =>
+      selectedUnitIds.includes(unit.id)
     );
-  }, [organizationalUnits, unitSearch]);
+
+    const term = unitSearch.trim();
+
+    const matches = organizationalUnits.filter(
+      (unit) =>
+        !selectedUnitIds.includes(unit.id) &&
+        matchesArabicSearch(
+          term,
+          unit.unitName,
+          unit.unitCode,
+          unit.parentUnitName
+        )
+    );
+
+    return {
+      // Cap the dropdown: the org tree runs to hundreds of units and an unbounded list is
+      // unusable as an autocomplete.
+      suggestions: term ? matches.slice(0, 50) : matches.slice(0, 20),
+      selectedUnits: selected
+    };
+  }, [organizationalUnits, selectedUnitIds, unitSearch]);
 
   // Ticking a unit adds ONLY that unit. Its child units are deliberately left alone: site
   // membership is explicit and non-transitive, so no cascade selection here.
@@ -252,31 +266,62 @@ export default function SitesForm({
                     </Badge>
                   </div>
 
-                  <Input
-                    placeholder='ابحث باسم الوحدة أو رمزها...'
-                    value={unitSearch}
-                    onChange={(event) => setUnitSearch(event.target.value)}
-                    className='mb-2'
-                  />
+                  {/* Chips for what is already chosen — these never disappear while searching. */}
+                  {selectedUnits.length > 0 && (
+                    <div className='mb-3 flex flex-wrap gap-2 rounded-md border p-2'>
+                      {selectedUnits.map((unit) => (
+                        <Badge
+                          key={unit.id}
+                          variant='secondary'
+                          className='gap-1 py-1'
+                        >
+                          {unit.unitName}
+                          <button
+                            type='button'
+                            aria-label={`إزالة ${unit.unitName}`}
+                            onClick={() => toggleUnit(unit.id, false)}
+                            className='hover:text-destructive'
+                          >
+                            <X className='h-3 w-3' />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
 
-                  <ScrollArea className='h-72 rounded-md border'>
+                  <div className='relative'>
+                    <Search className='text-muted-foreground absolute top-2.5 right-3 h-4 w-4' />
+                    <Input
+                      placeholder='ابحث باسم الوحدة أو رمزها أو اسم الجهة الأم...'
+                      value={unitSearch}
+                      onChange={(event) => setUnitSearch(event.target.value)}
+                      className='pr-9'
+                      autoComplete='off'
+                    />
+                  </div>
+
+                  <ScrollArea className='mt-2 h-64 rounded-md border'>
                     <div className='divide-y'>
-                      {filteredUnits.length === 0 ? (
+                      {suggestions.length === 0 ? (
                         <p className='text-muted-foreground p-4 text-sm'>
-                          لا توجد وحدات مطابقة
+                          {organizationalUnits.length === 0
+                            ? 'تعذّر تحميل الوحدات التنظيمية'
+                            : unitSearch.trim()
+                              ? `لا توجد وحدات مطابقة لـ "${unitSearch.trim()}"`
+                              : 'كل الوحدات مضافة إلى الموقع'}
                         </p>
                       ) : (
-                        filteredUnits.map((unit) => (
-                          <label
+                        suggestions.map((unit) => (
+                          <button
                             key={unit.id}
-                            className='hover:bg-muted/50 flex cursor-pointer items-center gap-3 p-3'
+                            type='button'
+                            onClick={() => {
+                              toggleUnit(unit.id, true);
+                              setUnitSearch('');
+                            }}
+                            className='hover:bg-muted/50 flex w-full items-center gap-3 p-3 text-right'
                           >
-                            <Checkbox
-                              checked={selectedUnitIds.includes(unit.id)}
-                              onCheckedChange={(checked) =>
-                                toggleUnit(unit.id, checked === true)
-                              }
-                            />
+                            <Plus className='text-muted-foreground h-4 w-4 shrink-0' />
                             <div className='flex-1'>
                               <div className='text-sm font-medium'>
                                 {unit.unitName}
@@ -290,11 +335,14 @@ export default function SitesForm({
                                 </div>
                               )}
                             </div>
-                          </label>
+                          </button>
                         ))
                       )}
                     </div>
                   </ScrollArea>
+                  <p className='text-muted-foreground mt-2 text-xs'>
+                    اختيار وحدة يُضيفها وحدها — تفرعاتها لا تنضم للموقع تلقائياً.
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

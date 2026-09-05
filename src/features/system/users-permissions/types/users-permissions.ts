@@ -46,7 +46,6 @@ export interface UpdateUserRequest {
     isActive: boolean;
     organizationalUnitId?: string;
     siteId?: string;
-    siteName?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -74,7 +73,6 @@ export interface CreateUserRequest {
     // Optional: a SiteSupervisor is scoped by its site and has no organizational unit.
     organizationalUnitId?: string;
     siteId?: string;
-    siteName?: string;
 }
 
 export interface UserPermissionData {

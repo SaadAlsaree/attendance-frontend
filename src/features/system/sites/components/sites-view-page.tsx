@@ -5,16 +5,14 @@ import { organizationsUnitsService } from '@/features/system/organizationsunits/
 import { IOrganizationalUnitList } from '@/features/system/organizationsunits/types/organizationsunits';
 
 export default async function SiteViewPage({ siteId }: { siteId: string }) {
-  const units =
-    (await organizationsUnitsService.getOrganizationalUnitsClient()) ?? [];
+  // Server variant (axiosInstance): the client one skips the auth header outside the browser and
+  // would 401 here, leaving the unit picker silently empty. It returns the whole axios response,
+  // so the payload has to be unwrapped.
+  const unitsResponse = await organizationsUnitsService.getOrganizationalUnits();
+  const units = (unitsResponse?.data as IOrganizationalUnitList[]) ?? [];
 
   if (siteId === 'new') {
-    return (
-      <SitesForm
-        pageTitle='إضافة موقع'
-        organizationalUnits={units as IOrganizationalUnitList[]}
-      />
-    );
+    return <SitesForm pageTitle='إضافة موقع' organizationalUnits={units} />;
   }
 
   const site = await sitesService.getSiteById(siteId);
@@ -27,7 +25,7 @@ export default async function SiteViewPage({ siteId }: { siteId: string }) {
     <SitesForm
       initialData={site}
       pageTitle='تعديل الموقع'
-      organizationalUnits={units as IOrganizationalUnitList[]}
+      organizationalUnits={units}
     />
   );
 }
