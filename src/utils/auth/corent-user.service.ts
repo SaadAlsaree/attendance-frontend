@@ -1,5 +1,5 @@
 import { axiosInstance, axiosClient } from '@/lib/axios';
-import { getApiBaseUrl } from '@/lib/api-base';
+import { getApiBaseUrl } from '@/lib/api-url';
 import { IResponse } from '@/types/response';
 import { UserDto } from './auth';
 import { UserPermissionData } from '@/features/system/users-permissions/types/users-permissions';

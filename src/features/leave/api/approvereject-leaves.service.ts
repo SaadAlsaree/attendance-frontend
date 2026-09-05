@@ -1,5 +1,5 @@
 import { axiosInstance, axiosClient } from '@/lib/axios';
-import { getApiBaseUrl } from '@/lib/api-base';
+import { getApiBaseUrl } from '@/lib/api-url';
 import { LeaveFilter, LeaveItem, LeaveResponse } from '../types/leaves';
 
 const baseUrl = getApiBaseUrl();

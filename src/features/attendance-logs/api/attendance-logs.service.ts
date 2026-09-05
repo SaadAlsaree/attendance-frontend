@@ -1,5 +1,5 @@
 import { axiosClient, axiosInstance } from '@/lib/axios';
-import { getApiBaseUrl } from '@/lib/api-base';
+import { getApiBaseUrl } from '@/lib/api-url';
 import {
   CreateAttendanceLogRequest,
   UpdateAttendanceLogRequest,

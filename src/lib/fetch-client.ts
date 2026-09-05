@@ -9,6 +9,8 @@ import { getApiBaseUrl } from './api-base';
  * @returns Response data
  */
 export async function fetchClient(url: string, options: RequestInit = {}) {
+  const apiUrl = getApiBaseUrl();
+
   // Try to get the session token if we're in a browser environment
   let authHeader = {};
   if (typeof window !== 'undefined') {
@@ -31,10 +33,8 @@ export async function fetchClient(url: string, options: RequestInit = {}) {
     ...options.headers
   };
 
-  // Prepare full URL (handle relative vs absolute URLs). Resolved per call, not at
-  // module load: `authorize()` runs this in the node process, where the base must be
-  // the absolute API host — `fetch` on the server cannot take a rooted path.
-  const fullUrl = url.startsWith('http') ? url : `${getApiBaseUrl()}${url}`;
+  // Prepare full URL (handle relative vs absolute URLs)
+  const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
 
   // Make the request
   const response = await fetch(fullUrl, {

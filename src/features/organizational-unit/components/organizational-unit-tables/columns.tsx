@@ -19,7 +19,9 @@ import { CellAction } from './cell-action';
 
 export const columns: ColumnDef<IOrganizationalUnitList>[] = [
   {
-    id: 'unitName',
+    // The column id is also used as the URL query-string key by useDataTable.
+    // Keep it aligned with the server-side listing filter.
+    id: 'searchText',
     accessorKey: 'unitName',
     header: ({
       column
