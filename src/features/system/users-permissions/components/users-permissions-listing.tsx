@@ -14,7 +14,7 @@ export default async function UsersPermissionsListing() {
   const filters = {
     page: page ? parseInt(String(page)) : undefined,
     pageSize: pageSize ? parseInt(String(pageSize)) : undefined,
-    ...(searchText && { search: searchText }),
+    ...(searchText && { searchTerm: searchText }),
     ...(role && { role: parseInt(String(role)) }),
     ...(isActive && { isActive: isActive === 'true' })
   };

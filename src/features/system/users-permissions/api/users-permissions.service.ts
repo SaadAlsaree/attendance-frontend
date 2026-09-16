@@ -19,7 +19,9 @@ export const usersPermissionsService = {
   async getUsersPermissionsList(query?: {
     page?: number;
     pageSize?: number;
-    search?: string;
+    // Must be named searchTerm: the API binds [AsParameters] GetUsersQuery by property
+    // name, so a `search` key is silently ignored.
+    searchTerm?: string;
     role?: Role;
     isActive?: boolean;
   }): Promise<UsersPermissionsResponse | null> {
@@ -188,7 +190,9 @@ export const usersPermissionsService = {
   async getUsersPermissionsListClient(query?: {
     page?: number;
     pageSize?: number;
-    search?: string;
+    // Must be named searchTerm: the API binds [AsParameters] GetUsersQuery by property
+    // name, so a `search` key is silently ignored.
+    searchTerm?: string;
     role?: Role;
     isActive?: boolean;
   }): Promise<UsersPermissionsResponse | null> {

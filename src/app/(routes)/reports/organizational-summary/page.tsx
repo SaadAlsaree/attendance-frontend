@@ -32,7 +32,7 @@ const OrganizationalSummaryPage = async ({
   const data = await usersPermissionsService.getCurrentUser();
       
   // Security officers have NO report access (reports are not monitoring data).
-  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.OrgSupervisor]);
+  const canView = hasAnyRole(data, [Role.Admin, Role.Manager, Role.OrgSupervisor, Role.SiteSupervisor]);
 
 
   // redirect to home if user is not authorized

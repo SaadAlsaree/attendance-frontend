@@ -42,12 +42,14 @@ interface UsersPermissionsFormProps {
   initialData: UserPermission | null;
   pageTitle: string;
   organizations?: Array<{ id: string; unitName: string; unitCode: string }>;
+  sites?: Array<{ id: string; siteName: string; siteCode: string }>;
 }
 
 export default function UsersPermissionsForm({
   initialData,
   pageTitle,
-  organizations = []
+  organizations = [],
+  sites = []
 }: UsersPermissionsFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -64,6 +66,7 @@ export default function UsersPermissionsForm({
           role: initialData.role?.toString() || '',
           status: initialData.status?.toString() || '',
           organizationalUnitId: initialData.organizationalUnitId || '',
+          siteId: initialData.siteId || '',
           isActive: initialData.isActive ?? true
         }
       : {
@@ -74,6 +77,7 @@ export default function UsersPermissionsForm({
           role: '',
           status: '',
           organizationalUnitId: '',
+          siteId: '',
           isActive: true
         };
   }, [initialData]);
@@ -95,6 +99,7 @@ export default function UsersPermissionsForm({
         role: initialData.role?.toString() || '',
         status: initialData.status?.toString() || '',
         organizationalUnitId: initialData.organizationalUnitId || '',
+        siteId: initialData.siteId || '',
         isActive: initialData.isActive ?? true
       });
     }
@@ -132,6 +137,18 @@ export default function UsersPermissionsForm({
     }));
   }, [organizations]);
 
+  const siteOptions = useMemo(() => {
+    return sites.map((site) => ({
+      label: `${site.siteName} (${site.siteCode})`,
+      value: site.id
+    }));
+  }, [sites]);
+
+  // A site supervisor's whole access scope is its site, so the site becomes required and the
+  // organizational unit becomes optional (the schema enforces the same rule).
+  const isSiteSupervisor =
+    form.watch('role') === String(Role.SiteSupervisor);
+
   // submit
   const onSubmit = async (data: FormValues) => {
     try {
@@ -147,7 +164,10 @@ export default function UsersPermissionsForm({
             ? (Number(data.status) as UserStatus)
             : (initialData.status as UserStatus),
           isActive: data.isActive,
-          organizationalUnitId: data.organizationalUnitId || undefined
+          organizationalUnitId: data.organizationalUnitId || undefined,
+          // Always sent: the API assigns this unconditionally, so omitting it would
+          // silently clear the user's site on every edit.
+          siteId: data.siteId || undefined
         };
 
         const response = await authApiCall(async () =>
@@ -176,7 +196,8 @@ export default function UsersPermissionsForm({
             password,
             confirmPassword,
             role: Number(data.role) as Role,
-            organizationalUnitId: data.organizationalUnitId
+            organizationalUnitId: data.organizationalUnitId || undefined,
+            siteId: data.siteId || undefined
           })
         );
 
@@ -324,6 +345,45 @@ export default function UsersPermissionsForm({
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='siteId'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        الموقع
+                        {isSiteSupervisor && (
+                          <span className='text-destructive'> *</span>
+                        )}
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ''}
+                      >
+                        <FormControl>
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder='اختر الموقع' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {siteOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {isSiteSupervisor && (
+                        <p className='text-muted-foreground text-xs'>
+                          مشرف الموقع يرى موظفي وحدات هذا الموقع فقط — بصلاحية
+                          عرض دون تعديل.
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

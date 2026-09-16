@@ -8,11 +8,10 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  output: 'standalone',
-  poweredByHeader: false,
-  async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }];
-  },
+  // No `output: 'standalone'`. The app is deployed with `npm run start` on the
+  // frontend server, which reads .env from the project directory. The standalone
+  // bundle does not carry .env, so serving it would leave API_URL unset and
+  // getServerApiUrl() would throw on every server-side request.
   images: {
     remotePatterns: [
       {
